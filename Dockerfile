@@ -1,6 +1,9 @@
 FROM python:3.12.4-slim
 
 RUN pip install poetry
+RUN apt-get update && \
+    apt-get -y install gcc && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /equiteez
 COPY poetry.lock pyproject.toml /equiteez/
