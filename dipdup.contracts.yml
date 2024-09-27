@@ -1,0 +1,9 @@
+contracts:
+  orderbook:
+    kind: tezos
+    address: KT1RXqkDC8WKoK6vd6VeUeWnJMqWj47KMGQS
+    typename: orderbook
+  dodo_mav:
+    kind: tezos
+    address: KT1VGRsBKyyd4vbi4cwTJMrM3EXcFwZPGLL7
+    typename: dodo_mav
