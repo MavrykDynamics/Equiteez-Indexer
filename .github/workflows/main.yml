@@ -48,5 +48,3 @@ jobs:
           cache-to: type=gha,mode=max
           tags: ${{ steps.meta-indexer.outputs.tags }}
           labels: ${{ steps.meta-indexer.outputs.labels }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
