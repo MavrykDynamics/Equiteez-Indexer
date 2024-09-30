@@ -9,4 +9,4 @@ async def clear_expired_orders(
     ctx: HandlerContext,
     clear_expired_orders: TezosTransaction[ClearExpiredOrdersParameter, OrderbookStorage],
 ) -> None:
-    ...
+    breakpoint()

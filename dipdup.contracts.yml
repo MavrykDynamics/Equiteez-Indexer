@@ -1,4 +1,8 @@
 contracts:
+  kyc:
+    kind: tezos
+    address: KT1NH3TrEYrdJUnoheg27JzQh8WGPrBAJKxw
+    typename: kyc
   orderbook:
     kind: tezos
     address: KT1RXqkDC8WKoK6vd6VeUeWnJMqWj47KMGQS

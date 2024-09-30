@@ -9,4 +9,4 @@ async def place_buy_order(
     ctx: HandlerContext,
     place_buy_order: TezosTransaction[PlaceBuyOrderParameter, OrderbookStorage],
 ) -> None:
-    ...
+    breakpoint()

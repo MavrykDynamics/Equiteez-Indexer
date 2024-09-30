@@ -1,0 +1,149 @@
+from dipdup.models import Model, fields
+from enum import IntEnum
+from equiteez.models.shared import ContractLambda
+
+###
+# Orderbook Enums
+###
+
+class OrderType(IntEnum):
+    BUY                                     = 0
+    SELL                                    = 1
+
+###
+# Orderbook Tables
+###
+
+class Orderbook(Model):
+    id                                      = fields.IntField(primary_key=True)
+    address                                 = fields.CharField(max_length=36, index=True)
+    # network                                 = fields.CharField(max_length=51, index=True)
+    super_admin                             = fields.CharField(max_length=36, index=True)
+    new_super_admin                         = fields.CharField(max_length=36, index=True, null=True)
+    rwa_token                               = fields.ForeignKeyField('models.Token', related_name='orderbooks')
+    kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='orderbooks')
+    metadata                                = fields.JSONField(null=True)
+    min_expiry_time                         = fields.BigIntField(default=0)
+    min_time_before_closing_order           = fields.BigIntField(default=0)
+    min_buy_order_amount                    = fields.BigIntField(default=0)
+    min_buy_order_value                     = fields.BigIntField(default=0)
+    min_sell_order_amount                   = fields.BigIntField(default=0)
+    min_sell_order_value                    = fields.BigIntField(default=0)
+    buy_order_fee                           = fields.BigIntField(default=0)
+    sell_order_fee                          = fields.BigIntField(default=0)
+    place_buy_order_is_paused               = fields.BooleanField(default=False)
+    place_sell_order_is_paused              = fields.BooleanField(default=False)
+    cancel_order_is_paused                  = fields.BooleanField(default=False)
+    highest_buy_price_order_id              = fields.BigIntField(default=0)
+    highest_buy_price                       = fields.BigIntField(default=0)
+    lowest_sell_price_order_id              = fields.BigIntField(default=0)
+    lowest_sell_price                       = fields.BigIntField(default=0)
+    last_matched_price                      = fields.BigIntField(default=0)
+    last_matched_price_timestamp            = fields.TimeField(null=True)
+    buy_order_counter                       = fields.BigIntField(default=0)
+    sell_order_counter                      = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'orderbook'
+
+class OrderbookLambda(Model, ContractLambda):
+    contract                                = fields.ForeignKeyField('models.Orderbook', related_name='lambdas')
+
+    class Meta:
+        table = 'orderbook_lambda'
+
+class OrderbookCurrency(Model):
+    id                                      = fields.IntField(primary_key=True)
+    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='currencies')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='orderbook_currencies')
+
+    class Meta:
+        table = 'orderbook_currency'
+
+class OrderbookFee(Model):
+    id                                      = fields.IntField(primary_key=True)
+    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='fees')
+    currency                                = fields.TextField(index=True)
+    related_token                           = fields.ForeignKeyField('models.Token', related_name='orderbook_fees', null=True)
+    fee_amount                              = fields.BigIntField(default=0)
+    paid_fee                                = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'orderbook_fee'
+
+class OrderbookRwaOrder(Model):
+    id                                      = fields.IntField(primary_key=True)
+    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='rwa_orders')
+    rwa_token                               = fields.ForeignKeyField('models.Token', related_name='orderbook_rwa_orders')
+
+    class Meta:
+        table = 'orderbook_rwa_order'
+
+class OrderbookRwaOrderBuyPrice(Model):
+    id                                      = fields.IntField(primary_key=True)
+    rwa_order                               = fields.ForeignKeyField('models.OrderbookRwaOrder', related_name='orderbook_rwa_order_buy_prices')
+    counter                                 = fields.BigIntField(default=0)
+    price                                   = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'orderbook_rwa_order_buy_price'
+
+class OrderbookRwaOrderSellPrice(Model):
+    id                                      = fields.IntField(primary_key=True)
+    rwa_order                               = fields.ForeignKeyField('models.OrderbookRwaOrder', related_name='orderbook_rwa_order_sell_prices')
+    counter                                 = fields.BigIntField(default=0)
+    price                                   = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'orderbook_rwa_order_sell_price'
+
+class OrderbookRwaOrderPrice():
+    id                                      = fields.IntField(primary_key=True)
+    order_ids                               = fields.ArrayField(null=True)
+    price                                   = fields.BigIntField(default=0)
+
+class OrderbookRwaOrderBuyOrder(Model, OrderbookRwaOrderPrice):
+    rwa_order                               = fields.ForeignKeyField('models.OrderbookRwaOrder', related_name='orderbook_rwa_order_buy_orders')
+
+    class Meta:
+        table = 'orderbook_rwa_order_buy_order'
+
+class OrderbookRwaOrderSellOrder(Model, OrderbookRwaOrderPrice):
+    rwa_order                               = fields.ForeignKeyField('models.OrderbookRwaOrder', related_name='orderbook_rwa_order_sell_orders')
+
+    class Meta:
+        table = 'orderbook_rwa_order_sell_order'
+
+class OrderbookOrder():
+    id                                      = fields.IntField(primary_key=True)
+    order_id                                = fields.BigIntField(default=0)
+    order_type                              = fields.IntEnumField(enum_type=OrderType, index=True)
+    initiator                               = fields.CharField(max_length=36, index=True)
+    rwa_token_amount                        = fields.BigIntField(default=0)
+    price_per_rwa_token                     = fields.BigIntField(default=0)
+    fulfilled_amount                        = fields.BigIntField(default=0)
+    unfulfilled_amount                      = fields.BigIntField(default=0)
+    total_paid_out                          = fields.BigIntField(default=0)
+    total_usd_value_of_rwa_token_amount     = fields.BigIntField(default=0)
+    is_fulfilled                            = fields.BooleanField(default=False)
+    is_canceled                             = fields.BooleanField(default=False)
+    is_expired                              = fields.BooleanField(default=False)
+    is_refunded                             = fields.BooleanField(default=False)
+    refunded_amount                         = fields.BigIntField(default=0)
+    order_expiry                            = fields.TimeField(null=True)
+    created_at                              = fields.TimeField(null=True)
+    ended_at                                = fields.TimeField(null=True)
+
+class OrderbookBuyOrder(Model, OrderbookOrder):
+    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='buy_orders')
+    currency                                = fields.ForeignKeyField('models.Token', related_name='orderbook_buy_order_currencies')
+
+    class Meta:
+        table = 'orderbook_buy_order'
+
+class OrderbookSellOrder(Model, OrderbookOrder):
+    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='sell_orders')
+    currency                                = fields.ForeignKeyField('models.Token', related_name='orderbook_sell_order_currencies')
+
+    class Meta:
+        table = 'orderbook_sell_order'

@@ -9,4 +9,4 @@ async def deposit_base_token(
     ctx: HandlerContext,
     deposit_base_token: TezosTransaction[DepositBaseTokenParameter, DodoMavStorage],
 ) -> None:
-    ...
+    breakpoint()

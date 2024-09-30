@@ -9,4 +9,4 @@ async def withdraw_all_base_tokens(
     ctx: HandlerContext,
     withdraw_all_base_tokens: TezosTransaction[WithdrawAllBaseTokensParameter, DodoMavStorage],
 ) -> None:
-    ...
+    breakpoint()

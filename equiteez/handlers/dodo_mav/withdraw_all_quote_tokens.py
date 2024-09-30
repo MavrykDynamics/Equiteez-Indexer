@@ -9,4 +9,4 @@ async def withdraw_all_quote_tokens(
     ctx: HandlerContext,
     withdraw_all_quote_tokens: TezosTransaction[WithdrawAllQuoteTokensParameter, DodoMavStorage],
 ) -> None:
-    ...
+    breakpoint()

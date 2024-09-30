@@ -1,4 +1,21 @@
 indexes:
+  kyc:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - kyc
+    types:
+    - origination
+    handlers:
+    - callback: kyc.origination
+      pattern:
+      - type: origination
+        originated_contract: kyc
+    - callback: kyc.set_lambda
+      pattern:
+      - destination: kyc
+        entrypoint: setLambda
   orderbook:
     kind: tezos.operations
     datasources:
@@ -13,6 +30,10 @@ indexes:
       pattern:
       - type: origination
         originated_contract: orderbook
+    - callback: orderbook.set_lambda
+      pattern:
+      - destination: orderbook
+        entrypoint: setLambda
     - callback: orderbook.transfer_fees
       pattern:
       - destination: orderbook
@@ -59,6 +80,10 @@ indexes:
       pattern:
       - type: origination
         originated_contract: dodo_mav
+    - callback: dodo_mav.set_lambda
+      pattern:
+      - destination: dodo_mav
+        entrypoint: setLambda
     - callback: dodo_mav.buy_base_token
       pattern:
       - destination: dodo_mav
