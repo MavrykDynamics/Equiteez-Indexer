@@ -34,6 +34,34 @@ indexes:
       pattern:
       - destination: orderbook
         entrypoint: setLambda
+    - callback: orderbook.set_currency
+      pattern:
+      - destination: orderbook
+        entrypoint: setCurrency
+    - callback: orderbook.set_super_admin
+      pattern:
+      - destination: orderbook
+        entrypoint: setSuperAdmin
+    - callback: orderbook.set_kyc_address
+      pattern:
+      - destination: orderbook
+        entrypoint: setKycAddress
+    - callback: orderbook.claim_super_admin
+      pattern:
+      - destination: orderbook
+        entrypoint: claimSuperAdmin
+    - callback: orderbook.update_metadata
+      pattern:
+      - destination: orderbook
+        entrypoint: updateMetadata
+    - callback: orderbook.update_config
+      pattern:
+      - destination: orderbook
+        entrypoint: updateConfig
+    - callback: orderbook.toggle_pause_entrypoint
+      pattern:
+      - destination: orderbook
+        entrypoint: togglePauseEntrypoint
     - callback: orderbook.transfer_fees
       pattern:
       - destination: orderbook

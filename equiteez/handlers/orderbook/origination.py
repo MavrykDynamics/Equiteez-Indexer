@@ -2,7 +2,7 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
 from equiteez import models as models
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
-from equiteez.utils.utils import get_token_standard, get_contract_metadata, get_contract_token_metadata, register_token
+from equiteez.utils.utils import get_contract_metadata, register_token
 from dateutil import parser 
 
 async def origination(
@@ -89,10 +89,15 @@ async def origination(
     await orderbook.save()
 
     # Prepare the fee ledger
-    for currency in fee_ledger:
-        fee_record      = fee_ledger[currency]
+    for currency_name in fee_ledger:
+        fee_record      = fee_ledger[currency_name]
         fee_amount      = fee_record.nat_0
         paid_fee        = fee_record.nat_1
+        currency, _     = await models.OrderbookCurrency.get_or_create(
+            orderbook       = orderbook,
+            currency_name   = currency_name
+        )
+        await currency.save()
         orderbook_fee   = models.OrderbookFee(
             orderbook   = orderbook,
             currency    = currency,

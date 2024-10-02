@@ -55,7 +55,8 @@ class OrderbookLambda(Model, ContractLambda):
 class OrderbookCurrency(Model):
     id                                      = fields.IntField(primary_key=True)
     orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='currencies')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='orderbook_currencies')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='orderbook_currencies', null=True)
+    currency_name                           = fields.TextField(index=True)
 
     class Meta:
         table = 'orderbook_currency'
@@ -63,7 +64,7 @@ class OrderbookCurrency(Model):
 class OrderbookFee(Model):
     id                                      = fields.IntField(primary_key=True)
     orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='fees')
-    currency                                = fields.TextField(index=True)
+    currency                                = fields.ForeignKeyField('models.OrderbookCurrency', related_name='fees')
     related_token                           = fields.ForeignKeyField('models.Token', related_name='orderbook_fees', null=True)
     fee_amount                              = fields.BigIntField(default=0)
     paid_fee                                = fields.BigIntField(default=0)
@@ -114,11 +115,13 @@ class OrderbookRwaOrderSellOrder(Model, OrderbookRwaOrderPrice):
     class Meta:
         table = 'orderbook_rwa_order_sell_order'
 
-class OrderbookOrder():
+class OrderbookOrder(Model):
     id                                      = fields.IntField(primary_key=True)
+    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='orders')
     order_id                                = fields.BigIntField(default=0)
     order_type                              = fields.IntEnumField(enum_type=OrderType, index=True)
     initiator                               = fields.CharField(max_length=36, index=True)
+    currency                                = fields.ForeignKeyField('models.OrderbookCurrency', related_name='orders')
     rwa_token_amount                        = fields.BigIntField(default=0)
     price_per_rwa_token                     = fields.BigIntField(default=0)
     fulfilled_amount                        = fields.BigIntField(default=0)
@@ -134,16 +137,5 @@ class OrderbookOrder():
     created_at                              = fields.TimeField(null=True)
     ended_at                                = fields.TimeField(null=True)
 
-class OrderbookBuyOrder(Model, OrderbookOrder):
-    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='buy_orders')
-    currency                                = fields.ForeignKeyField('models.Token', related_name='orderbook_buy_order_currencies')
-
     class Meta:
-        table = 'orderbook_buy_order'
-
-class OrderbookSellOrder(Model, OrderbookOrder):
-    orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='sell_orders')
-    currency                                = fields.ForeignKeyField('models.Token', related_name='orderbook_sell_order_currencies')
-
-    class Meta:
-        table = 'orderbook_sell_order'
+        table = 'orderbook_order'
