@@ -35,11 +35,45 @@ async def origination(
     guide_price                     = dodo_mav_origination.storage.guidePrice
     slippage_factor                 = dodo_mav_origination.storage.slippageFactor
 
+    # Create new indexes for all token
+    contracts_to_index  = [
+        quote_token_address,
+        base_token_address,
+        quote_lp_token_address,
+        base_lp_token_address
+    ]
+    for contract_to_index in contracts_to_index:
+        contract_name           = f"{contract_to_index}_contract"
+        balances_index_name     = f"{contract_to_index}_balances_index"
+        transfers_index_name    = f"{contract_to_index}_transfers_index"
+        if not contract_name in ctx.config.contracts: 
+            await ctx.add_contract(
+                kind="tezos",
+                name=contract_name,
+                address=contract_to_index,
+                typename="fa2"
+            )
+        if not balances_index_name in ctx.config.indexes:
+            await ctx.add_index(
+                name=balances_index_name,
+                template="fa2_balances_template",
+                values=dict(
+                    fa2_contract=contract_name
+                )
+            )
+        if not transfers_index_name in ctx.config.indexes:
+            await ctx.add_index(
+                name=transfers_index_name,
+                template="fa2_transfers_template",
+                values=dict(
+                    fa2_contract=contract_name
+                )
+            )
+
     # Get the orderbook
-    orderbook, _   = await models.Orderbook.get_or_create(
+    orderbook                       = await models.Orderbook.get(
         address  = rwa_orderbook_address
     )
-    await orderbook.save()
 
     # Register the various tokens
     quote_token = await register_token(
@@ -60,38 +94,38 @@ async def origination(
     )
 
     # Prepare the dodo mav
-    # dodo_mav = models.DodoMav(
-    #     address                         = address,
-    #     super_admin                     = super_admin,
-    #     new_super_admin                 = new_super_admin,
-    #     rwa_orderbook                   = orderbook,
-    #     maintainer_fee                  = maintainer_fee,
-    #     lp_fee                          = lp_fee,
-    #     fee_decimals                    = fee_decimals,
-    #     price_model                     = price_model,
-    #     appraisal_price                 = appraisal_price,
-    #     fixed_price_percent             = fixed_price_percent,
-    #     orderbook_price_percent         = orderbook_price_percent,
-    #     quote_token                     = quote_token,
-    #     base_token                      = base_token,
-    #     quote_lp_token                  = quote_lp_token,
-    #     base_lp_token                   = base_lp_token,
-    #     quote_balance                   = quote_balance,
-    #     base_balance                    = base_balance,
-    #     target_quote_token_amount       = target_quote_token_amount,
-    #     target_base_token_amount        = target_base_token_amount,
-    #     quote_balance_limit             = quote_balance_limit,
-    #     base_balance_limit              = base_balance_limit,
-    #     r_status                        = r_status,
-    #     guide_price                     = guide_price,
-    #     slippage_factor                 = slippage_factor,
-    # )
+    dodo_mav = models.DodoMav(
+        address                         = address,
+        super_admin                     = super_admin,
+        new_super_admin                 = new_super_admin,
+        rwa_orderbook                   = orderbook,
+        maintainer_fee                  = maintainer_fee,
+        lp_fee                          = lp_fee,
+        fee_decimals                    = fee_decimals,
+        price_model                     = price_model,
+        appraisal_price                 = appraisal_price,
+        fixed_price_percent             = fixed_price_percent,
+        orderbook_price_percent         = orderbook_price_percent,
+        quote_token                     = quote_token,
+        base_token                      = base_token,
+        quote_lp_token                  = quote_lp_token,
+        base_lp_token                   = base_lp_token,
+        quote_balance                   = quote_balance,
+        base_balance                    = base_balance,
+        target_quote_token_amount       = target_quote_token_amount,
+        target_base_token_amount        = target_base_token_amount,
+        quote_balance_limit             = quote_balance_limit,
+        base_balance_limit              = base_balance_limit,
+        r_status                        = r_status,
+        guide_price                     = guide_price,
+        slippage_factor                 = slippage_factor
+    )
 
-    # # Get contract metadata
-    # dodo_mav.metadata = await get_contract_metadata(
-    #     ctx=ctx,
-    #     address=address
-    # )
+    # Get contract metadata
+    dodo_mav.metadata = await get_contract_metadata(
+        ctx=ctx,
+        address=address
+    )
 
-    # # Save the orderbook
-    # await dodo_mav.save()
+    # Save the orderbook
+    await dodo_mav.save()

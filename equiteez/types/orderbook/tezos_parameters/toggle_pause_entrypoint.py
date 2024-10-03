@@ -11,7 +11,7 @@ class TargetEntrypoint(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    cancelOrder: bool
+    cancelOrders: bool
 
 
 class TargetEntrypoint1(BaseModel):

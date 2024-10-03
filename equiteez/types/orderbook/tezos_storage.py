@@ -27,7 +27,7 @@ class BreakGlassConfig(BaseModel):
     )
     placeBuyOrderIsPaused: bool
     placeSellOrderIsPaused: bool
-    cancelOrderIsPaused: bool
+    cancelOrdersIsPaused: bool
 
 
 class FeeLedger(BaseModel):
@@ -87,7 +87,6 @@ class BuyOrderLedger(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    orderType: str
     initiator: str
     rwaTokenAmount: str
     pricePerRwaToken: str
@@ -106,7 +105,6 @@ class SellOrderLedger(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    orderType: str
     initiator: str
     rwaTokenAmount: str
     pricePerRwaToken: str

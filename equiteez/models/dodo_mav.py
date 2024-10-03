@@ -25,7 +25,7 @@ class DodoMav(Model):
     maintainer_fee                          = fields.BigIntField(default=0)
     fee_decimals                            = fields.BigIntField(default=0)
     price_model                             = fields.IntEnumField(enum_type=PriceModel, index=True)
-    appraisal_price                         = fields.BigIntField(default=0)
+    appraisal_price                         = fields.FloatField(default=0)
     fixed_price_percent                     = fields.BigIntField(default=0)
     orderbook_price_percent                 = fields.BigIntField(default=0)
     quote_token                             = fields.ForeignKeyField('models.Token', related_name='dodo_mav_quote_tokens')
@@ -36,10 +36,10 @@ class DodoMav(Model):
     base_balance                            = fields.BigIntField(default=0)
     target_quote_token_amount               = fields.BigIntField(default=0)
     target_base_token_amount                = fields.BigIntField(default=0)
-    quote_balance_limit                     = fields.BigIntField(default=0)
-    base_balance_limit                      = fields.BigIntField(default=0)
+    quote_balance_limit                     = fields.FloatField(default=0)
+    base_balance_limit                      = fields.FloatField(default=0)
     r_status                                = fields.BigIntField(default=0)
-    guide_price                             = fields.BigIntField(default=0)
+    guide_price                             = fields.FloatField(default=0)
     slippage_factor                         = fields.BigIntField(default=0)
 
     class Meta:

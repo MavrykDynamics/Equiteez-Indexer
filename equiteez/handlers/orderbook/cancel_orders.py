@@ -1,18 +1,18 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 from equiteez import models as models
-from equiteez.types.orderbook.tezos_parameters.admin_cancel_orders import AdminCancelOrdersParameter
+from equiteez.types.orderbook.tezos_parameters.cancel_orders import CancelOrderParameter
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
 from dateutil import parser
 
-async def admin_cancel_orders(
+async def cancel_orders(
     ctx: HandlerContext,
-    admin_cancel_orders: TezosTransaction[AdminCancelOrdersParameter, OrderbookStorage],
+    cancel_orders: TezosTransaction[CancelOrderParameter, OrderbookStorage],
 ) -> None:
     # Fetch operation info
-    address             = admin_cancel_orders.data.target_address
-    buy_order_ledger    = admin_cancel_orders.storage.buyOrderLedger
-    sell_order_ledger   = admin_cancel_orders.storage.sellOrderLedger
+    address             = cancel_orders.data.target_address
+    buy_order_ledger    = cancel_orders.storage.buyOrderLedger
+    sell_order_ledger   = cancel_orders.storage.sellOrderLedger
 
     # Get orderbook
     orderbook           = await models.Orderbook.get(

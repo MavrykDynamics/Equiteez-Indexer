@@ -19,4 +19,3 @@ async def set_super_admin(
     )
     orderbook.new_super_admin   = new_super_admin
     await orderbook.save()
-    

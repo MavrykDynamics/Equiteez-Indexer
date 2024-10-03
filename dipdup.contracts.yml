@@ -1,13 +1,17 @@
 contracts:
   kyc:
     kind: tezos
-    address: KT1NH3TrEYrdJUnoheg27JzQh8WGPrBAJKxw
+    address: KT1FfnYVL6tJi8S5YBVnsDEBwdF8uyZv73VV
     typename: kyc
   orderbook:
     kind: tezos
-    address: KT1RXqkDC8WKoK6vd6VeUeWnJMqWj47KMGQS
+    address: KT1LrRt8FHJqpzoip2Y2RWfKDNQ3DKtXHM4c
     typename: orderbook
   dodo_mav:
     kind: tezos
-    address: KT1VGRsBKyyd4vbi4cwTJMrM3EXcFwZPGLL7
+    address: KT1AcTJu2vsQr9k39tU92hAKM5XLGg8iRr75
     typename: dodo_mav
+  fa2:
+    kind: tezos
+    address: KT1K3yqtMqgiqSLFvaBaxyCy8wbijuoMas4R
+    typename: fa2

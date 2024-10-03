@@ -56,7 +56,7 @@ class KycRegistrar(Model):
     name                                    = fields.TextField(index=True)
     kyc_admins                              = fields.ArrayField()
     member_verified                         = fields.BigIntField(default=0)
-    created_at                              = fields.TimeField(null=True)
+    created_at                              = fields.DatetimeField(null=True)
     set_member_is_paused                    = fields.BooleanField(default=False)
     freeze_member_is_paused                 = fields.BooleanField(default=False)
     unfreeze_member_is_paused               = fields.BooleanField(default=False)
@@ -84,7 +84,7 @@ class KycMember(Model):
     country                                 = fields.TextField(index=True, null=True)
     region                                  = fields.TextField(index=True, null=True)
     investor_type                           = fields.TextField(index=True, null=True)
-    expire_at                               = fields.TimeField(null=True)
+    expire_at                               = fields.DatetimeField(null=True)
     frozen                                  = fields.BooleanField(default=False)
    
     class Meta:

@@ -21,4 +21,3 @@ async def claim_super_admin(
     orderbook.new_super_admin   = new_super_admin
     orderbook.super_admin       = super_admin
     await orderbook.save()
-    

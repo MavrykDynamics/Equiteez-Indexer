@@ -62,7 +62,7 @@ async def place_buy_order(
     for buy_order_id in buy_order_ledger:
         # Get buy order parameters
         buy_order_record                    = buy_order_ledger[buy_order_id]
-        order_type                          = models.OrderType.BUY if buy_order_record.orderType == "BUY" else models.OrderType.SELL
+        order_type                          = models.OrderType.BUY
         initiator                           = buy_order_record.initiator
         rwa_token_amount                    = buy_order_record.rwaTokenAmount
         price_per_rwa_token                 = buy_order_record.pricePerRwaToken

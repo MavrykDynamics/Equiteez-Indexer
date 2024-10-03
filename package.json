@@ -6,7 +6,7 @@
     "setup-env": "poetry install",
     "start-sandbox": "docker compose -f equiteez/deploy/docker-compose.yml up -d",
     "clear-sandbox": "docker compose -f equiteez/deploy/docker-compose.yml down -v --remove-orphans",
-    "init-types": "poetry run dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.yml init -f",
+    "init-types": "poetry run dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.types.yml init -f",
     "start": "poetry run dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.yml run",
     "wipe": "poetry run dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.yml schema wipe --force",
     "restart": "yarn wipe && yarn start",

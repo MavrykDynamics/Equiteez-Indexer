@@ -25,7 +25,7 @@ async def origination(
     sell_order_fee                  = orderbook_origination.storage.config.sellOrderFee
     place_buy_order_is_paused       = orderbook_origination.storage.breakGlassConfig.placeBuyOrderIsPaused
     place_sell_order_is_paused      = orderbook_origination.storage.breakGlassConfig.placeSellOrderIsPaused
-    cancel_order_is_paused          = orderbook_origination.storage.breakGlassConfig.cancelOrderIsPaused
+    cancel_orders_is_paused         = orderbook_origination.storage.breakGlassConfig.cancelOrdersIsPaused
     highest_buy_price_order_id      = orderbook_origination.storage.highestBuyPrice.orderId
     highest_buy_price               = orderbook_origination.storage.highestBuyPrice.price
     lowest_sell_price_order_id      = orderbook_origination.storage.lowestSellPrice.orderId
@@ -62,7 +62,7 @@ async def origination(
         sell_order_fee                  = sell_order_fee,
         place_buy_order_is_paused       = place_buy_order_is_paused,
         place_sell_order_is_paused      = place_sell_order_is_paused,
-        cancel_order_is_paused          = cancel_order_is_paused,
+        cancel_orders_is_paused         = cancel_orders_is_paused,
         highest_buy_price_order_id      = highest_buy_price_order_id,
         highest_buy_price               = highest_buy_price,
         lowest_sell_price_order_id      = lowest_sell_price_order_id,

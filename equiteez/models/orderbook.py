@@ -17,11 +17,10 @@ class OrderType(IntEnum):
 class Orderbook(Model):
     id                                      = fields.IntField(primary_key=True)
     address                                 = fields.CharField(max_length=36, index=True)
-    # network                                 = fields.CharField(max_length=51, index=True)
-    super_admin                             = fields.CharField(max_length=36, index=True)
+    super_admin                             = fields.CharField(max_length=36, index=True, null=True)
     new_super_admin                         = fields.CharField(max_length=36, index=True, null=True)
-    rwa_token                               = fields.ForeignKeyField('models.Token', related_name='orderbooks')
-    kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='orderbooks')
+    rwa_token                               = fields.ForeignKeyField('models.Token', related_name='orderbooks', null=True)
+    kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='orderbooks', null=True)
     metadata                                = fields.JSONField(null=True)
     min_expiry_time                         = fields.BigIntField(default=0)
     min_time_before_closing_order           = fields.BigIntField(default=0)
@@ -33,7 +32,7 @@ class Orderbook(Model):
     sell_order_fee                          = fields.BigIntField(default=0)
     place_buy_order_is_paused               = fields.BooleanField(default=False)
     place_sell_order_is_paused              = fields.BooleanField(default=False)
-    cancel_order_is_paused                  = fields.BooleanField(default=False)
+    cancel_orders_is_paused                 = fields.BooleanField(default=False)
     highest_buy_price_order_id              = fields.BigIntField(default=0)
     highest_buy_price                       = fields.BigIntField(default=0)
     lowest_sell_price_order_id              = fields.BigIntField(default=0)
@@ -133,9 +132,9 @@ class OrderbookOrder(Model):
     is_expired                              = fields.BooleanField(default=False)
     is_refunded                             = fields.BooleanField(default=False)
     refunded_amount                         = fields.BigIntField(default=0)
-    order_expiry                            = fields.TimeField(null=True)
-    created_at                              = fields.TimeField(null=True)
-    ended_at                                = fields.TimeField(null=True)
+    order_expiry                            = fields.DatetimeField(null=True)
+    created_at                              = fields.DatetimeField(null=True)
+    ended_at                                = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'orderbook_order'
