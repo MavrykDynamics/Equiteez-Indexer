@@ -9,4 +9,13 @@ async def update_guide_price(
     ctx: HandlerContext,
     update_guide_price: TezosTransaction[UpdateGuidePriceParameter, DodoMavStorage],
 ) -> None:
-    breakpoint()
+    # Fetch operation info
+    address                             = update_guide_price.data.target_address
+    guide_price                         = update_guide_price.storage.guidePrice
+
+    # Update dodo mav
+    dodo_mav    = await models.DodoMav.get(
+        address = address
+    )
+    dodo_mav.guide_price                = guide_price
+    await dodo_mav.save()

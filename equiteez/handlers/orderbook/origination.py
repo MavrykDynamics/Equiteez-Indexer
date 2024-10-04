@@ -39,6 +39,7 @@ async def origination(
     rwa_order_ledger                = orderbook_origination.storage.rwaOrderLedger
     buy_order_ledger                = orderbook_origination.storage.buyOrderLedger
     sell_order_ledger               = orderbook_origination.storage.sellOrderLedger
+    # pause_ledger                    = orderbook_origination.storage.pauseLedger
 
     # Get KYC
     kyc  = await models.Kyc.get(
@@ -146,3 +147,13 @@ async def origination(
     # Prepare the sell order ledger
     for sell_order_record in sell_order_ledger:
         breakpoint()
+
+    # # Save the entrypoints status
+    # for entrypoint in pause_ledger:
+    #     paused  = pause_ledger[entrypoint]
+    #     entrypoint_status   = models.DodoMavEntrypointStatus(
+    #         dodo_mav    = dodo_mav,
+    #         entrypoint  = entrypoint,
+    #         paused      = paused
+    #     )
+    #     await entrypoint_status.save()

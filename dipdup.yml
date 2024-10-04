@@ -16,80 +16,80 @@ indexes:
       pattern:
       - destination: kyc
         entrypoint: setLambda
-  orderbook:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - orderbook
-    types:
-    - transaction
-    - origination
-    handlers:
-    - callback: orderbook.origination
-      pattern:
-      - type: origination
-        originated_contract: orderbook
-    - callback: orderbook.set_lambda
-      pattern:
-      - destination: orderbook
-        entrypoint: setLambda
-    - callback: orderbook.set_currency
-      pattern:
-      - destination: orderbook
-        entrypoint: setCurrency
-    - callback: orderbook.set_super_admin
-      pattern:
-      - destination: orderbook
-        entrypoint: setSuperAdmin
-    - callback: orderbook.set_kyc_address
-      pattern:
-      - destination: orderbook
-        entrypoint: setKycAddress
-    - callback: orderbook.claim_super_admin
-      pattern:
-      - destination: orderbook
-        entrypoint: claimSuperAdmin
-    - callback: orderbook.update_metadata
-      pattern:
-      - destination: orderbook
-        entrypoint: updateMetadata
-    - callback: orderbook.update_config
-      pattern:
-      - destination: orderbook
-        entrypoint: updateConfig
-    - callback: orderbook.toggle_pause_entrypoint
-      pattern:
-      - destination: orderbook
-        entrypoint: togglePauseEntrypoint
-    - callback: orderbook.transfer_fees
-      pattern:
-      - destination: orderbook
-        entrypoint: transferFees
-    - callback: orderbook.clear_expired_orders
-      pattern:
-      - destination: orderbook
-        entrypoint: clearExpiredOrders
-    - callback: orderbook.match_orders
-      pattern:
-      - destination: orderbook
-        entrypoint: matchOrders
-    - callback: orderbook.place_buy_order
-      pattern:
-      - destination: orderbook
-        entrypoint: placeBuyOrder
-    - callback: orderbook.place_sell_order
-      pattern:
-      - destination: orderbook
-        entrypoint: placeSellOrder
-    - callback: orderbook.cancel_orders
-      pattern:
-      - destination: orderbook
-        entrypoint: cancelOrders
-    - callback: orderbook.process_refund
-      pattern:
-      - destination: orderbook
-        entrypoint: processRefund
+  # orderbook:
+  #   kind: tezos.operations
+  #   datasources:
+  #   - mvkt_atlasnet
+  #   contracts:
+  #   - orderbook
+  #   types:
+  #   - transaction
+  #   - origination
+  #   handlers:
+  #   - callback: orderbook.origination
+  #     pattern:
+  #     - type: origination
+  #       originated_contract: orderbook
+  #   - callback: orderbook.set_lambda
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: setLambda
+  #   - callback: orderbook.set_currency
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: setCurrency
+  #   - callback: orderbook.set_super_admin
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: setSuperAdmin
+  #   - callback: orderbook.set_kyc_address
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: setKycAddress
+  #   - callback: orderbook.claim_super_admin
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: claimSuperAdmin
+  #   - callback: orderbook.update_metadata
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: updateMetadata
+  #   - callback: orderbook.update_config
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: updateConfig
+  #   - callback: orderbook.toggle_pause_entrypoint
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: togglePauseEntrypoint
+  #   - callback: orderbook.transfer_fees
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: transferFees
+  #   - callback: orderbook.clear_expired_orders
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: clearExpiredOrders
+  #   - callback: orderbook.match_orders
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: matchOrders
+  #   - callback: orderbook.place_buy_order
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: placeBuyOrder
+  #   - callback: orderbook.place_sell_order
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: placeSellOrder
+  #   - callback: orderbook.cancel_orders
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: cancelOrders
+  #   - callback: orderbook.process_refund
+  #     pattern:
+  #     - destination: orderbook
+  #       entrypoint: processRefund
   dodo_mav:
     kind: tezos.operations
     datasources:

@@ -9,4 +9,15 @@ async def deposit_quote_token(
     ctx: HandlerContext,
     deposit_quote_token: TezosTransaction[DepositQuoteTokenParameter, DodoMavStorage],
 ) -> None:
-    breakpoint()
+    # Fetch operation info
+    address                     = deposit_quote_token.data.target_address
+    quote_balance               = deposit_quote_token.storage.quoteBalance
+    target_quote_token_amount   = deposit_quote_token.storage.targetQuoteTokenAmount
+
+    # Get dodo mav
+    dodo_mav        = await models.DodoMav.get(
+        address = address
+    )
+    dodo_mav.quote_balance              = quote_balance
+    dodo_mav.target_quote_token_amount  = target_quote_token_amount
+    await dodo_mav.save()

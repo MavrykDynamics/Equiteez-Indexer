@@ -9,4 +9,15 @@ async def withdraw_base_token(
     ctx: HandlerContext,
     withdraw_base_token: TezosTransaction[WithdrawBaseTokenParameter, DodoMavStorage],
 ) -> None:
-    breakpoint()
+    # Fetch operation info
+    address                     = withdraw_base_token.data.target_address
+    base_balance                = withdraw_base_token.storage.baseBalance
+    target_base_token_amount    = withdraw_base_token.storage.targetBaseTokenAmount
+
+    # Get dodo mav
+    dodo_mav        = await models.DodoMav.get(
+        address = address
+    )
+    dodo_mav.base_balance               = base_balance
+    dodo_mav.target_base_token_amount   = target_base_token_amount
+    await dodo_mav.save()

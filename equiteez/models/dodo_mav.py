@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda
+from equiteez.models.shared import ContractLambda, EntrypointStatus
 
 ###
 # DodoMav Enums
@@ -32,10 +32,10 @@ class DodoMav(Model):
     base_token                              = fields.ForeignKeyField('models.Token', related_name='dodo_mav_base_tokens')
     quote_lp_token                          = fields.ForeignKeyField('models.Token', related_name='dodo_mav_quote_lp_tokens')
     base_lp_token                           = fields.ForeignKeyField('models.Token', related_name='dodo_mav_base_lp_tokens')
-    quote_balance                           = fields.BigIntField(default=0)
-    base_balance                            = fields.BigIntField(default=0)
-    target_quote_token_amount               = fields.BigIntField(default=0)
-    target_base_token_amount                = fields.BigIntField(default=0)
+    quote_balance                           = fields.FloatField(default=0)
+    base_balance                            = fields.FloatField(default=0)
+    target_quote_token_amount               = fields.FloatField(default=0)
+    target_base_token_amount                = fields.FloatField(default=0)
     quote_balance_limit                     = fields.FloatField(default=0)
     base_balance_limit                      = fields.FloatField(default=0)
     r_status                                = fields.BigIntField(default=0)
@@ -50,6 +50,12 @@ class DodoMavLambda(Model, ContractLambda):
 
     class Meta:
         table = 'dodo_mav_lambda'
+
+class DodoMavEntrypointStatus(Model, EntrypointStatus):
+    contract                                = fields.ForeignKeyField('models.DodoMav', related_name='entrypoint_status')
+
+    class Meta:
+        table = 'dodo_mav_entrypoint_status'
 
 class DodoMavPause(Model):
     id                                      = fields.IntField(primary_key=True)

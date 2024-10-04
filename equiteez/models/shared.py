@@ -31,6 +31,11 @@ class ContractLambda():
     lambda_name                             = fields.CharField(max_length=128, default="")
     lambda_bytes                            = fields.TextField(default="")
 
+class EntrypointStatus():
+    id                                      = fields.IntField(primary_key=True)
+    entrypoint                              = fields.TextField()
+    paused                                  = fields.BooleanField(default=False)
+
 class EquiteezUser(Model):
     id                                      = fields.IntField(primary_key=True)
     address                                 = fields.CharField(max_length=36, index=True)

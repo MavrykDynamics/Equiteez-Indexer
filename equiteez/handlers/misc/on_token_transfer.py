@@ -30,7 +30,7 @@ async def on_token_transfer(
         )
         await sender.save()
     receiver            = None
-    if from_address:
+    if to_address:
         receiver, _     = await models.EquiteezUser.get_or_create(
             address = to_address
         )

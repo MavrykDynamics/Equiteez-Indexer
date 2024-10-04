@@ -9,4 +9,18 @@ async def set_kyc_address(
     ctx: HandlerContext,
     set_kyc_address: TezosTransaction[SetKycAddressParameter, OrderbookStorage],
 ) -> None:
-    breakpoint()
+    # Fetch operations info
+    address     = set_kyc_address.data.target_address
+    kyc_address = set_kyc_address.storage.kycAddress
+
+    # Get orderbook
+    orderbook   = await models.Orderbook.get(
+        address = address
+    )
+
+    # Update record
+    kyc, _          = await models.Kyc.get_or_create(
+        address = kyc_address
+    )
+    orderbook.kyc   = kyc
+    await orderbook.save()

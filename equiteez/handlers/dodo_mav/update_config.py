@@ -9,4 +9,19 @@ async def update_config(
     ctx: HandlerContext,
     update_config: TezosTransaction[UpdateConfigParameter, DodoMavStorage],
 ) -> None:
-    breakpoint()
+    # Fetch operations info
+    address         = update_config.data.target_address
+    lp_fee          = update_config.storage.config.lpFee
+    maintainer_fee  = update_config.storage.config.maintainerFee
+    fee_decimals    = update_config.storage.config.feeDecimals
+
+    # Get dodo mav
+    dodo_mav        = await models.DodoMav.get(
+        address = address
+    )
+
+    # Update record
+    dodo_mav.lp_fee         = lp_fee
+    dodo_mav.maintainer_fee = maintainer_fee
+    dodo_mav.fee_decimals   = fee_decimals
+    await dodo_mav.save()

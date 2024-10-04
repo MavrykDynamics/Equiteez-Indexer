@@ -34,6 +34,7 @@ async def origination(
     r_status                        = dodo_mav_origination.storage.rStatus
     guide_price                     = dodo_mav_origination.storage.guidePrice
     slippage_factor                 = dodo_mav_origination.storage.slippageFactor
+    pause_ledger                    = dodo_mav_origination.storage.pauseLedger
 
     # Create new indexes for all token
     contracts_to_index  = [
@@ -71,9 +72,11 @@ async def origination(
             )
 
     # Get the orderbook
-    orderbook                       = await models.Orderbook.get(
+    # TODO: refactor back
+    orderbook, _                       = await models.Orderbook.get_or_create(
         address  = rwa_orderbook_address
     )
+    await orderbook.save()
 
     # Register the various tokens
     quote_token = await register_token(
@@ -127,5 +130,15 @@ async def origination(
         address=address
     )
 
-    # Save the orderbook
+    # Save the dodo mav
     await dodo_mav.save()
+
+    # Save the entrypoints status
+    for entrypoint in pause_ledger:
+        paused  = pause_ledger[entrypoint]
+        entrypoint_status   = models.DodoMavEntrypointStatus(
+            contract    = dodo_mav,
+            entrypoint  = entrypoint,
+            paused      = paused
+        )
+        await entrypoint_status.save()
