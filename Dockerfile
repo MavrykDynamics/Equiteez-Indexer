@@ -5,15 +5,15 @@ RUN apt-get update && \
     apt-get -y install gcc && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /equiteez
-COPY poetry.lock pyproject.toml /equiteez/
-COPY dipdup.yml /equiteez/
-COPY dipdup.contracts.yml /equiteez/
-COPY dipdup.prod.yml /equiteez/
+WORKDIR /indexer
+COPY poetry.lock pyproject.toml /indexer/
+COPY dipdup.yml /indexer/
+COPY dipdup.contracts.yml /indexer/
+COPY dipdup.prod.yml /indexer/
 
 RUN poetry config virtualenvs.create false && poetry install --no-dev
 
-ADD equiteez /equiteez/equiteez/
+ADD equiteez /indexer/equiteez/
 
 ENTRYPOINT ["poetry", "run", "dipdup", "-c", "dipdup.prod.yml", "-c", "dipdup.contracts.yml", "-c", "dipdup.yml", "run"]
 
