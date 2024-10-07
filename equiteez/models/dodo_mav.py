@@ -56,12 +56,3 @@ class DodoMavEntrypointStatus(Model, EntrypointStatus):
 
     class Meta:
         table = 'dodo_mav_entrypoint_status'
-
-class DodoMavPause(Model):
-    id                                      = fields.IntField(primary_key=True)
-    dodo_mav                                = fields.ForeignKeyField('models.DodoMav', related_name='pause_ledger')
-    entrypoint                              = fields.TextField(index=True)
-    paused                                  = fields.BooleanField(default=False)
-
-    class Meta:
-        table = 'dodo_mav_pause'
