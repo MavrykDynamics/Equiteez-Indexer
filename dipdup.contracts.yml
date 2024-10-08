@@ -1,7 +1,7 @@
 contracts:
   kyc:
     kind: tezos
-    address: KT1VLBZvBGEwHg9hbWx62FW5m3miY2jouKqb
+    address: KT1BQfVcaitau5XFEGz8ViJ5APzo4tLHGWK3
     typename: kyc
   orderbook:
     kind: tezos
@@ -11,6 +11,10 @@ contracts:
     kind: tezos
     address: KT1P3ApyCxWJEX2fz2556CVgvrPzHvr5tXXs
     typename: dodo_mav
+  marketplace:
+    kind: tezos
+    address: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok
+    typename: marketplace
   fa2:
     kind: tezos
     address: KT1K3yqtMqgiqSLFvaBaxyCy8wbijuoMas4R

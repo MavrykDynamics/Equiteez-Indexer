@@ -1,5 +1,15 @@
 from dipdup.models import Model, fields
+from enum import IntEnum
 from equiteez.models.shared import ContractLambda
+
+###
+# Kyc Enums
+###
+
+class ValidInputCategory(IntEnum):
+    COUNTRY                                 = 0
+    REGION                                  = 1
+    INVESTOR_TYPE                           = 2
 
 ###
 # Kyc Tables
@@ -43,8 +53,8 @@ class KycBlacklisted(Model):
 class KycValidInput(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='valid_inputs')
-    category                                = fields.TextField(index=True)
-    valid_inputs                            = fields.ArrayField()
+    category                                = fields.IntEnumField(enum_type=ValidInputCategory, index=True)
+    valid_inputs                            = fields.ArrayField(default=[])
    
     class Meta:
         table = 'kyc_valid_input'
@@ -54,7 +64,7 @@ class KycRegistrar(Model):
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='registrars')
     address                                 = fields.CharField(max_length=36, index=True)
     name                                    = fields.TextField(index=True)
-    kyc_admins                              = fields.ArrayField()
+    kyc_admins                              = fields.ArrayField(default=[])
     member_verified                         = fields.BigIntField(default=0)
     created_at                              = fields.DatetimeField(null=True)
     set_member_is_paused                    = fields.BooleanField(default=False)
@@ -68,8 +78,8 @@ class KycCountryTransferRule(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='country_transfer_rules')
     rule_name                               = fields.TextField(index=True)
-    whitelist_countries                     = fields.ArrayField()
-    blacklist_countries                     = fields.ArrayField()
+    whitelist_countries                     = fields.ArrayField(default=[])
+    blacklist_countries                     = fields.ArrayField(default=[])
     sending_frozen                          = fields.BooleanField(default=False)
     receiving_frozen                        = fields.BooleanField(default=False)
    

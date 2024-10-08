@@ -12,10 +12,74 @@ indexes:
       pattern:
       - type: origination
         originated_contract: kyc
+    - callback: kyc.update_metadata
+      pattern:
+      - destination: kyc
+        entrypoint: updateMetadata
+    - callback: kyc.set_super_admin
+      pattern:
+      - destination: kyc
+        entrypoint: setSuperAdmin
+    - callback: kyc.claim_super_admin
+      pattern:
+      - destination: kyc
+        entrypoint: claimSuperAdmin
     - callback: kyc.set_lambda
       pattern:
       - destination: kyc
         entrypoint: setLambda
+    - callback: kyc.pause_all
+      pattern:
+      - destination: kyc
+        entrypoint: pauseAll
+    - callback: kyc.unpause_all
+      pattern:
+      - destination: kyc
+        entrypoint: unpauseAll
+    - callback: kyc.toggle_pause_entrypoint
+      pattern:
+      - destination: kyc
+        entrypoint: togglePauseEntrypoint
+    - callback: kyc.set_country_transfer_rule
+      pattern:
+      - destination: kyc
+        entrypoint: setCountryTransferRule
+    - callback: kyc.set_kyc_registrar
+      pattern:
+      - destination: kyc
+        entrypoint: setKycRegistrar
+    - callback: kyc.pause_kyc_registrar
+      pattern:
+      - destination: kyc
+        entrypoint: pauseKycRegistrar
+    - callback: kyc.set_valid_input
+      pattern:
+      - destination: kyc
+        entrypoint: setValidInput
+    - callback: kyc.set_whitelist
+      pattern:
+      - destination: kyc
+        entrypoint: setWhitelist
+    - callback: kyc.set_blacklist
+      pattern:
+      - destination: kyc
+        entrypoint: setBlacklist
+    - callback: kyc.set_member
+      pattern:
+      - destination: kyc
+        entrypoint: setMember
+    - callback: kyc.set_registrar_admin
+      pattern:
+      - destination: kyc
+        entrypoint: setRegistrarAdmin
+    - callback: kyc.freeze_member
+      pattern:
+      - destination: kyc
+        entrypoint: freezeMember
+    - callback: kyc.unfreeze_member
+      pattern:
+      - destination: kyc
+        entrypoint: unfreezeMember
   orderbook:
     kind: tezos.operations
     datasources:
@@ -168,6 +232,92 @@ indexes:
       pattern:
       - destination: dodo_mav
         entrypoint: depositBaseToken
+  marketplace:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - marketplace
+    types:
+    - transaction
+    - origination
+    handlers:
+    - callback: marketplace.origination
+      pattern:
+      - type: origination
+        originated_contract: marketplace
+    - callback: marketplace.set_lambda
+      pattern:
+      - destination: marketplace
+        entrypoint: setLambda
+    - callback: marketplace.set_super_admin
+      pattern:
+      - destination: marketplace
+        entrypoint: setSuperAdmin
+    - callback: marketplace.claim_super_admin
+      pattern:
+      - destination: marketplace
+        entrypoint: claimSuperAdmin
+    - callback: marketplace.update_metadata
+      pattern:
+      - destination: marketplace
+        entrypoint: updateMetadata
+    - callback: marketplace.update_config
+      pattern:
+      - destination: marketplace
+        entrypoint: updateConfig
+    - callback: marketplace.update_whitelist_contracts
+      pattern:
+      - destination: marketplace
+        entrypoint: updateWhitelistContracts
+    - callback: marketplace.update_general_contracts
+      pattern:
+      - destination: marketplace
+        entrypoint: updateGeneralContracts
+    - callback: marketplace.pause_all
+      pattern:
+      - destination: marketplace
+        entrypoint: pauseAll
+    - callback: marketplace.unpause_all
+      pattern:
+      - destination: marketplace
+        entrypoint: unpauseAll
+    - callback: marketplace.toggle_pause_entrypoint
+      pattern:
+      - destination: marketplace
+        entrypoint: togglePauseEntrypoint
+    - callback: marketplace.set_currency
+      pattern:
+      - destination: marketplace
+        entrypoint: setCurrency
+    - callback: marketplace.create_listing
+      pattern:
+      - destination: marketplace
+        entrypoint: createListing
+    - callback: marketplace.edit_listing
+      pattern:
+      - destination: marketplace
+        entrypoint: editListing
+    - callback: marketplace.remove_listing
+      pattern:
+      - destination: marketplace
+        entrypoint: removeListing
+    - callback: marketplace.purchase
+      pattern:
+      - destination: marketplace
+        entrypoint: purchase
+    - callback: marketplace.offer
+      pattern:
+      - destination: marketplace
+        entrypoint: offer
+    - callback: marketplace.accept_offer
+      pattern:
+      - destination: marketplace
+        entrypoint: acceptOffer
+    - callback: marketplace.remove_offer
+      pattern:
+      - destination: marketplace
+        entrypoint: removeOffer
   fa2_balances:
     kind: tezos.token_balances
     datasources:

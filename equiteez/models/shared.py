@@ -10,6 +10,11 @@ class TokenType(IntEnum):
     FA2                                     = 1
     MAV                                     = 2
 
+class TransferType(IntEnum):
+    TRANSFER                                = 0
+    MINT                                    = 1
+    BURN                                    = 2
+
 ###
 # Shared Tables
 ###
@@ -59,6 +64,7 @@ class EquiteezUserTokenTransfer(Model):
     token                                   = fields.ForeignKeyField('models.Token', related_name='equiteez_user_token_transfers')
     timestamp                               = fields.DatetimeField()
     level                                   = fields.BigIntField()
+    transfer_type                           = fields.IntEnumField(enum_type=TransferType, index=True)
     amount                                  = fields.BigIntField()
 
     class Meta:
