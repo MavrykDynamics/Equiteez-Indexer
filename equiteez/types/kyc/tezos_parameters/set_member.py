@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Any, Dict, List
 
-from pydantic import BaseModel, ConfigDict, RootModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AddMemberItem(BaseModel):
@@ -17,14 +17,14 @@ class AddMemberItem(BaseModel):
     investorType: str
 
 
-class SetMemberParameter1(BaseModel):
+class SetMemberAction(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
     addMember: List[AddMemberItem]
 
 
-class SetMemberParameter2(BaseModel):
+class SetMemberAction1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -42,14 +42,16 @@ class UpdateMemberItem(BaseModel):
     expireAt: str | None = None
 
 
-class SetMemberParameter3(BaseModel):
+class SetMemberAction2(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
     updateMember: List[UpdateMemberItem]
 
 
-class SetMemberParameter(
-    RootModel[SetMemberParameter1 | SetMemberParameter2 | SetMemberParameter3]
-):
-    root: SetMemberParameter1 | SetMemberParameter2 | SetMemberParameter3
+class SetMemberParameter(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
+    )
+    setMemberAction: SetMemberAction | SetMemberAction1 | SetMemberAction2
+    field_unit: Dict[str, Any] = Field(..., alias='_unit')

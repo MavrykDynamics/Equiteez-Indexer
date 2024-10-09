@@ -37,16 +37,16 @@ class KycLambda(Model, ContractLambda):
 class KycWhitelisted(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='whitelisted')
-    address                                 = fields.CharField(max_length=36, index=True)
-   
+    user                                    = fields.ForeignKeyField('models.EquiteezUser', related_name='kyc_whitelists')
+
     class Meta:
         table = 'kyc_whitelisted'
 
 class KycBlacklisted(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='blacklisted')
-    address                                 = fields.CharField(max_length=36, index=True)
-   
+    user                                    = fields.ForeignKeyField('models.EquiteezUser', related_name='kyc_blacklists')   
+
     class Meta:
         table = 'kyc_blacklisted'
 
@@ -62,8 +62,8 @@ class KycValidInput(Model):
 class KycRegistrar(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='registrars')
-    address                                 = fields.CharField(max_length=36, index=True)
-    name                                    = fields.TextField(index=True)
+    user                                    = fields.ForeignKeyField('models.EquiteezUser', related_name='kyc_registrars')   
+    name                                    = fields.TextField(index=True, default="")
     kyc_admins                              = fields.ArrayField(default=[])
     member_verified                         = fields.BigIntField(default=0)
     created_at                              = fields.DatetimeField(null=True)
@@ -77,7 +77,7 @@ class KycRegistrar(Model):
 class KycCountryTransferRule(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='country_transfer_rules')
-    rule_name                               = fields.TextField(index=True)
+    country                                 = fields.TextField(index=True)
     whitelist_countries                     = fields.ArrayField(default=[])
     blacklist_countries                     = fields.ArrayField(default=[])
     sending_frozen                          = fields.BooleanField(default=False)
@@ -89,8 +89,8 @@ class KycCountryTransferRule(Model):
 class KycMember(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='members')
-    kyc_registrar                           = fields.ForeignKeyField('models.KycRegistrar', related_name='members')
-    address                                 = fields.CharField(max_length=36, index=True)
+    kyc_registrar                           = fields.ForeignKeyField('models.KycRegistrar', related_name='members', null=True)
+    user                                    = fields.ForeignKeyField('models.EquiteezUser', related_name='kyc_members', null=True)
     country                                 = fields.TextField(index=True, null=True)
     region                                  = fields.TextField(index=True, null=True)
     investor_type                           = fields.TextField(index=True, null=True)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SetBlacklistAction(BaseModel):
@@ -26,4 +26,4 @@ class SetBlacklistParameter(BaseModel):
         extra='forbid',
     )
     setBlacklistAction: SetBlacklistAction | SetBlacklistAction1
-    empty: Dict[str, Any]
+    field_unit: Dict[str, Any] = Field(..., alias='_unit')

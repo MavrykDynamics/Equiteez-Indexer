@@ -9,4 +9,19 @@ async def unpause_all(
     ctx: HandlerContext,
     unpause_all: TezosTransaction[UnpauseAllParameter, KycStorage],
 ) -> None:
-    breakpoint()
+    # Fetch operation info
+    address                     = unpause_all.data.target_address
+    set_member_is_paused        = unpause_all.storage.breakGlassConfig.setMemberIsPaused
+    freeze_member_is_paused     = unpause_all.storage.breakGlassConfig.freezeMemberIsPaused
+    unfreeze_member_is_paused   = unpause_all.storage.breakGlassConfig.unfreezeMemberIsPaused
+
+    # Get kyc
+    kyc                         = await models.Kyc.get(
+        address = address
+    )
+
+    # Update record
+    kyc.set_member_is_paused        = set_member_is_paused
+    kyc.freeze_member_is_paused     = freeze_member_is_paused
+    kyc.unfreeze_member_is_paused   = unfreeze_member_is_paused
+    await kyc.save()

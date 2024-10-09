@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SetValidInputAction(BaseModel):
@@ -35,4 +35,4 @@ class SetValidInputParameter(BaseModel):
     setValidInputAction: (
         SetValidInputAction | SetValidInputAction1 | SetValidInputAction2
     )
-    empty: Dict[str, Any]
+    field_unit: Dict[str, Any] = Field(..., alias='_unit')

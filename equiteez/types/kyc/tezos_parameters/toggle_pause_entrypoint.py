@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TargetEntrypoint(BaseModel):
@@ -33,4 +33,4 @@ class TogglePauseEntrypointParameter(BaseModel):
         extra='forbid',
     )
     targetEntrypoint: TargetEntrypoint | TargetEntrypoint1 | TargetEntrypoint2
-    empty: Dict[str, Any]
+    field_unit: Dict[str, Any] = Field(..., alias='_unit')

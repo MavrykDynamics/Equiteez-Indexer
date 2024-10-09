@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Any, Dict, List
 
-from pydantic import BaseModel, ConfigDict, RootModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AddNewCountryTransferRuleItem(BaseModel):
@@ -18,7 +18,7 @@ class AddNewCountryTransferRuleItem(BaseModel):
     receivingFrozen: bool
 
 
-class SetCountryTransferRuleParameter1(BaseModel):
+class SetCountryTransferRuleAction(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -33,7 +33,7 @@ class FreezeReceivingItem(BaseModel):
     freezeBool: bool
 
 
-class SetCountryTransferRuleParameter2(BaseModel):
+class SetCountryTransferRuleAction1(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -48,7 +48,7 @@ class FreezeSendingItem(BaseModel):
     freezeBool: bool
 
 
-class SetCountryTransferRuleParameter3(BaseModel):
+class SetCountryTransferRuleAction2(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -64,7 +64,7 @@ class UpdateBlacklistCountry(BaseModel):
     countrySet: List[str]
 
 
-class SetCountryTransferRuleParameter4(BaseModel):
+class SetCountryTransferRuleAction3(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
@@ -80,26 +80,22 @@ class UpdateWhitelistCountry(BaseModel):
     countrySet: List[str]
 
 
-class SetCountryTransferRuleParameter5(BaseModel):
+class SetCountryTransferRuleAction4(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
     updateWhitelistCountries: List[UpdateWhitelistCountry]
 
 
-class SetCountryTransferRuleParameter(
-    RootModel[
-        SetCountryTransferRuleParameter1
-        | SetCountryTransferRuleParameter2
-        | SetCountryTransferRuleParameter3
-        | SetCountryTransferRuleParameter4
-        | SetCountryTransferRuleParameter5
-    ]
-):
-    root: (
-        SetCountryTransferRuleParameter1
-        | SetCountryTransferRuleParameter2
-        | SetCountryTransferRuleParameter3
-        | SetCountryTransferRuleParameter4
-        | SetCountryTransferRuleParameter5
+class SetCountryTransferRuleParameter(BaseModel):
+    model_config = ConfigDict(
+        extra='forbid',
     )
+    setCountryTransferRuleAction: (
+        SetCountryTransferRuleAction
+        | SetCountryTransferRuleAction1
+        | SetCountryTransferRuleAction2
+        | SetCountryTransferRuleAction3
+        | SetCountryTransferRuleAction4
+    )
+    field_unit: Dict[str, Any] = Field(..., alias='_unit')
