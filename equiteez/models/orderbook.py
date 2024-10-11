@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda
+from equiteez.models.shared import ContractLambda, EntrypointStatus
 
 ###
 # Orderbook Enums
@@ -30,9 +30,6 @@ class Orderbook(Model):
     min_sell_order_value                    = fields.BigIntField(default=0)
     buy_order_fee                           = fields.BigIntField(default=0)
     sell_order_fee                          = fields.BigIntField(default=0)
-    place_buy_order_is_paused               = fields.BooleanField(default=False)
-    place_sell_order_is_paused              = fields.BooleanField(default=False)
-    cancel_orders_is_paused                 = fields.BooleanField(default=False)
     highest_buy_price_order_id              = fields.BigIntField(default=0)
     highest_buy_price                       = fields.BigIntField(default=0)
     lowest_sell_price_order_id              = fields.BigIntField(default=0)
@@ -50,6 +47,12 @@ class OrderbookLambda(Model, ContractLambda):
 
     class Meta:
         table = 'orderbook_lambda'
+
+class OrderbookEntrypointStatus(Model, EntrypointStatus):
+    contract                                = fields.ForeignKeyField('models.Orderbook', related_name='entrypoint_status')
+
+    class Meta:
+        table = 'orderbook_entrypoint_status'
 
 class OrderbookCurrency(Model):
     id                                      = fields.IntField(primary_key=True)

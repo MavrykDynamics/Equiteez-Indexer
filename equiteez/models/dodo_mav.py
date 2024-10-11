@@ -17,7 +17,7 @@ class PriceModel(IntEnum):
 class DodoMav(Model):
     id                                      = fields.IntField(primary_key=True)
     address                                 = fields.CharField(max_length=36, index=True)
-    super_admin                             = fields.CharField(max_length=36, index=True)
+    super_admin                             = fields.CharField(max_length=36, index=True, null=True)
     new_super_admin                         = fields.CharField(max_length=36, index=True, null=True)
     rwa_orderbook                           = fields.ForeignKeyField('models.Orderbook', related_name='dodo_mavs')
     metadata                                = fields.JSONField(null=True)

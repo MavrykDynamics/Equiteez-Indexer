@@ -10,18 +10,20 @@ async def toggle_pause_entrypoint(
     toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, KycStorage],
 ) -> None:
     # Fetch operation info
-    address                     = toggle_pause_entrypoint.data.target_address
-    set_member_is_paused        = toggle_pause_entrypoint.storage.breakGlassConfig.setMemberIsPaused
-    freeze_member_is_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.freezeMemberIsPaused
-    unfreeze_member_is_paused   = toggle_pause_entrypoint.storage.breakGlassConfig.unfreezeMemberIsPaused
+    address         = toggle_pause_entrypoint.data.target_address
+    pause_ledger    = toggle_pause_entrypoint.storage.pauseLedger
 
     # Get kyc
     kyc                         = await models.Kyc.get(
         address = address
     )
-
-    # Update record
-    kyc.set_member_is_paused        = set_member_is_paused
-    kyc.freeze_member_is_paused     = freeze_member_is_paused
-    kyc.unfreeze_member_is_paused   = unfreeze_member_is_paused
-    await kyc.save()
+    
+    # Save the entrypoints status
+    for entrypoint in pause_ledger:
+        paused                      = pause_ledger[entrypoint]
+        entrypoint_status, _        = await models.KycEntrypointStatus.get_or_create(
+            contract    = kyc,
+            entrypoint  = entrypoint
+        )
+        entrypoint_status.paused    = paused
+        await entrypoint_status.save()

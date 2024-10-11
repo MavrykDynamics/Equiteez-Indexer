@@ -72,7 +72,7 @@ async def origination(
             )
 
     # Get the orderbook
-    orderbook   = await models.Orderbook.get_or_create(
+    orderbook, _    = await models.Orderbook.get_or_create(
         address  = rwa_orderbook_address
     )
     await orderbook.save()

@@ -7,15 +7,6 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict
 
 
-class BreakGlassConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    setMemberIsPaused: bool
-    freezeMemberIsPaused: bool
-    unfreezeMemberIsPaused: bool
-
-
 class KycRegistrarLedger(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -58,7 +49,7 @@ class KycStorage(BaseModel):
     superAdmin: str
     newSuperAdmin: str | None = None
     metadata: Dict[str, str]
-    breakGlassConfig: BreakGlassConfig
+    pauseLedger: Dict[str, bool]
     whitelistLedger: Dict[str, Dict[str, Any]]
     blacklistLedger: Dict[str, Dict[str, Any]]
     validInputLedger: Dict[str, List[str]]

@@ -2,35 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import List
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, RootModel
 
 
-class TargetEntrypoint(BaseModel):
+class TogglePauseEntrypointParameterItem(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    cancelOrders: bool
+    entrypoint: str
+    pauseBool: bool
 
 
-class TargetEntrypoint1(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    placeBuyOrder: bool
-
-
-class TargetEntrypoint2(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    placeSellOrder: bool
-
-
-class TogglePauseEntrypointParameter(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    targetEntrypoint: TargetEntrypoint | TargetEntrypoint1 | TargetEntrypoint2
-    empty: Dict[str, Any]
+class TogglePauseEntrypointParameter(
+    RootModel[List[TogglePauseEntrypointParameterItem]]
+):
+    root: List[TogglePauseEntrypointParameterItem]

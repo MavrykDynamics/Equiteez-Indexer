@@ -23,9 +23,6 @@ async def origination(
     min_sell_order_value            = orderbook_origination.storage.config.minSellOrderValue
     buy_order_fee                   = orderbook_origination.storage.config.buyOrderFee
     sell_order_fee                  = orderbook_origination.storage.config.sellOrderFee
-    place_buy_order_is_paused       = orderbook_origination.storage.breakGlassConfig.placeBuyOrderIsPaused
-    place_sell_order_is_paused      = orderbook_origination.storage.breakGlassConfig.placeSellOrderIsPaused
-    cancel_orders_is_paused         = orderbook_origination.storage.breakGlassConfig.cancelOrdersIsPaused
     highest_buy_price_order_id      = orderbook_origination.storage.highestBuyPrice.orderId
     highest_buy_price               = orderbook_origination.storage.highestBuyPrice.price
     lowest_sell_price_order_id      = orderbook_origination.storage.lowestSellPrice.orderId
@@ -39,44 +36,41 @@ async def origination(
     rwa_order_ledger                = orderbook_origination.storage.rwaOrderLedger
     buy_order_ledger                = orderbook_origination.storage.buyOrderLedger
     sell_order_ledger               = orderbook_origination.storage.sellOrderLedger
-    # pause_ledger                    = orderbook_origination.storage.pauseLedger
+    pause_ledger                    = orderbook_origination.storage.pauseLedger
 
     # Get KYC
-    kyc  = await models.Kyc.get(
+    kyc, _      = await models.Kyc.get_or_create(
         address = kyc_address
     )
     await kyc.save()
 
     # Prepare the orderbook
-    orderbook = models.Orderbook(
-        address                         = address,
-        super_admin                     = super_admin,
-        new_super_admin                 = new_super_admin,
-        kyc                             = kyc,
-        min_expiry_time                 = min_expiry_time,
-        min_time_before_closing_order   = min_time_before_closing_order,
-        min_buy_order_amount            = min_buy_order_amount,
-        min_buy_order_value             = min_buy_order_value,
-        min_sell_order_amount           = min_sell_order_amount,
-        min_sell_order_value            = min_sell_order_value,
-        buy_order_fee                   = buy_order_fee,
-        sell_order_fee                  = sell_order_fee,
-        place_buy_order_is_paused       = place_buy_order_is_paused,
-        place_sell_order_is_paused      = place_sell_order_is_paused,
-        cancel_orders_is_paused         = cancel_orders_is_paused,
-        highest_buy_price_order_id      = highest_buy_price_order_id,
-        highest_buy_price               = highest_buy_price,
-        lowest_sell_price_order_id      = lowest_sell_price_order_id,
-        lowest_sell_price               = lowest_sell_price,
-        last_matched_price              = last_matched_price,
-        last_matched_price_timestamp    = last_matched_price_timestamp,
-        buy_order_counter               = buy_order_counter,
-        sell_order_counter              = sell_order_counter
+    orderbook, _ = await models.Orderbook.get_or_create(
+        address                         = address
     )
+    orderbook.super_admin                     = super_admin
+    orderbook.new_super_admin                 = new_super_admin
+    orderbook.kyc                             = kyc
+    orderbook.min_expiry_time                 = min_expiry_time
+    orderbook.min_time_before_closing_order   = min_time_before_closing_order
+    orderbook.min_buy_order_amount            = min_buy_order_amount
+    orderbook.min_buy_order_value             = min_buy_order_value
+    orderbook.min_sell_order_amount           = min_sell_order_amount
+    orderbook.min_sell_order_value            = min_sell_order_value
+    orderbook.buy_order_fee                   = buy_order_fee
+    orderbook.sell_order_fee                  = sell_order_fee
+    orderbook.highest_buy_price_order_id      = highest_buy_price_order_id
+    orderbook.highest_buy_price               = highest_buy_price
+    orderbook.lowest_sell_price_order_id      = lowest_sell_price_order_id
+    orderbook.lowest_sell_price               = lowest_sell_price
+    orderbook.last_matched_price              = last_matched_price
+    orderbook.last_matched_price_timestamp    = last_matched_price_timestamp
+    orderbook.buy_order_counter               = buy_order_counter
+    orderbook.sell_order_counter              = sell_order_counter
 
     # Get RWA Token
     orderbook.rwa_token = await register_token(
-        ctx = ctx,
+        ctx     = ctx,
         address = rwa_token_address
     )
 
@@ -148,12 +142,12 @@ async def origination(
     for sell_order_record in sell_order_ledger:
         breakpoint()
 
-    # # Save the entrypoints status
-    # for entrypoint in pause_ledger:
-    #     paused  = pause_ledger[entrypoint]
-    #     entrypoint_status   = models.DodoMavEntrypointStatus(
-    #         dodo_mav    = dodo_mav,
-    #         entrypoint  = entrypoint,
-    #         paused      = paused
-    #     )
-    #     await entrypoint_status.save()
+    # Save the entrypoints status
+    for entrypoint in pause_ledger:
+        paused  = pause_ledger[entrypoint]
+        entrypoint_status   = models.OrderbookEntrypointStatus(
+            contract    = orderbook,
+            entrypoint  = entrypoint,
+            paused      = paused
+        )
+        await entrypoint_status.save()

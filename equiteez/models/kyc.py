@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda
+from equiteez.models.shared import ContractLambda, EntrypointStatus
 
 ###
 # Kyc Enums
@@ -18,12 +18,9 @@ class ValidInputCategory(IntEnum):
 class Kyc(Model):
     id                                      = fields.IntField(primary_key=True)
     address                                 = fields.CharField(max_length=36, index=True)
-    super_admin                             = fields.CharField(max_length=36, index=True)
+    super_admin                             = fields.CharField(max_length=36, index=True, null=True)
     new_super_admin                         = fields.CharField(max_length=36, index=True, null=True)
     metadata                                = fields.JSONField(null=True)
-    set_member_is_paused                    = fields.BooleanField(default=False)
-    freeze_member_is_paused                 = fields.BooleanField(default=False)
-    unfreeze_member_is_paused               = fields.BooleanField(default=False)
 
     class Meta:
         table = 'kyc'
@@ -33,6 +30,12 @@ class KycLambda(Model, ContractLambda):
 
     class Meta:
         table = 'kyc_lambda'
+
+class KycEntrypointStatus(Model, EntrypointStatus):
+    contract                                = fields.ForeignKeyField('models.Kyc', related_name='entrypoint_status')
+
+    class Meta:
+        table = 'kyc_entrypoint_status'
 
 class KycWhitelisted(Model):
     id                                      = fields.IntField(primary_key=True)

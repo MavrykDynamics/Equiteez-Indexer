@@ -11,7 +11,7 @@ class TogglePauseEntrypointParameterItem(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    targetEntrypoint: str
+    entrypoint: str
     pauseBool: bool
 
 

@@ -21,15 +21,6 @@ class Config(BaseModel):
     sellOrderFee: str
 
 
-class BreakGlassConfig(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    placeBuyOrderIsPaused: bool
-    placeSellOrderIsPaused: bool
-    cancelOrdersIsPaused: bool
-
-
 class FeeLedger(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
@@ -154,7 +145,7 @@ class OrderbookStorage(BaseModel):
     kycAddress: str
     metadata: Dict[str, str]
     config: Config
-    breakGlassConfig: BreakGlassConfig
+    pauseLedger: Dict[str, bool]
     feeLedger: Dict[str, FeeLedger]
     currencyLedger: Dict[str, CurrencyLedger]
     rwaOrderLedger: Dict[str, RwaOrderLedger]

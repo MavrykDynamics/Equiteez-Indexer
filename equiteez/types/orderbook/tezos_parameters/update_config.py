@@ -2,63 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import List
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, RootModel
 
 
-class UpdateConfigAction(BaseModel):
+class UpdateConfigParameterItem(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    configBuyOrderFee: Dict[str, Any]
+    configName: str
+    newValue: str
 
 
-class UpdateConfigAction1(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    configMinBuyOrderAmount: Dict[str, Any]
-
-
-class UpdateConfigAction2(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    configMinExpiryTime: Dict[str, Any]
-
-
-class UpdateConfigAction3(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    configMinSellOrderAmount: Dict[str, Any]
-
-
-class UpdateConfigAction4(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    configMinTimeBeforeClosingOrder: Dict[str, Any]
-
-
-class UpdateConfigAction5(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    configSellOrderFee: Dict[str, Any]
-
-
-class UpdateConfigParameter(BaseModel):
-    model_config = ConfigDict(
-        extra='forbid',
-    )
-    updateConfigNewValue: str
-    updateConfigAction: (
-        UpdateConfigAction
-        | UpdateConfigAction1
-        | UpdateConfigAction2
-        | UpdateConfigAction3
-        | UpdateConfigAction4
-        | UpdateConfigAction5
-    )
+class UpdateConfigParameter(RootModel[List[UpdateConfigParameterItem]]):
+    root: List[UpdateConfigParameterItem]

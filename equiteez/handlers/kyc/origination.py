@@ -13,25 +13,20 @@ async def origination(
     address                         = kyc_origination.data.originated_contract_address
     super_admin                     = kyc_origination.storage.superAdmin
     new_super_admin                 = kyc_origination.storage.newSuperAdmin
-    set_member_is_paused            = kyc_origination.storage.breakGlassConfig.setMemberIsPaused
-    freeze_member_is_paused         = kyc_origination.storage.breakGlassConfig.freezeMemberIsPaused
-    unfreeze_member_is_paused       = kyc_origination.storage.breakGlassConfig.unfreezeMemberIsPaused
     whitelist_ledger                = kyc_origination.storage.whitelistLedger
     blacklist_ledger                = kyc_origination.storage.blacklistLedger
     valid_input_ledger              = kyc_origination.storage.validInputLedger
     kyc_registrar_ledger            = kyc_origination.storage.kycRegistrarLedger
     country_transfer_rule_ledger    = kyc_origination.storage.countryTransferRuleLedger
     member_ledger                   = kyc_origination.storage.memberLedger
+    pause_ledger                    = kyc_origination.storage.pauseLedger
 
     # Prepare the kyc
-    kyc = models.Kyc(
-        address                         = address,
-        super_admin                     = super_admin,
-        new_super_admin                 = new_super_admin,
-        set_member_is_paused            = set_member_is_paused,
-        freeze_member_is_paused         = freeze_member_is_paused,
-        unfreeze_member_is_paused       = unfreeze_member_is_paused
+    kyc, _  = await models.Kyc.get_or_create(
+        address                         = address
     )
+    kyc.super_admin                     = super_admin
+    kyc.new_super_admin                 = new_super_admin
 
     # Get contract metadata
     kyc.metadata = await get_contract_metadata(
@@ -65,3 +60,13 @@ async def origination(
     # Prepare the member ledger
     for whitelist in member_ledger:
         breakpoint
+
+    # Save the entrypoints status
+    for entrypoint in pause_ledger:
+        paused  = pause_ledger[entrypoint]
+        entrypoint_status   = models.KycEntrypointStatus(
+            contract    = kyc,
+            entrypoint  = entrypoint,
+            paused      = paused
+        )
+        await entrypoint_status.save()

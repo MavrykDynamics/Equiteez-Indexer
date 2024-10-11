@@ -7,6 +7,7 @@ indexes:
     - kyc
     types:
     - origination
+    - transaction
     handlers:
     - callback: kyc.origination
       pattern:
@@ -28,14 +29,6 @@ indexes:
       pattern:
       - destination: kyc
         entrypoint: setLambda
-    - callback: kyc.pause_all
-      pattern:
-      - destination: kyc
-        entrypoint: pauseAll
-    - callback: kyc.unpause_all
-      pattern:
-      - destination: kyc
-        entrypoint: unpauseAll
     - callback: kyc.toggle_pause_entrypoint
       pattern:
       - destination: kyc
@@ -85,152 +78,152 @@ indexes:
     datasources:
     - mvkt_atlasnet
     contracts:
-    - orderbook
+    - mars1_orderbook
     types:
-    - transaction
     - origination
+    - transaction
     handlers:
     - callback: orderbook.origination
       pattern:
       - type: origination
-        originated_contract: orderbook
+        originated_contract: mars1_orderbook
     - callback: orderbook.set_lambda
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: setLambda
     - callback: orderbook.set_currency
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: setCurrency
     - callback: orderbook.set_super_admin
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: setSuperAdmin
     - callback: orderbook.set_kyc_address
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: setKycAddress
     - callback: orderbook.claim_super_admin
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: claimSuperAdmin
     - callback: orderbook.update_metadata
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: updateMetadata
     - callback: orderbook.update_config
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: updateConfig
     - callback: orderbook.toggle_pause_entrypoint
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: togglePauseEntrypoint
     - callback: orderbook.transfer_fees
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: transferFees
     - callback: orderbook.clear_expired_orders
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: clearExpiredOrders
     - callback: orderbook.match_orders
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: matchOrders
     - callback: orderbook.place_buy_order
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: placeBuyOrder
     - callback: orderbook.place_sell_order
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: placeSellOrder
     - callback: orderbook.cancel_orders
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: cancelOrders
     - callback: orderbook.process_refund
       pattern:
-      - destination: orderbook
+      - destination: mars1_orderbook
         entrypoint: processRefund
   dodo_mav:
     kind: tezos.operations
     datasources:
     - mvkt_atlasnet
     contracts:
-    - dodo_mav
+    - mars1_dodo_mav
     types:
-    - transaction
     - origination
+    - transaction
     handlers:
     - callback: dodo_mav.origination
       pattern:
       - type: origination
-        originated_contract: dodo_mav
+        originated_contract: mars1_dodo_mav
     - callback: dodo_mav.set_lambda
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: setLambda
     - callback: dodo_mav.set_super_admin
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: setSuperAdmin
     - callback: dodo_mav.claim_super_admin
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: claimSuperAdmin
     - callback: dodo_mav.set_guide_price
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: setGuidePrice
     - callback: dodo_mav.update_guide_price
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: updateGuidePrice
     - callback: dodo_mav.update_metadata
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: updateMetadata
     - callback: dodo_mav.update_config
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: updateConfig
     - callback: dodo_mav.toggle_pause_entrypoint
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: togglePauseEntrypoint
     - callback: dodo_mav.buy_base_token
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: buyBaseToken
     - callback: dodo_mav.sell_base_token
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: sellBaseToken
     - callback: dodo_mav.withdraw_quote_token
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: withdrawQuoteToken
     - callback: dodo_mav.withdraw_base_token
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: withdrawBaseToken
     - callback: dodo_mav.withdraw_all_quote_tokens
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: withdrawAllQuoteTokens
     - callback: dodo_mav.withdraw_all_base_tokens
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: withdrawAllBaseTokens
     - callback: dodo_mav.deposit_quote_token
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: depositQuoteToken
     - callback: dodo_mav.deposit_base_token
       pattern:
-      - destination: dodo_mav
+      - destination: mars1_dodo_mav
         entrypoint: depositBaseToken
   marketplace:
     kind: tezos.operations
@@ -239,8 +232,8 @@ indexes:
     contracts:
     - marketplace
     types:
-    - transaction
     - origination
+    - transaction
     handlers:
     - callback: marketplace.origination
       pattern:
@@ -325,8 +318,8 @@ indexes:
     contracts:
     - super_admin
     types:
-    - transaction
     - origination
+    - transaction
     handlers:
     - callback: super_admin.origination
       pattern:
