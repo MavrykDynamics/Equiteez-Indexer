@@ -11,6 +11,10 @@ contracts:
     kind: tezos
     address: KT1P3ApyCxWJEX2fz2556CVgvrPzHvr5tXXs
     typename: dodo_mav
+  super_admin:
+    kind: tezos
+    address: KT18t5mN5zATCFy1Hr77UYQiuQS48BzyJe3G
+    typename: super_admin
   marketplace:
     kind: tezos
     address: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok

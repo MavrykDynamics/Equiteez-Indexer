@@ -3,3 +3,4 @@ from equiteez.models.kyc import *
 from equiteez.models.orderbook import *
 from equiteez.models.dodo_mav import *
 from equiteez.models.marketplace import *
+from equiteez.models.super_admin import *

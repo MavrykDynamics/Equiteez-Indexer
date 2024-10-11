@@ -1,5 +1,6 @@
 from equiteez.models.shared import TokenType
-from equiteez import models as models 
+from equiteez import models as models
+from dateutil import parser
 
 # Get token contract standard
 async def get_token_standard(ctx, address):
@@ -114,3 +115,70 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
     contract_lambda.last_updated_at     = timestamp
     contract_lambda.lambda_bytes        = lambda_bytes
     await contract_lambda.save()
+
+# Super admin actions
+async def create_super_admin_action(handler):
+    # Fetch operations info
+    address                     = handler.data.target_address
+    signatory_action_ledger     = handler.storage.signatoryActionLedger
+    action_counter              = handler.storage.actionCounter
+
+    # Get super admin
+    super_admin = await models.SuperAdmin.get(
+        address = address
+    )
+    super_admin.action_counter  = action_counter
+    await super_admin.save()
+
+    # Create action record
+    for action_id in signatory_action_ledger:
+        # Fetch action params
+        action_record       = signatory_action_ledger[action_id]
+        initiator_address   = action_record.initiator
+        action_type         = action_record.actionType
+        executed            = action_record.executed
+        status              = models.ActionStatus.PENDING
+        signers_count       = action_record.signersCount
+        data_map            = action_record.dataMap
+        start_datetime      = parser.parse(action_record.startDateTime)
+        start_level         = action_record.startLevel
+        executed_datetime   = parser.parse(action_record.executedDateTime) if action_record.executedDateTime else None
+        executed_level      = action_record.executedLevel
+        expiration_datetime = parser.parse(action_record.expirationDateTime)
+
+        # Get initiator
+        user, _             = await models.EquiteezUser.get_or_create(
+            address = initiator_address
+        )
+        await user.save()
+        initiator           = await models.SuperAdminSignatory.get(
+            super_admin = super_admin,
+            user        = user
+        )
+
+        # Create action
+        action              = models.SuperAdminSignatoryAction(
+            super_admin         = super_admin,
+            initiator           = initiator,
+            action_id           = action_id,
+            action_type         = action_type,
+            executed            = executed,
+            status              = status,
+            signers_count       = signers_count,
+            start_datetime      = start_datetime,
+            start_level         = start_level,
+            executed_datetime   = executed_datetime,
+            executed_level      = executed_level,
+            expiration_datetime = expiration_datetime,
+        )
+        await action.save()
+
+        # Create data records
+        for data_name in data_map:
+            bytes   = data_map[data_name]
+            action_data = models.SuperAdminSignatoryActionData(
+                action  = action,
+                name    = data_name,
+                bytes   = bytes
+            )
+            await action_data.save()

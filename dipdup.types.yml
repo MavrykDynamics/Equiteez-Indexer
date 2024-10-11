@@ -318,6 +318,80 @@ indexes:
       pattern:
       - destination: marketplace
         entrypoint: removeOffer
+  super_admin:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - super_admin
+    types:
+    - transaction
+    - origination
+    handlers:
+    - callback: super_admin.origination
+      pattern:
+      - type: origination
+        originated_contract: super_admin
+    - callback: super_admin.set_lambda
+      pattern:
+      - destination: super_admin
+        entrypoint: setLambda
+    - callback: super_admin.set_super_admin
+      pattern:
+      - destination: super_admin
+        entrypoint: setSuperAdmin
+    - callback: super_admin.claim_super_admin
+      pattern:
+      - destination: super_admin
+        entrypoint: claimSuperAdmin
+    - callback: super_admin.update_metadata
+      pattern:
+      - destination: super_admin
+        entrypoint: updateMetadata
+    - callback: super_admin.set_general_admin
+      pattern:
+      - destination: super_admin
+        entrypoint: setGeneralAdmin
+    - callback: super_admin.remove_general_admin
+      pattern:
+      - destination: super_admin
+        entrypoint: removeGeneralAdmin
+    - callback: super_admin.set_contract_admin
+      pattern:
+      - destination: super_admin
+        entrypoint: setContractAdmin
+    - callback: super_admin.remove_contract_admin
+      pattern:
+      - destination: super_admin
+        entrypoint: removeContractAdmin
+    - callback: super_admin.update_config
+      pattern:
+      - destination: super_admin
+        entrypoint: updateConfig
+    - callback: super_admin.add_signatory
+      pattern:
+      - destination: super_admin
+        entrypoint: addSignatory
+    - callback: super_admin.remove_signatory
+      pattern:
+      - destination: super_admin
+        entrypoint: removeSignatory
+    - callback: super_admin.set_token_kyc_address
+      pattern:
+      - destination: super_admin
+        entrypoint: setTokenKycAddress
+    - callback: super_admin.kill_token
+      pattern:
+      - destination: super_admin
+        entrypoint: killToken
+    - callback: super_admin.flush_action
+      pattern:
+      - destination: super_admin
+        entrypoint: flushAction
+    - callback: super_admin.sign_action
+      pattern:
+      - destination: super_admin
+        entrypoint: signAction
   fa2_balances:
     kind: tezos.token_balances
     datasources:

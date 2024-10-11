@@ -72,8 +72,7 @@ async def origination(
             )
 
     # Get the orderbook
-    # TODO: refactor back
-    orderbook, _                       = await models.Orderbook.get_or_create(
+    orderbook   = await models.Orderbook.get_or_create(
         address  = rwa_orderbook_address
     )
     await orderbook.save()
