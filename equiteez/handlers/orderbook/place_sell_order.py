@@ -60,7 +60,7 @@ async def place_sell_order(
             await sell_order_record.save()
 
     for sell_order_id in sell_order_ledger:
-        # Get buy order parameters
+        # Get sell order parameters
         sell_order_record                   = sell_order_ledger[sell_order_id]
         order_type                          = models.OrderType.SELL
         initiator                           = sell_order_record.initiator
@@ -87,7 +87,7 @@ async def place_sell_order(
         )
         await currency.save()
 
-        # Save buy order
+        # Save sell order
         sell_order                          = models.OrderbookOrder(
             orderbook                               = orderbook,
             currency                                = currency,

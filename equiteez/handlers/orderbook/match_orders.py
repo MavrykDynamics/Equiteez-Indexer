@@ -156,7 +156,7 @@ async def match_orders(
         await buy_order.save()
 
     for sell_order_id in sell_order_ledger:
-        # Get buy order parameters
+        # Get sell order parameters
         sell_order_record                   = sell_order_ledger[sell_order_id]
         fulfilled_amount                    = sell_order_record.fulfilledAmount
         unfulfilled_amount                  = sell_order_record.unfulfilledAmount
@@ -171,7 +171,7 @@ async def match_orders(
         created_at                          = parser.parse(sell_order_record.orderTimestamps.timestamp_0) if sell_order_record.orderTimestamps.timestamp_0 else None
         ended_at                            = parser.parse(sell_order_record.orderTimestamps.timestamp_1) if sell_order_record.orderTimestamps.timestamp_1 else None
 
-        # Save buy order
+        # Save sell order
         sell_order                           = await models.OrderbookOrder.get(
             orderbook   = orderbook,
             order_type  = models.OrderType.SELL,

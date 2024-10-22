@@ -147,8 +147,27 @@ async def sign_action(
             
             # Remove general admin
             if path == "generalAdminLedger":
-                breakpoint()
+                general_admin_address   = content['key']
+                user, _                 = await models.EquiteezUser.get_or_create(
+                    address             = general_admin_address
+                )
+                await user.save()
+                await models.SuperAdminGeneralAdmin.filter(
+                    super_admin = super_admin,
+                    user        = user
+                ).delete()
             
             # Remove contract admin
             if path == "contractAdminLedger":
-                breakpoint()
+                contract_admin_record   = content['key']
+                contract_admin_address  = contract_admin_record['address_0']
+                contract_address        = contract_admin_record['address_1']
+                user, _                 = await models.EquiteezUser.get_or_create(
+                    address             = contract_admin_address
+                )
+                await user.save()
+                await models.SuperAdminContractAdmin.filter(
+                    super_admin         = super_admin,
+                    user                = user,
+                    contract_address    = contract_address
+                ).delete()

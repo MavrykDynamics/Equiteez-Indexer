@@ -33,9 +33,6 @@ async def origination(
     sell_order_counter              = orderbook_origination.storage.sellOrderCounter
     fee_ledger                      = orderbook_origination.storage.feeLedger
     currency_ledger                 = orderbook_origination.storage.currencyLedger
-    rwa_order_ledger                = orderbook_origination.storage.rwaOrderLedger
-    buy_order_ledger                = orderbook_origination.storage.buyOrderLedger
-    sell_order_ledger               = orderbook_origination.storage.sellOrderLedger
     pause_ledger                    = orderbook_origination.storage.pauseLedger
 
     # Get KYC
@@ -102,45 +99,19 @@ async def origination(
         await orderbook_fee.save()
 
     # Prepare the currency ledger
-    for currency_record in currency_ledger:
-        breakpoint()
-
-    # Prepare the rwa order ledger
-    for rwa_order_token_address in rwa_order_ledger:
-        rwa_order_record    = rwa_order_ledger[rwa_order_token_address]
-        buy_price_map       = rwa_order_record.buyPriceMap
-        sell_price_map      = rwa_order_record.sellPriceMap
-        buy_order_map       = rwa_order_record.buyOrderMap
-        sell_order_map      = rwa_order_record.sellOrderMap
-        rwa_order_token     = await register_token(
-            ctx = ctx,
-            address = rwa_order_token_address
+    for currency_name in currency_ledger:
+        currency_record     = currency_ledger[currency_name]
+        token_address       = currency_record.tokenContractAddress
+        token               = await register_token(
+            ctx     = ctx,
+            address = token_address
         )
-        rwa_order           = models.OrderbookRwaOrder(
-            orderbook   = orderbook,
-            rwa_token   = rwa_order_token
+        currency, _         = await models.OrderbookCurrency.get_or_create(
+            orderbook       = orderbook,
+            currency_name   = currency_name
         )
-        await rwa_order.save()
-
-        for buy_price in buy_price_map:
-            breakpoint()
-
-        for sell_price in sell_price_map:
-            breakpoint()
-
-        for buy_order in buy_order_map:
-            breakpoint()
-
-        for sell_order in sell_order_map:
-            breakpoint()
-
-    # Prepare the buy order ledger
-    for buy_order_record in buy_order_ledger:
-        breakpoint()
-
-    # Prepare the sell order ledger
-    for sell_order_record in sell_order_ledger:
-        breakpoint()
+        currency.token      = token
+        await currency.save()
 
     # Save the entrypoints status
     for entrypoint in pause_ledger:
