@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from typing import List
+
+from pydantic import BaseModel, ConfigDict, RootModel
 
 
-class UpdateConfigParameter(BaseModel):
+class UpdateConfigParameterItem(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
     configName: str
-    newConfigValue: str
+    newValue: str
+
+
+class UpdateConfigParameter(RootModel[List[UpdateConfigParameterItem]]):
+    root: List[UpdateConfigParameterItem]

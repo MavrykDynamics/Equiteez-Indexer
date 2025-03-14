@@ -225,92 +225,92 @@ indexes:
       pattern:
       - destination: mars1_dodo_mav
         entrypoint: depositBaseToken
-  marketplace:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - marketplace
-    types:
-    - origination
-    - transaction
-    handlers:
-    - callback: marketplace.origination
-      pattern:
-      - type: origination
-        originated_contract: marketplace
-    - callback: marketplace.set_lambda
-      pattern:
-      - destination: marketplace
-        entrypoint: setLambda
-    - callback: marketplace.set_super_admin
-      pattern:
-      - destination: marketplace
-        entrypoint: setSuperAdmin
-    - callback: marketplace.claim_super_admin
-      pattern:
-      - destination: marketplace
-        entrypoint: claimSuperAdmin
-    - callback: marketplace.update_metadata
-      pattern:
-      - destination: marketplace
-        entrypoint: updateMetadata
-    - callback: marketplace.update_config
-      pattern:
-      - destination: marketplace
-        entrypoint: updateConfig
-    - callback: marketplace.update_whitelist_contracts
-      pattern:
-      - destination: marketplace
-        entrypoint: updateWhitelistContracts
-    - callback: marketplace.update_general_contracts
-      pattern:
-      - destination: marketplace
-        entrypoint: updateGeneralContracts
-    - callback: marketplace.pause_all
-      pattern:
-      - destination: marketplace
-        entrypoint: pauseAll
-    - callback: marketplace.unpause_all
-      pattern:
-      - destination: marketplace
-        entrypoint: unpauseAll
-    - callback: marketplace.toggle_pause_entrypoint
-      pattern:
-      - destination: marketplace
-        entrypoint: togglePauseEntrypoint
-    - callback: marketplace.set_currency
-      pattern:
-      - destination: marketplace
-        entrypoint: setCurrency
-    - callback: marketplace.create_listing
-      pattern:
-      - destination: marketplace
-        entrypoint: createListing
-    - callback: marketplace.edit_listing
-      pattern:
-      - destination: marketplace
-        entrypoint: editListing
-    - callback: marketplace.remove_listing
-      pattern:
-      - destination: marketplace
-        entrypoint: removeListing
-    - callback: marketplace.purchase
-      pattern:
-      - destination: marketplace
-        entrypoint: purchase
-    - callback: marketplace.offer
-      pattern:
-      - destination: marketplace
-        entrypoint: offer
-    - callback: marketplace.accept_offer
-      pattern:
-      - destination: marketplace
-        entrypoint: acceptOffer
-    - callback: marketplace.remove_offer
-      pattern:
-      - destination: marketplace
-        entrypoint: removeOffer
+  # marketplace:
+  #   kind: tezos.operations
+  #   datasources:
+  #   - mvkt_atlasnet
+  #   contracts:
+  #   - marketplace
+  #   types:
+  #   - origination
+  #   - transaction
+  #   handlers:
+  #   - callback: marketplace.origination
+  #     pattern:
+  #     - type: origination
+  #       originated_contract: marketplace
+  #   - callback: marketplace.set_lambda
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: setLambda
+  #   - callback: marketplace.set_super_admin
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: setSuperAdmin
+  #   - callback: marketplace.claim_super_admin
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: claimSuperAdmin
+  #   - callback: marketplace.update_metadata
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: updateMetadata
+  #   - callback: marketplace.update_config
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: updateConfig
+  #   - callback: marketplace.update_whitelist_contracts
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: updateWhitelistContracts
+  #   - callback: marketplace.update_general_contracts
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: updateGeneralContracts
+  #   - callback: marketplace.pause_all
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: pauseAll
+  #   - callback: marketplace.unpause_all
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: unpauseAll
+  #   - callback: marketplace.toggle_pause_entrypoint
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: togglePauseEntrypoint
+  #   - callback: marketplace.set_currency
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: setCurrency
+  #   - callback: marketplace.create_listing
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: createListing
+  #   - callback: marketplace.edit_listing
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: editListing
+  #   - callback: marketplace.remove_listing
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: removeListing
+  #   - callback: marketplace.purchase
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: purchase
+  #   - callback: marketplace.offer
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: offer
+  #   - callback: marketplace.accept_offer
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: acceptOffer
+  #   - callback: marketplace.remove_offer
+  #     pattern:
+  #     - destination: marketplace
+  #       entrypoint: removeOffer
   super_admin:
     kind: tezos.operations
     datasources:

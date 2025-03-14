@@ -11,9 +11,9 @@ class Config(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
+    feeDecimals: str
     lpFee: str
     maintainerFee: str
-    feeDecimals: str
 
 
 class GuidePriceConfig(BaseModel):

@@ -1,33 +1,49 @@
 contracts:
   super_admin:
     kind: tezos
-    address: KT19hxb9q3LerFRMXoazV4j2jUsbM8ajyExe
+    address: KT1JkmXcgKQ3oNpLhjDD4WgvgMfyccUZwsws
     typename: super_admin
   kyc:
     kind: tezos
-    address: KT19bfnNi9mMptoJsFZpwxA8SYRYjfsMgTt2
+    address: KT1TYqkzAYKDrCmPo7Be1vZtC7kdUoNfKyZa
     typename: kyc
   mars1_orderbook:
     kind: tezos
-    address: KT1L4QqPVYjoqvXrSiAFTLn13zvzoVPHYWex
+    address: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6
     typename: orderbook
   ocean_orderbook:
     kind: tezos
-    address: KT1LCE1rgLYNH4sFT8noxT7u6wLJGqsnDyCu
+    address: KT1KFbUGFtUjTENbhuGRCAuTmuuJFEwnBBrB
+    typename: orderbook
+  queen_orderbook:
+    kind: tezos
+    address: KT1RZB8ZK4PtWPD8pV5hj4DJeke4am3A4gz2
+    typename: orderbook
+  ntbm_orderbook:
+    kind: tezos
+    address: KT1SAdsMEHm4WDPh5Dj9Rw9P7LdBZXyiuXGT
     typename: orderbook
   mars1_dodo_mav:
     kind: tezos
-    address: KT1ABV9gRRWYFScWanzXWMPgoNX4Hqh8uAv7
+    address: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
     typename: dodo_mav
   ocean_dodo_mav:
     kind: tezos
-    address: KT1DF89asbraGsSpJA7WEEQGaBKsko9DCYnK
+    address: KT1BzSxqXNmejXB1ujGCV79rocGfnQyVTK5e
     typename: dodo_mav
-  marketplace:
+  queen_dodo_mav:
     kind: tezos
-    address: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok
-    typename: marketplace
+    address: KT1XpG3UASMqVZDvzbkn8xHGMDuEQNLpkGxq
+    typename: dodo_mav
+  ntbm_dodo_mav:
+    kind: tezos
+    address: KT1SQ63D1hk4n2B78FPgijt99Hso2tPFHNEb
+    typename: dodo_mav
+  # marketplace:
+  #   kind: tezos
+  #   address: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok
+  #   typename: marketplace
   fa2:
     kind: tezos
-    address: KT1K3yqtMqgiqSLFvaBaxyCy8wbijuoMas4R
+    address: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj
     typename: fa2
