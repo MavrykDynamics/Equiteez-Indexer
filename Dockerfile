@@ -1,6 +1,6 @@
 FROM python:3.12.4-slim
 
-RUN pip install poetry
+RUN pip install poetry==1.8.4
 RUN apt-get update && \
     apt-get -y install gcc && \
     rm -rf /var/lib/apt/lists/*
@@ -11,7 +11,7 @@ COPY dipdup.yml /indexer/
 COPY dipdup.contracts.yml /indexer/
 COPY dipdup.prod.yml /indexer/
 
-RUN poetry config virtualenvs.create false && poetry install --no-dev
+RUN poetry config virtualenvs.create false && poetry install --only main
 
 ADD equiteez /indexer/equiteez/
 
