@@ -7,6 +7,14 @@ indexes:
     template: dodo_mav_template
     values:
       dodo_mav_contract: ocean_dodo_mav
+  queen_dodo_mav:
+    template: dodo_mav_template
+    values:
+      dodo_mav_contract: queen_dodo_mav
+  ntbm_dodo_mav:
+    template: dodo_mav_template
+    values:
+      dodo_mav_contract: ntbm_dodo_mav
   mars1_orderbook:
     template: orderbook_template
     values:
@@ -15,6 +23,14 @@ indexes:
     template: orderbook_template
     values:
       orderbook_contract: ocean_orderbook
+  queen_orderbook:
+    template: orderbook_template
+    values:
+      orderbook_contract: queen_orderbook
+  ntbm_orderbook:
+    template: orderbook_template
+    values:
+      orderbook_contract: ntbm_orderbook
   kyc:
     kind: tezos.operations
     datasources:
