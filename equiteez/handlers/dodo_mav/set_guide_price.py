@@ -17,10 +17,13 @@ async def set_guide_price(
     orderbook_price_percent             = set_guide_price.storage.guidePriceConfig.orderbookPricePercent
 
     # Update dodo mav
+    price_model_enum = models.PriceModel.FIXED
+    if price_model != "fixed":
+        price_model_enum = models.PriceModel.DYNAMIC
     dodo_mav    = await models.DodoMav.get(
         address = address
     )
-    dodo_mav.price_model                = price_model
+    dodo_mav.price_model                = price_model_enum
     dodo_mav.appraisal_price            = appraisal_price
     dodo_mav.fixed_price_percent        = fixed_price_percent
     dodo_mav.orderbook_price_percent    = orderbook_price_percent
