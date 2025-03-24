@@ -29,6 +29,9 @@ class Token(Model):
 
     class Meta:
         table = 'token'
+        indexes = [
+            ("address", "token_id"),
+        ]
 
 class ContractLambda():
     id                                      = fields.IntField(primary_key=True)
@@ -43,7 +46,7 @@ class EntrypointStatus():
 
 class EquiteezUser(Model):
     id                                      = fields.IntField(primary_key=True)
-    address                                 = fields.CharField(max_length=36, index=True)
+    address                                 = fields.CharField(max_length=36, index=True, unique=True)
 
     class Meta:
         table = 'equiteez_user'
@@ -56,16 +59,24 @@ class EquiteezUserBalance(Model):
 
     class Meta:
         table = 'equiteez_user_balance'
+        indexes = [
+            ("user_id", "token_id"),
+        ]
 
 class EquiteezUserTokenTransfer(Model):
     id                                      = fields.IntField(primary_key=True)
     from_user                               = fields.ForeignKeyField('models.EquiteezUser', related_name='token_transfer_senders', null=True)
     to_user                                 = fields.ForeignKeyField('models.EquiteezUser', related_name='token_transfer_receivers', null=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='equiteez_user_token_transfers')
-    timestamp                               = fields.DatetimeField()
-    level                                   = fields.BigIntField()
+    timestamp                               = fields.DatetimeField(index=True)
+    level                                   = fields.BigIntField(index=True)
     transfer_type                           = fields.IntEnumField(enum_type=TransferType, index=True)
     amount                                  = fields.BigIntField()
 
     class Meta:
         table = 'equiteez_user_token_transfer'
+        indexes = [
+            ("from_user_id", "token_id"),
+            ("to_user_id", "token_id"),
+            ("token_id", "timestamp"),
+        ]

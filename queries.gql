@@ -1,0 +1,101 @@
+query UserKycStatus($address: String!) {
+kyc_member(where: {user: {address: {_eq: $address}}}) {
+user {
+address
+}
+}
+}
+subscription DipDupHeadLvl {
+dipdup_head {
+level
+}
+}
+query DexStorage {
+dodo_mav {
+address
+fee_decimals
+guide_price
+slippage_factor
+fixed_price_percent
+base_balance
+quote_balance
+target_base_token_amount
+target_quote_token_amount
+base_balance_limit
+quote_balance_limit
+metadata
+r_status
+price_model
+maintainer_fee
+quote_token {
+token_id
+address
+}
+quote_lp_token {
+address
+token_id
+}
+base_lp_token {
+address
+token_id
+}
+base_token {
+token_id
+address
+}
+}
+}
+query dodoMAvAssetMetadata($addresses: [String! {
+token(where: {address: {_in: $addresses}}) {
+address
+token_id
+token_standard
+token_metadata
+metadata
+}
+}
+query marketAddresses {
+dodo_mav {
+address
+base_token {
+token_id
+address
+}
+quote_token {
+token_id
+address
+}
+quote_lp_token {
+address
+token_id
+}
+base_lp_token {
+address
+token_id
+}
+}
+orderbook {
+address
+rwa_token {
+address
+}
+}
+}
+From wallet extension:
+query MarketContracts {
+dodo_mav {
+base_token {
+address
+token_id
+}
+}
+}
+query MarketTokens($addresses: [String!]!) {
+token(where: { address: { _in: $addresses } }) {
+address
+token_id
+token_standard
+token_metadata
+metadata
+}
+}

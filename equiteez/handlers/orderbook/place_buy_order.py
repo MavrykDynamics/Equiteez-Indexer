@@ -87,13 +87,19 @@ async def place_buy_order(
         )
         await currency.save()
 
+        # Create initiator
+        user, _                             = await models.EquiteezUser.get_or_create(
+            address = initiator
+        )
+        await user.save()
+
         # Save buy order
         buy_order                           = models.OrderbookOrder(
             orderbook                               = orderbook,
             currency                                = currency,
             order_id                                = buy_order_id,
             order_type                              = order_type,
-            initiator                               = initiator,
+            initiator                               = user,
             rwa_token_amount                        = rwa_token_amount,
             price_per_rwa_token                     = price_per_rwa_token,
             fulfilled_amount                        = fulfilled_amount,

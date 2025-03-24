@@ -44,6 +44,9 @@ class KycWhitelisted(Model):
 
     class Meta:
         table = 'kyc_whitelisted'
+        indexes = [
+            ("kyc_id", "user_id"),
+        ]
 
 class KycBlacklisted(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -52,6 +55,9 @@ class KycBlacklisted(Model):
 
     class Meta:
         table = 'kyc_blacklisted'
+        indexes = [
+            ("kyc_id", "user_id"),
+        ]
 
 class KycValidInput(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -61,6 +67,9 @@ class KycValidInput(Model):
    
     class Meta:
         table = 'kyc_valid_input'
+        indexes = [
+            ("kyc_id", "category"),
+        ]
 
 class KycRegistrar(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -76,6 +85,9 @@ class KycRegistrar(Model):
    
     class Meta:
         table = 'kyc_registrar'
+        indexes = [
+            ("kyc_id", "user_id"),
+        ]
 
 class KycCountryTransferRule(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -88,6 +100,9 @@ class KycCountryTransferRule(Model):
    
     class Meta:
         table = 'kyc_country_transfer_rule'
+        indexes = [
+            ("kyc_id", "country"),
+        ]
 
 class KycMember(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -98,7 +113,12 @@ class KycMember(Model):
     region                                  = fields.TextField(index=True, null=True)
     investor_type                           = fields.TextField(index=True, null=True)
     expire_at                               = fields.DatetimeField(null=True)
-    frozen                                  = fields.BooleanField(default=False)
+    frozen                                  = fields.BooleanField(default=False, index=True)
    
     class Meta:
         table = 'kyc_member'
+        indexes = [
+            ("user_id",),
+            ("kyc_id", "user_id"),
+            ("expire_at", "frozen"),
+        ]

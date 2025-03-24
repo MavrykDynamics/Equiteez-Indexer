@@ -57,6 +57,9 @@ class MarketplaceWhitelistContract(Model):
 
     class Meta:
         table = 'marketplace_whitelist_contract'
+        indexes = [
+            ("marketplace_id", "address"),
+        ]
 
 class MarketplaceGeneralContract(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -65,6 +68,9 @@ class MarketplaceGeneralContract(Model):
 
     class Meta:
         table = 'marketplace_general_contract'
+        indexes = [
+            ("marketplace_id", "address"),
+        ]
 
 class MarketplaceCurrency(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -73,6 +79,9 @@ class MarketplaceCurrency(Model):
 
     class Meta:
         table = 'marketplace_currency'
+        indexes = [
+            ("marketplace_id", "token_id"),
+        ]
 
 
 class MarketplaceListing(Model):
@@ -81,15 +90,21 @@ class MarketplaceListing(Model):
     initiator                               = fields.ForeignKeyField('models.EquiteezUser', related_name='marketplace_listings')
     token                                   = fields.ForeignKeyField('models.Token', related_name='marketplace_listing_tokens')
     currency                                = fields.ForeignKeyField('models.MarketplaceCurrency', related_name='listings')
-    listing_id                              = fields.BigIntField(default=0)
+    listing_id                              = fields.BigIntField(default=0, index=True)
     status                                  = fields.IntEnumField(enum_type=ListingStatus, index=True)
     amount                                  = fields.FloatField(default=0.0)
-    price_per_unit                          = fields.BigIntField(default=0)
+    price_per_unit                          = fields.BigIntField(default=0, index=True)
     quick_buy_price                         = fields.BigIntField(null=True)
-    expiry_time                             = fields.DatetimeField(null=True)
+    expiry_time                             = fields.DatetimeField(null=True, index=True)
 
     class Meta:
         table = 'marketplace_listing'
+        indexes = [
+            ("marketplace_id", "listing_id"),
+            ("token_id", "status"),
+            ("initiator_id", "status"),
+            ("status", "price_per_unit", "expiry_time"),
+        ]
 
 class MarketplaceOffer(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -97,11 +112,17 @@ class MarketplaceOffer(Model):
     listing                                 = fields.ForeignKeyField('models.MarketplaceListing', related_name='offers')
     initiator                               = fields.ForeignKeyField('models.EquiteezUser', related_name='marketplace_offers')
     currency                                = fields.ForeignKeyField('models.MarketplaceCurrency', related_name='offers')
-    offer_id                                = fields.BigIntField(default=0)
+    offer_id                                = fields.BigIntField(default=0, index=True)
     status                                  = fields.IntEnumField(enum_type=OfferStatus, index=True)
     amount                                  = fields.FloatField(default=0.0)
-    price                                   = fields.BigIntField(default=0)
-    expiry_time                             = fields.DatetimeField(null=True)
+    price                                   = fields.BigIntField(default=0, index=True)
+    expiry_time                             = fields.DatetimeField(null=True, index=True)
 
     class Meta:
         table = 'marketplace_offer'
+        indexes = [
+            ("marketplace_id", "offer_id"),
+            ("listing_id", "status"),
+            ("initiator_id", "status"),
+            ("status", "price", "expiry_time"),
+        ]

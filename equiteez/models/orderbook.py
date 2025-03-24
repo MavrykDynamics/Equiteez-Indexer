@@ -41,6 +41,9 @@ class Orderbook(Model):
 
     class Meta:
         table = 'orderbook'
+        indexes = [
+            ("rwa_token_id",),
+        ]
 
 class OrderbookLambda(Model, ContractLambda):
     contract                                = fields.ForeignKeyField('models.Orderbook', related_name='lambdas')
@@ -62,6 +65,9 @@ class OrderbookCurrency(Model):
 
     class Meta:
         table = 'orderbook_currency'
+        indexes = [
+            ("orderbook_id", "token_id"),
+        ]
 
 class OrderbookFee(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -81,6 +87,9 @@ class OrderbookRwaOrder(Model):
 
     class Meta:
         table = 'orderbook_rwa_order'
+        indexes = [
+            ("orderbook_id", "rwa_token_id"),
+        ]
 
 class OrderbookRwaOrderBuyPrice(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -90,6 +99,9 @@ class OrderbookRwaOrderBuyPrice(Model):
 
     class Meta:
         table = 'orderbook_rwa_order_buy_price'
+        indexes = [
+            ("rwa_order_id", "price"),
+        ]
 
 class OrderbookRwaOrderSellPrice(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -99,6 +111,9 @@ class OrderbookRwaOrderSellPrice(Model):
 
     class Meta:
         table = 'orderbook_rwa_order_sell_price'
+        indexes = [
+            ("rwa_order_id", "price"),
+        ]
 
 class OrderbookRwaOrderPrice():
     id                                      = fields.IntField(primary_key=True)
@@ -110,34 +125,47 @@ class OrderbookRwaOrderBuyOrder(Model, OrderbookRwaOrderPrice):
 
     class Meta:
         table = 'orderbook_rwa_order_buy_order'
+        indexes = [
+            ("rwa_order_id", "price"),
+        ]
 
 class OrderbookRwaOrderSellOrder(Model, OrderbookRwaOrderPrice):
     rwa_order                               = fields.ForeignKeyField('models.OrderbookRwaOrder', related_name='orderbook_rwa_order_sell_orders')
 
     class Meta:
         table = 'orderbook_rwa_order_sell_order'
+        indexes = [
+            ("rwa_order_id", "price"),
+        ]
 
 class OrderbookOrder(Model):
     id                                      = fields.IntField(primary_key=True)
     orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='orders')
-    order_id                                = fields.BigIntField(default=0)
+    order_id                                = fields.BigIntField(default=0, index=True)  # Added index
     order_type                              = fields.IntEnumField(enum_type=OrderType, index=True)
-    initiator                               = fields.CharField(max_length=36, index=True)
+    initiator                               = fields.ForeignKeyField('models.EquiteezUser', related_name='orderbook_orders')
     currency                                = fields.ForeignKeyField('models.OrderbookCurrency', related_name='orders')
     rwa_token_amount                        = fields.BigIntField(default=0)
-    price_per_rwa_token                     = fields.BigIntField(default=0)
+    price_per_rwa_token                     = fields.BigIntField(default=0, index=True)  # Added index
     fulfilled_amount                        = fields.BigIntField(default=0)
     unfulfilled_amount                      = fields.BigIntField(default=0)
     total_paid_out                          = fields.BigIntField(default=0)
     total_usd_value_of_rwa_token_amount     = fields.BigIntField(default=0)
-    is_fulfilled                            = fields.BooleanField(default=False)
-    is_canceled                             = fields.BooleanField(default=False)
-    is_expired                              = fields.BooleanField(default=False)
+    is_fulfilled                            = fields.BooleanField(default=False, index=True)  # Added index
+    is_canceled                             = fields.BooleanField(default=False, index=True)  # Added index
+    is_expired                              = fields.BooleanField(default=False, index=True)  # Added index
     is_refunded                             = fields.BooleanField(default=False)
     refunded_amount                         = fields.BigIntField(default=0)
-    order_expiry                            = fields.DatetimeField(null=True)
-    created_at                              = fields.DatetimeField(null=True)
+    order_expiry                            = fields.DatetimeField(null=True, index=True)  # Added index
+    created_at                              = fields.DatetimeField(null=True, index=True)  # Added index
     ended_at                                = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'orderbook_order'
+        indexes = [
+            ("orderbook_id", "order_id"),
+            ("orderbook_id", "order_type"),
+            ("orderbook_id", "initiator"),
+            ("orderbook_id", "is_fulfilled", "is_canceled", "is_expired"),
+            ("created_at", "order_expiry"),
+        ]
