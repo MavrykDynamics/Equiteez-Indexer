@@ -7,6 +7,14 @@ contracts:
     kind: tezos
     address: KT1TYqkzAYKDrCmPo7Be1vZtC7kdUoNfKyZa
     typename: kyc
+  base_token:
+    kind: tezos
+    code_hash: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj
+    typename: base_token
+  quote_token:
+    kind: tezos
+    code_hash: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
+    typename: quote_token
   mars1_orderbook:
     kind: tezos
     address: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6

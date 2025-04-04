@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE VIEW market_addresses_view AS
 SELECT 
     dm.id AS dodo_mav_id,
@@ -202,3 +201,76 @@ FROM
     JOIN orderbook o ON oo.orderbook_id = o.id
 GROUP BY 
     eu.id, eu.address, o.id, o.address;
+
+-- Create views for DodoMavHistoryData candles
+CREATE OR REPLACE VIEW dodo_mav_candles_1h_view AS
+SELECT 
+    bucket as timestamp,
+    dodo_mav_address,
+    open,
+    high,
+    low,
+    close,
+    volume,
+    trades
+FROM dodo_mav_candles_1h;
+
+CREATE OR REPLACE VIEW dodo_mav_candles_1d_view AS
+SELECT 
+    bucket as timestamp,
+    dodo_mav_address,
+    open,
+    high,
+    low,
+    close,
+    volume,
+    trades
+FROM dodo_mav_candles_1d;
+
+CREATE OR REPLACE VIEW dodo_mav_candles_1w_view AS
+SELECT 
+    bucket as timestamp,
+    dodo_mav_address,
+    open,
+    high,
+    low,
+    close,
+    volume,
+    trades
+FROM dodo_mav_candles_1w;
+
+CREATE OR REPLACE VIEW dodo_mav_candles_1m_view AS
+SELECT 
+    bucket as timestamp,
+    dodo_mav_address,
+    open,
+    high,
+    low,
+    close,
+    volume,
+    trades
+FROM dodo_mav_candles_1m;
+
+CREATE OR REPLACE VIEW dodo_mav_candles_1y_view AS
+SELECT 
+    bucket as timestamp,
+    dodo_mav_address,
+    open,
+    high,
+    low,
+    close,
+    volume,
+    trades
+FROM dodo_mav_candles_1y;
+
+CREATE OR REPLACE VIEW dodo_mav_candles_3y_view AS
+SELECT 
+    bucket as timestamp,
+    dodo_mav_address,
+    open,
+    high,
+    low,
+    close,
+    volume,
+    trades
+FROM dodo_mav_candles_3y;

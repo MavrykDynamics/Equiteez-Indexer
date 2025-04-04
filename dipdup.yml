@@ -405,10 +405,30 @@ templates:
       pattern:
       - destination: <dodo_mav_contract>
         entrypoint: buyBaseToken
+      - type: transaction
+        destination: base_token
+        entrypoint: transfer
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+      - type: transaction
+        destination: base_token
+        entrypoint: transfer
+        optional: True
     - callback: dodo_mav.sell_base_token
       pattern:
       - destination: <dodo_mav_contract>
         entrypoint: sellBaseToken
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+      - type: transaction
+        destination: base_token
+        entrypoint: transfer
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+        optional: True
     - callback: dodo_mav.withdraw_quote_token
       pattern:
       - destination: <dodo_mav_contract>

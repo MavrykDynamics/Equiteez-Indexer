@@ -169,3 +169,21 @@ class OrderbookOrder(Model):
             ("orderbook_id", "is_fulfilled", "is_canceled", "is_expired"),
             ("created_at", "order_expiry"),
         ]
+
+# class OrderbookHistoryData(Model):
+#     id                                      = fields.BigIntField(pk=True)
+#     orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='history_data')
+#     order                                   = fields.ForeignKeyField('models.OrderbookOrder', related_name='history_data')
+#     trader                                  = fields.ForeignKeyField('models.EquiteezUser', related_name='orderbook_history_data')
+#     timestamp                               = fields.DatetimeField(use_tz=True)
+#     level                                   = fields.BigIntField()
+#     token_price                             = fields.FloatField(default=0.0)
+#     token_price_usd                         = fields.FloatField(null=True)
+#     token0_qty                              = fields.FloatField(default=0.0)
+#     token1_qty                              = fields.FloatField(default=0.0)
+#     token0_pool                             = fields.BigIntField(default=0)
+#     token1_pool                             = fields.BigIntField(default=0)
+#     lqt_total                               = fields.BigIntField(default=0)
+
+#     class Meta:
+#         table = 'orderbook_history_data'

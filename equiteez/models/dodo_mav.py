@@ -10,6 +10,10 @@ class PriceModel(IntEnum):
     FIXED                                   = 0
     DYNAMIC                                 = 1
 
+class TradeType(IntEnum):
+    BUY                                     = 0
+    SELL                                    = 1
+
 ###
 # DodoMav Tables
 ###
@@ -63,3 +67,21 @@ class DodoMavEntrypointStatus(Model, EntrypointStatus):
 
     class Meta:
         table = 'dodo_mav_entrypoint_status'
+
+class DodoMavHistoryData(Model):
+    id                                      = fields.BigIntField(pk=True)
+    dodo_mav                                = fields.ForeignKeyField('models.DodoMav', related_name='history_data')
+    trader                                  = fields.ForeignKeyField('models.EquiteezUser', related_name='dodo_mav_history_datas')
+    timestamp                               = fields.DatetimeField(use_tz=True)
+    level                                   = fields.BigIntField()
+    type                                    = fields.IntEnumField(enum_type=TradeType, index=True)
+    base_token_price                        = fields.FloatField(default=0.0)
+    # base_token_price_usd                    = fields.FloatField(null=True)
+    base_token_qty                          = fields.FloatField(default=0.0)
+    quote_token_qty                         = fields.FloatField(default=0.0)
+    base_token_pool                         = fields.FloatField(default=0)
+    quote_token_pool                        = fields.FloatField(default=0)
+    # lqt_total                               = fields.FloatField(default=0)
+
+    class Meta:
+        table = 'dodo_mav_history_data'
