@@ -57,6 +57,9 @@ class MarketplaceWhitelistContract(Model):
 
     class Meta:
         table = 'marketplace_whitelist_contract'
+        indexes = [
+            ("marketplace_id", "address"),
+        ]
 
 class MarketplaceGeneralContract(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -65,6 +68,9 @@ class MarketplaceGeneralContract(Model):
 
     class Meta:
         table = 'marketplace_general_contract'
+        indexes = [
+            ("marketplace_id", "address"),
+        ]
 
 class MarketplaceCurrency(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -73,6 +79,10 @@ class MarketplaceCurrency(Model):
 
     class Meta:
         table = 'marketplace_currency'
+        indexes = [
+            ("marketplace_id", "token_id"),
+        ]
+
 
 class MarketplaceListing(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -89,6 +99,12 @@ class MarketplaceListing(Model):
 
     class Meta:
         table = 'marketplace_listing'
+        indexes = [
+            ("marketplace_id", "listing_id"),
+            ("token_id", "status"),
+            ("initiator_id", "status"),
+            ("status", "price_per_unit", "expiry_time"),
+        ]
 
 class MarketplaceOffer(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -104,3 +120,9 @@ class MarketplaceOffer(Model):
 
     class Meta:
         table = 'marketplace_offer'
+        indexes = [
+            ("marketplace_id", "offer_id"),
+            ("listing_id", "status"),
+            ("initiator_id", "status"),
+            ("status", "price", "expiry_time"),
+        ]

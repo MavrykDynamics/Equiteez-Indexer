@@ -48,6 +48,13 @@ class DodoMav(Model):
 
     class Meta:
         table = 'dodo_mav'
+        indexes = [
+            ("base_token_id",),
+            ("quote_token_id",),
+            ("base_lp_token_id",),
+            ("quote_lp_token_id",),
+            ("price_model", "r_status"),
+        ]
 
 class DodoMavLambda(Model, ContractLambda):
     contract                                = fields.ForeignKeyField('models.DodoMav', related_name='lambdas')

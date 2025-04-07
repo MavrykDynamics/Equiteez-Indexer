@@ -29,6 +29,9 @@ class Token(Model):
 
     class Meta:
         table = 'token'
+        indexes = [
+            ("address", "token_id"),
+        ]
 
 class ContractLambda():
     id                                      = fields.IntField(primary_key=True)
@@ -56,6 +59,9 @@ class EquiteezUserBalance(Model):
 
     class Meta:
         table = 'equiteez_user_balance'
+        indexes = [
+            ("user_id", "token_id"),
+        ]
 
 class EquiteezUserTokenTransfer(Model):
     id                                      = fields.IntField(primary_key=True)
@@ -69,3 +75,8 @@ class EquiteezUserTokenTransfer(Model):
 
     class Meta:
         table = 'equiteez_user_token_transfer'
+        indexes = [
+            ("from_user_id", "token_id"),
+            ("to_user_id", "token_id"),
+            ("token_id", "timestamp"),
+        ]
