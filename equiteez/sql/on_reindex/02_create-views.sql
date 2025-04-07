@@ -205,7 +205,7 @@ GROUP BY
 -- Create views for DodoMavHistoryData candles
 CREATE OR REPLACE VIEW dodo_mav_candles_1h_view AS
 SELECT 
-    bucket as timestamp,
+    timestamp,
     dodo_mav_address,
     open,
     high,
@@ -217,7 +217,7 @@ FROM dodo_mav_candles_1h;
 
 CREATE OR REPLACE VIEW dodo_mav_candles_1d_view AS
 SELECT 
-    bucket as timestamp,
+    timestamp,
     dodo_mav_address,
     open,
     high,
@@ -229,7 +229,7 @@ FROM dodo_mav_candles_1d;
 
 CREATE OR REPLACE VIEW dodo_mav_candles_1w_view AS
 SELECT 
-    bucket as timestamp,
+    timestamp,
     dodo_mav_address,
     open,
     high,
@@ -241,7 +241,7 @@ FROM dodo_mav_candles_1w;
 
 CREATE OR REPLACE VIEW dodo_mav_candles_1m_view AS
 SELECT 
-    bucket as timestamp,
+    timestamp,
     dodo_mav_address,
     open,
     high,
@@ -250,27 +250,3 @@ SELECT
     volume,
     trades
 FROM dodo_mav_candles_1m;
-
-CREATE OR REPLACE VIEW dodo_mav_candles_1y_view AS
-SELECT 
-    bucket as timestamp,
-    dodo_mav_address,
-    open,
-    high,
-    low,
-    close,
-    volume,
-    trades
-FROM dodo_mav_candles_1y;
-
-CREATE OR REPLACE VIEW dodo_mav_candles_3y_view AS
-SELECT 
-    bucket as timestamp,
-    dodo_mav_address,
-    open,
-    high,
-    low,
-    close,
-    volume,
-    trades
-FROM dodo_mav_candles_3y;

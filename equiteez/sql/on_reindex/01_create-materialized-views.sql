@@ -1,5 +1,5 @@
 -- Token transfer volume by day
-CREATE MATERIALIZED VIEW token_transfer_volume_daily
+CREATE MATERIALIZED VIEW IF NOT EXISTS token_transfer_volume_daily
 WITH (timescaledb.continuous) AS
 SELECT 
     time_bucket('1 day', timestamp) AS day,
@@ -12,10 +12,22 @@ GROUP BY 1, 2, 3
 WITH NO DATA;
 
 -- Select an appropriate refresh policy
-SELECT add_continuous_aggregate_policy('token_transfer_volume_daily',
-    start_offset => INTERVAL '30 days',
-    end_offset => INTERVAL '1 hour',
-    schedule_interval => INTERVAL '1 day');
+DO $$ 
+BEGIN
+    -- Try to drop the policy if it exists
+    BEGIN
+        PERFORM remove_continuous_aggregate_policy('token_transfer_volume_daily');
+    EXCEPTION WHEN undefined_object THEN
+        -- Policy doesn't exist, continue
+        NULL;
+    END;
+    
+    -- Add new policy
+    PERFORM add_continuous_aggregate_policy('token_transfer_volume_daily',
+        start_offset => INTERVAL '30 days',
+        end_offset => INTERVAL '1 hour',
+        schedule_interval => INTERVAL '1 day');
+END $$;
 
 -- Create materialized views for DodoMavHistoryData candles with optimized settings
 CREATE MATERIALIZED VIEW IF NOT EXISTS dodo_mav_candles_1h
