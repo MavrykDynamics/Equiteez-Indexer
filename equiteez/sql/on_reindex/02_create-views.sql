@@ -1,252 +1,252 @@
-CREATE OR REPLACE VIEW market_addresses_view AS
-SELECT 
-    dm.id AS dodo_mav_id,
-    dm.address AS dodo_mav_address,
+-- CREATE OR REPLACE VIEW market_addresses_view AS
+-- SELECT 
+--     dm.id AS dodo_mav_id,
+--     dm.address AS dodo_mav_address,
     
-    -- Base token information
-    bt.id AS base_token_id,
-    bt.address AS base_token_address,
-    bt.token_id AS base_token_token_id,
+--     -- Base token information
+--     bt.id AS base_token_id,
+--     bt.address AS base_token_address,
+--     bt.token_id AS base_token_token_id,
     
-    -- Quote token information
-    qt.id AS quote_token_id,
-    qt.address AS quote_token_address,
-    qt.token_id AS quote_token_token_id,
+--     -- Quote token information
+--     qt.id AS quote_token_id,
+--     qt.address AS quote_token_address,
+--     qt.token_id AS quote_token_token_id,
     
-    -- Base LP token information
-    blt.id AS base_lp_token_id,
-    blt.address AS base_lp_token_address,
-    blt.token_id AS base_lp_token_token_id,
+--     -- Base LP token information
+--     blt.id AS base_lp_token_id,
+--     blt.address AS base_lp_token_address,
+--     blt.token_id AS base_lp_token_token_id,
     
-    -- Quote LP token information
-    qlt.id AS quote_lp_token_id,
-    qlt.address AS quote_lp_token_address,
-    qlt.token_id AS quote_lp_token_token_id,
+--     -- Quote LP token information
+--     qlt.id AS quote_lp_token_id,
+--     qlt.address AS quote_lp_token_address,
+--     qlt.token_id AS quote_lp_token_token_id,
     
-    -- Orderbook information
-    ob.id AS orderbook_id,
-    ob.address AS orderbook_address,
+--     -- Orderbook information
+--     ob.id AS orderbook_id,
+--     ob.address AS orderbook_address,
     
-    -- RWA token information
-    rwt.id AS rwa_token_id,
-    rwt.address AS rwa_token_address,
-    rwt.token_id AS rwa_token_token_id
-FROM 
-    dodo_mav dm
-    JOIN token bt ON dm.base_token_id = bt.id
-    JOIN token qt ON dm.quote_token_id = qt.id
-    JOIN token blt ON dm.base_lp_token_id = blt.id
-    JOIN token qlt ON dm.quote_lp_token_id = qlt.id
-    JOIN orderbook ob ON dm.rwa_orderbook_id = ob.id
-    LEFT JOIN token rwt ON ob.rwa_token_id = rwt.id;
+--     -- RWA token information
+--     rwt.id AS rwa_token_id,
+--     rwt.address AS rwa_token_address,
+--     rwt.token_id AS rwa_token_token_id
+-- FROM 
+--     dodo_mav dm
+--     JOIN token bt ON dm.base_token_id = bt.id
+--     JOIN token qt ON dm.quote_token_id = qt.id
+--     JOIN token blt ON dm.base_lp_token_id = blt.id
+--     JOIN token qlt ON dm.quote_lp_token_id = qlt.id
+--     JOIN orderbook ob ON dm.rwa_orderbook_id = ob.id
+--     LEFT JOIN token rwt ON ob.rwa_token_id = rwt.id;
 
-CREATE OR REPLACE VIEW dex_storage_view AS
-SELECT 
-    dm.id AS dodo_mav_id,
-    dm.address AS dodo_mav_address,
-    dm.fee_decimals,
-    dm.guide_price,
-    dm.slippage_factor,
-    dm.fixed_price_percent,
-    dm.base_balance,
-    dm.quote_balance,
-    dm.target_base_token_amount,
-    dm.target_quote_token_amount,
-    dm.base_balance_limit,
-    dm.quote_balance_limit,
-    dm.metadata,
-    dm.r_status,
-    dm.price_model,
-    dm.maintainer_fee,
+-- CREATE OR REPLACE VIEW dex_storage_view AS
+-- SELECT 
+--     dm.id AS dodo_mav_id,
+--     dm.address AS dodo_mav_address,
+--     dm.fee_decimals,
+--     dm.guide_price,
+--     dm.slippage_factor,
+--     dm.fixed_price_percent,
+--     dm.base_balance,
+--     dm.quote_balance,
+--     dm.target_base_token_amount,
+--     dm.target_quote_token_amount,
+--     dm.base_balance_limit,
+--     dm.quote_balance_limit,
+--     dm.metadata,
+--     dm.r_status,
+--     dm.price_model,
+--     dm.maintainer_fee,
     
-    -- Quote token info
-    qt.id AS quote_token_id,
-    qt.address AS quote_token_address,
-    qt.token_id AS quote_token_token_id,
+--     -- Quote token info
+--     qt.id AS quote_token_id,
+--     qt.address AS quote_token_address,
+--     qt.token_id AS quote_token_token_id,
     
-    -- Quote LP token info
-    qlt.id AS quote_lp_token_id,
-    qlt.address AS quote_lp_token_address,
-    qlt.token_id AS quote_lp_token_token_id,
+--     -- Quote LP token info
+--     qlt.id AS quote_lp_token_id,
+--     qlt.address AS quote_lp_token_address,
+--     qlt.token_id AS quote_lp_token_token_id,
     
-    -- Base LP token info
-    blt.id AS base_lp_token_id,
-    blt.address AS base_lp_token_address,
-    blt.token_id AS base_lp_token_token_id,
+--     -- Base LP token info
+--     blt.id AS base_lp_token_id,
+--     blt.address AS base_lp_token_address,
+--     blt.token_id AS base_lp_token_token_id,
     
-    -- Base token info
-    bt.id AS base_token_id,
-    bt.address AS base_token_address,
-    bt.token_id AS base_token_token_id
-FROM 
-    dodo_mav dm
-    JOIN token qt ON dm.quote_token_id = qt.id
-    JOIN token qlt ON dm.quote_lp_token_id = qlt.id
-    JOIN token blt ON dm.base_lp_token_id = blt.id
-    JOIN token bt ON dm.base_token_id = bt.id;
+--     -- Base token info
+--     bt.id AS base_token_id,
+--     bt.address AS base_token_address,
+--     bt.token_id AS base_token_token_id
+-- FROM 
+--     dodo_mav dm
+--     JOIN token qt ON dm.quote_token_id = qt.id
+--     JOIN token qlt ON dm.quote_lp_token_id = qlt.id
+--     JOIN token blt ON dm.base_lp_token_id = blt.id
+--     JOIN token bt ON dm.base_token_id = bt.id;
 
-CREATE OR REPLACE VIEW kyc_member_status_view AS
-SELECT 
-    km.id AS kyc_member_id,
-    km.kyc_id,
-    k.address AS kyc_address,
-    eu.id AS user_id,
-    eu.address AS user_address,
-    km.kyc_registrar_id,
-    km.country,
-    km.region,
-    km.investor_type,
-    km.expire_at,
-    km.frozen,
-    -- Check if member is expired
-    CASE 
-        WHEN km.expire_at IS NULL THEN false
-        WHEN km.expire_at < NOW() THEN true
-        ELSE false
-    END AS is_expired,
-    -- Check if member is active
-    CASE 
-        WHEN km.frozen = true THEN false
-        WHEN km.expire_at IS NULL THEN true
-        WHEN km.expire_at < NOW() THEN false
-        ELSE true
-    END AS is_active
-FROM 
-    kyc_member km
-    JOIN kyc k ON km.kyc_id = k.id
-    JOIN equiteez_user eu ON km.user_id = eu.id;
+-- CREATE OR REPLACE VIEW kyc_member_status_view AS
+-- SELECT 
+--     km.id AS kyc_member_id,
+--     km.kyc_id,
+--     k.address AS kyc_address,
+--     eu.id AS user_id,
+--     eu.address AS user_address,
+--     km.kyc_registrar_id,
+--     km.country,
+--     km.region,
+--     km.investor_type,
+--     km.expire_at,
+--     km.frozen,
+--     -- Check if member is expired
+--     CASE 
+--         WHEN km.expire_at IS NULL THEN false
+--         WHEN km.expire_at < NOW() THEN true
+--         ELSE false
+--     END AS is_expired,
+--     -- Check if member is active
+--     CASE 
+--         WHEN km.frozen = true THEN false
+--         WHEN km.expire_at IS NULL THEN true
+--         WHEN km.expire_at < NOW() THEN false
+--         ELSE true
+--     END AS is_active
+-- FROM 
+--     kyc_member km
+--     JOIN kyc k ON km.kyc_id = k.id
+--     JOIN equiteez_user eu ON km.user_id = eu.id;
 
-CREATE OR REPLACE VIEW token_metadata_view AS
-SELECT 
-    t.id AS token_id,
-    t.address,
-    t.token_id AS token_number,
-    t.token_standard,
-    t.metadata,
-    t.token_metadata,
-    -- Extract common token metadata fields for faster access
-    (t.token_metadata->>'name')::text AS name,
-    (t.token_metadata->>'symbol')::text AS symbol,
-    (t.token_metadata->>'decimals')::text AS decimals,
-    (t.token_metadata->>'thumbnailUri')::text AS thumbnail_uri,
-    (t.token_metadata->>'description')::text AS description,
-    (t.token_metadata->>'artifactUri')::text AS artifact_uri
-FROM 
-    token t;
+-- CREATE OR REPLACE VIEW token_metadata_view AS
+-- SELECT 
+--     t.id AS token_id,
+--     t.address,
+--     t.token_id AS token_number,
+--     t.token_standard,
+--     t.metadata,
+--     t.token_metadata,
+--     -- Extract common token metadata fields for faster access
+--     (t.token_metadata->>'name')::text AS name,
+--     (t.token_metadata->>'symbol')::text AS symbol,
+--     (t.token_metadata->>'decimals')::text AS decimals,
+--     (t.token_metadata->>'thumbnailUri')::text AS thumbnail_uri,
+--     (t.token_metadata->>'description')::text AS description,
+--     (t.token_metadata->>'artifactUri')::text AS artifact_uri
+-- FROM 
+--     token t;
 
-CREATE OR REPLACE VIEW orderbook_summary_view AS
-SELECT 
-    o.id AS orderbook_id,
-    o.address AS orderbook_address,
-    o.last_matched_price,
-    o.last_matched_price_timestamp,
-    o.highest_buy_price,
-    o.lowest_sell_price,
-    rwt.address AS rwa_token_address,
-    rwt.token_id AS rwa_token_id,
-    rwt.token_metadata AS rwa_token_metadata,
-    -- Active order counts
-    COUNT(DISTINCT CASE WHEN oo.order_type = 0 AND oo.is_fulfilled = false AND 
-                         oo.is_canceled = false AND oo.is_expired = false 
-                    THEN oo.id END) AS active_buy_orders_count,
-    COUNT(DISTINCT CASE WHEN oo.order_type = 1 AND oo.is_fulfilled = false AND 
-                         oo.is_canceled = false AND oo.is_expired = false 
-                    THEN oo.id END) AS active_sell_orders_count,
-    -- Total volume in last 24 hours (fulfilled amounts)
-    SUM(CASE WHEN oo.created_at >= NOW() - INTERVAL '24 hours' THEN oo.fulfilled_amount ELSE 0 END) AS volume_24h
-FROM 
-    orderbook o
-    LEFT JOIN token rwt ON o.rwa_token_id = rwt.id
-    LEFT JOIN orderbook_order oo ON o.id = oo.orderbook_id
-GROUP BY 
-    o.id, o.address, rwt.address, rwt.token_id, rwt.token_metadata;
+-- CREATE OR REPLACE VIEW orderbook_summary_view AS
+-- SELECT 
+--     o.id AS orderbook_id,
+--     o.address AS orderbook_address,
+--     o.last_matched_price,
+--     o.last_matched_price_timestamp,
+--     o.highest_buy_price,
+--     o.lowest_sell_price,
+--     rwt.address AS rwa_token_address,
+--     rwt.token_id AS rwa_token_id,
+--     rwt.token_metadata AS rwa_token_metadata,
+--     -- Active order counts
+--     COUNT(DISTINCT CASE WHEN oo.order_type = 0 AND oo.is_fulfilled = false AND 
+--                          oo.is_canceled = false AND oo.is_expired = false 
+--                     THEN oo.id END) AS active_buy_orders_count,
+--     COUNT(DISTINCT CASE WHEN oo.order_type = 1 AND oo.is_fulfilled = false AND 
+--                          oo.is_canceled = false AND oo.is_expired = false 
+--                     THEN oo.id END) AS active_sell_orders_count,
+--     -- Total volume in last 24 hours (fulfilled amounts)
+--     SUM(CASE WHEN oo.created_at >= NOW() - INTERVAL '24 hours' THEN oo.fulfilled_amount ELSE 0 END) AS volume_24h
+-- FROM 
+--     orderbook o
+--     LEFT JOIN token rwt ON o.rwa_token_id = rwt.id
+--     LEFT JOIN orderbook_order oo ON o.id = oo.orderbook_id
+-- GROUP BY 
+--     o.id, o.address, rwt.address, rwt.token_id, rwt.token_metadata;
 
--- Token holder count view
-CREATE OR REPLACE VIEW token_holders_view AS
-SELECT 
-    t.id AS token_id,
-    t.address AS token_address,
-    t.token_id AS token_number,
-    COUNT(DISTINCT eub.user_id) AS holder_count,
-    SUM(eub.balance) AS total_supply
-FROM 
-    token t
-    LEFT JOIN equiteez_user_balance eub ON t.id = eub.token_id
-WHERE 
-    eub.balance > 0
-GROUP BY 
-    t.id, t.address, t.token_id;
+-- -- Token holder count view
+-- CREATE OR REPLACE VIEW token_holders_view AS
+-- SELECT 
+--     t.id AS token_id,
+--     t.address AS token_address,
+--     t.token_id AS token_number,
+--     COUNT(DISTINCT eub.user_id) AS holder_count,
+--     SUM(eub.balance) AS total_supply
+-- FROM 
+--     token t
+--     LEFT JOIN equiteez_user_balance eub ON t.id = eub.token_id
+-- WHERE 
+--     eub.balance > 0
+-- GROUP BY 
+--     t.id, t.address, t.token_id;
 
--- User's active orders summary view
-CREATE OR REPLACE VIEW user_orders_summary_view AS
-SELECT 
-    eu.address AS user_address,
-    o.id AS orderbook_id,
-    o.address AS orderbook_address,
-    -- Buy orders counts
-    COUNT(DISTINCT CASE WHEN oo.order_type = 0 AND oo.is_fulfilled = false AND 
-                         oo.is_canceled = false AND oo.is_expired = false 
-                    THEN oo.id END) AS active_buy_orders_count,
-    -- Sell orders counts
-    COUNT(DISTINCT CASE WHEN oo.order_type = 1 AND oo.is_fulfilled = false AND 
-                         oo.is_canceled = false AND oo.is_expired = false 
-                    THEN oo.id END) AS active_sell_orders_count,
-    -- Total buy volume
-    SUM(CASE WHEN oo.order_type = 0 THEN oo.rwa_token_amount ELSE 0 END) AS total_buy_volume,
-    -- Total sell volume
-    SUM(CASE WHEN oo.order_type = 1 THEN oo.rwa_token_amount ELSE 0 END) AS total_sell_volume
-FROM 
-    equiteez_user eu
-    JOIN orderbook_order oo ON eu.id = oo.initiator_id
-    JOIN orderbook o ON oo.orderbook_id = o.id
-GROUP BY 
-    eu.id, eu.address, o.id, o.address;
+-- -- User's active orders summary view
+-- CREATE OR REPLACE VIEW user_orders_summary_view AS
+-- SELECT 
+--     eu.address AS user_address,
+--     o.id AS orderbook_id,
+--     o.address AS orderbook_address,
+--     -- Buy orders counts
+--     COUNT(DISTINCT CASE WHEN oo.order_type = 0 AND oo.is_fulfilled = false AND 
+--                          oo.is_canceled = false AND oo.is_expired = false 
+--                     THEN oo.id END) AS active_buy_orders_count,
+--     -- Sell orders counts
+--     COUNT(DISTINCT CASE WHEN oo.order_type = 1 AND oo.is_fulfilled = false AND 
+--                          oo.is_canceled = false AND oo.is_expired = false 
+--                     THEN oo.id END) AS active_sell_orders_count,
+--     -- Total buy volume
+--     SUM(CASE WHEN oo.order_type = 0 THEN oo.rwa_token_amount ELSE 0 END) AS total_buy_volume,
+--     -- Total sell volume
+--     SUM(CASE WHEN oo.order_type = 1 THEN oo.rwa_token_amount ELSE 0 END) AS total_sell_volume
+-- FROM 
+--     equiteez_user eu
+--     JOIN orderbook_order oo ON eu.id = oo.initiator_id
+--     JOIN orderbook o ON oo.orderbook_id = o.id
+-- GROUP BY 
+--     eu.id, eu.address, o.id, o.address;
 
--- Create views for DodoMavHistoryData candles
-CREATE OR REPLACE VIEW dodo_mav_candles_1h_view AS
-SELECT 
-    timestamp,
-    dodo_mav_address,
-    open,
-    high,
-    low,
-    close,
-    volume,
-    trades
-FROM dodo_mav_candles_1h;
+-- -- Create views for DodoMavHistoryData candles
+-- CREATE OR REPLACE VIEW dodo_mav_candles_1h_view AS
+-- SELECT 
+--     timestamp,
+--     dodo_mav_address,
+--     open,
+--     high,
+--     low,
+--     close,
+--     volume,
+--     trades
+-- FROM dodo_mav_candles_1h;
 
-CREATE OR REPLACE VIEW dodo_mav_candles_1d_view AS
-SELECT 
-    timestamp,
-    dodo_mav_address,
-    open,
-    high,
-    low,
-    close,
-    volume,
-    trades
-FROM dodo_mav_candles_1d;
+-- CREATE OR REPLACE VIEW dodo_mav_candles_1d_view AS
+-- SELECT 
+--     timestamp,
+--     dodo_mav_address,
+--     open,
+--     high,
+--     low,
+--     close,
+--     volume,
+--     trades
+-- FROM dodo_mav_candles_1d;
 
-CREATE OR REPLACE VIEW dodo_mav_candles_1w_view AS
-SELECT 
-    timestamp,
-    dodo_mav_address,
-    open,
-    high,
-    low,
-    close,
-    volume,
-    trades
-FROM dodo_mav_candles_1w;
+-- CREATE OR REPLACE VIEW dodo_mav_candles_1w_view AS
+-- SELECT 
+--     timestamp,
+--     dodo_mav_address,
+--     open,
+--     high,
+--     low,
+--     close,
+--     volume,
+--     trades
+-- FROM dodo_mav_candles_1w;
 
-CREATE OR REPLACE VIEW dodo_mav_candles_1m_view AS
-SELECT 
-    timestamp,
-    dodo_mav_address,
-    open,
-    high,
-    low,
-    close,
-    volume,
-    trades
-FROM dodo_mav_candles_1m;
+-- CREATE OR REPLACE VIEW dodo_mav_candles_1m_view AS
+-- SELECT 
+--     timestamp,
+--     dodo_mav_address,
+--     open,
+--     high,
+--     low,
+--     close,
+--     volume,
+--     trades
+-- FROM dodo_mav_candles_1m;
