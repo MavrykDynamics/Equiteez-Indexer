@@ -24,7 +24,7 @@ class Marketplace(Model):
     address                                 = fields.CharField(max_length=36, index=True)
     super_admin                             = fields.CharField(max_length=36, index=True, null=True)
     new_super_admin                         = fields.CharField(max_length=36, index=True, null=True)
-    admins                                  = fields.ArrayField(default=[])
+    admins                                  = fields.ArrayField(element_type="TEXT", default=[])
     metadata                                = fields.JSONField(null=True)
     min_offer_amount                        = fields.BigIntField(default=0)
     standard_unit                           = fields.BigIntField(default=0)

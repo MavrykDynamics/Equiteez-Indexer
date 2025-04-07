@@ -117,7 +117,7 @@ class OrderbookRwaOrderSellPrice(Model):
 
 class OrderbookRwaOrderPrice():
     id                                      = fields.IntField(primary_key=True)
-    order_ids                               = fields.ArrayField(null=True)
+    order_ids                               = fields.ArrayField(element_type="INT", null=True)
     price                                   = fields.BigIntField(default=0)
 
 class OrderbookRwaOrderBuyOrder(Model, OrderbookRwaOrderPrice):

@@ -63,7 +63,7 @@ class KycValidInput(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='valid_inputs')
     category                                = fields.IntEnumField(enum_type=ValidInputCategory, index=True)
-    valid_inputs                            = fields.ArrayField(default=[])
+    valid_inputs                            = fields.ArrayField(element_type="TEXT", default=[])
    
     class Meta:
         table = 'kyc_valid_input'
@@ -76,7 +76,7 @@ class KycRegistrar(Model):
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='registrars')
     user                                    = fields.ForeignKeyField('models.EquiteezUser', related_name='kyc_registrars')   
     name                                    = fields.TextField(index=True, default="")
-    kyc_admins                              = fields.ArrayField(default=[])
+    kyc_admins                              = fields.ArrayField(element_type="TEXT", default=[])
     member_verified                         = fields.BigIntField(default=0)
     created_at                              = fields.DatetimeField(null=True)
     set_member_is_paused                    = fields.BooleanField(default=False)
@@ -93,8 +93,8 @@ class KycCountryTransferRule(Model):
     id                                      = fields.IntField(primary_key=True)
     kyc                                     = fields.ForeignKeyField('models.Kyc', related_name='country_transfer_rules')
     country                                 = fields.TextField(index=True)
-    whitelist_countries                     = fields.ArrayField(default=[])
-    blacklist_countries                     = fields.ArrayField(default=[])
+    whitelist_countries                     = fields.ArrayField(element_type="TEXT", default=[])
+    blacklist_countries                     = fields.ArrayField(element_type="TEXT", default=[])
     sending_frozen                          = fields.BooleanField(default=False)
     receiving_frozen                        = fields.BooleanField(default=False)
    
