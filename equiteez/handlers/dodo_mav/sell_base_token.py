@@ -49,7 +49,7 @@ async def sell_base_token(
         address = trader_address
     )
     await trader.save()
-    if base_token_qty > 0 and quote_token_qty > 0:
+    if float(base_token_qty) > 0 and float(quote_token_qty) > 0:
         base_token_price            = float(quote_token_qty) / float(base_token_qty)
         history_data                = models.DodoMavHistoryData(
             dodo_mav            = dodo_mav,
