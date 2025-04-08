@@ -24,9 +24,9 @@ BEGIN
     
     -- Add new policy
     PERFORM add_continuous_aggregate_policy('token_transfer_volume_daily',
-        start_offset => INTERVAL '30 days',
-        end_offset => INTERVAL '1 hour',
-        schedule_interval => INTERVAL '1 day');
+        INTERVAL '30 days',
+        INTERVAL '1 hour',
+        INTERVAL '1 day');
 END $$;
 
 -- Create materialized views for DodoMavHistoryData candles with optimized settings
@@ -56,12 +56,15 @@ BEGIN
         NULL;
     END;
     
-    -- Add new policy
+    -- Add new policy with immediate refresh
     PERFORM add_continuous_aggregate_policy('dodo_mav_candles_1h',
-        start_offset => INTERVAL '1 day',
-        end_offset => INTERVAL '1 hour',
-        schedule_interval => INTERVAL '2 hours');
+        INTERVAL '1 day',
+        INTERVAL '1 hour',
+        INTERVAL '1 hour');
 END $$;
+
+-- Force initial refresh
+CALL refresh_continuous_aggregate('dodo_mav_candles_1h', NULL, NULL);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS dodo_mav_candles_1d
 WITH (timescaledb.continuous) AS
@@ -89,12 +92,15 @@ BEGIN
         NULL;
     END;
     
-    -- Add new policy
+    -- Add new policy with immediate refresh
     PERFORM add_continuous_aggregate_policy('dodo_mav_candles_1d',
-        start_offset => INTERVAL '7 days',
-        end_offset => INTERVAL '1 day',
-        schedule_interval => INTERVAL '2 days');
+        INTERVAL '7 days',
+        INTERVAL '1 day',
+        INTERVAL '1 day');
 END $$;
+
+-- Force initial refresh
+CALL refresh_continuous_aggregate('dodo_mav_candles_1d', NULL, NULL);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS dodo_mav_candles_1w
 WITH (timescaledb.continuous) AS
@@ -122,12 +128,15 @@ BEGIN
         NULL;
     END;
     
-    -- Add new policy
+    -- Add new policy with immediate refresh
     PERFORM add_continuous_aggregate_policy('dodo_mav_candles_1w',
-        start_offset => INTERVAL '1 month',
-        end_offset => INTERVAL '1 week',
-        schedule_interval => INTERVAL '2 weeks');
+        INTERVAL '1 month',
+        INTERVAL '1 week',
+        INTERVAL '1 week');
 END $$;
+
+-- Force initial refresh
+CALL refresh_continuous_aggregate('dodo_mav_candles_1w', NULL, NULL);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS dodo_mav_candles_1m
 WITH (timescaledb.continuous) AS
@@ -155,12 +164,15 @@ BEGIN
         NULL;
     END;
     
-    -- Add new policy
+    -- Add new policy with immediate refresh
     PERFORM add_continuous_aggregate_policy('dodo_mav_candles_1m',
-        start_offset => INTERVAL '3 months',
-        end_offset => INTERVAL '1 month',
-        schedule_interval => INTERVAL '2 months');
+        INTERVAL '3 months',
+        INTERVAL '1 month',
+        INTERVAL '1 month');
 END $$;
+
+-- Force initial refresh
+CALL refresh_continuous_aggregate('dodo_mav_candles_1m', NULL, NULL);
 
 -- For yearly and 3-yearly views, use regular views instead of materialized views
 -- to reduce memory usage and background worker load
