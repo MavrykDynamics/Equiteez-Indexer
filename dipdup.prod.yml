@@ -17,6 +17,10 @@ hasura:
   admin_secret: ${ADMIN_SECRET:-changeme}
   select_limit: 1000
   rest: false
+  http:
+    retry_count: 60
+    retry_sleep: 30.0
+    retry_multiplier: 2.0
 
 prometheus:
   host: 0.0.0.0
@@ -40,8 +44,3 @@ datasources:
     kind: tezos.tzkt
     url: ${MVKT_ATLASNET_URL:-changeme}
     merge_subscriptions: true
-  http_datasource:
-    http:
-      retry_count: 60
-      retry_sleep: 30.0
-      retry_multiplier: 2.0
