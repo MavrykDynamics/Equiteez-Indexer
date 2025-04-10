@@ -40,3 +40,8 @@ datasources:
     kind: tezos.tzkt
     url: ${MVKT_ATLASNET_URL:-changeme}
     merge_subscriptions: true
+  http_datasource:
+    http:
+      retry_count: 60
+      retry_sleep: 30.0
+      retry_multiplier: 2.0
