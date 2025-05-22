@@ -32,8 +32,8 @@ advanced:
     manual: wipe
     migration: exception
     rollback: ignore
-    config_modified: wipe
-    schema_modified: wipe
+    config_modified: ignore
+    schema_modified: ignore
 
 datasources:
   metadata_atlasnet:
