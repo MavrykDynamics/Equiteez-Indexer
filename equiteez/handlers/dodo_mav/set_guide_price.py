@@ -20,9 +20,11 @@ async def set_guide_price(
     price_model_enum = models.PriceModel.FIXED
     if price_model != "fixed":
         price_model_enum = models.PriceModel.DYNAMIC
-    dodo_mav    = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
     dodo_mav.price_model                = price_model_enum
     dodo_mav.appraisal_price            = appraisal_price
     dodo_mav.fixed_price_percent        = fixed_price_percent

@@ -15,9 +15,11 @@ async def claim_super_admin(
     super_admin     = claim_super_admin.storage.superAdmin
 
     # Update dodo mav
-    dodo_mav        = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
     dodo_mav.new_super_admin   = new_super_admin
     dodo_mav.super_admin       = super_admin
     await dodo_mav.save()

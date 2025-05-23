@@ -3,7 +3,6 @@ from dipdup.models.tezos import TezosTransaction
 from equiteez import models as models
 from equiteez.types.orderbook.tezos_parameters.set_currency import SetCurrencyParameter
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
-from equiteez.utils.utils import register_token
 
 
 async def set_currency(
@@ -21,10 +20,10 @@ async def set_currency(
     orderbook           = await models.Orderbook.get(
         address = address
     )
-    token               = await register_token(
-        ctx     = ctx,
+    token, _  = await models.Token.get_or_create(
         address = token_address
     )
+    await token.save()
     currency, _         = await models.OrderbookCurrency.get_or_create(
         orderbook       = orderbook,
         currency_name   = currency_name

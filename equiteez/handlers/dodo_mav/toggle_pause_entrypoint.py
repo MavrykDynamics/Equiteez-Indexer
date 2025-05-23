@@ -14,9 +14,11 @@ async def toggle_pause_entrypoint(
     pause_ledger    = toggle_pause_entrypoint.storage.pauseLedger
 
     # Get dodo mav
-    dodo_mav    = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
     
     # Save the entrypoints status
     for entrypoint in pause_ledger:

@@ -425,3 +425,13 @@ indexes:
     handlers:
       - callback: misc.on_token_transfer
         contract: fa2
+
+hooks:
+  refresh_tokens:
+    callback: refresh_tokens
+    atomic: False
+
+jobs:
+  refresh_tokens:
+    hook: refresh_tokens
+    interval: 300

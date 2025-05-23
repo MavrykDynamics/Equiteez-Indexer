@@ -31,9 +31,11 @@ async def sell_base_token(
     target_quote_token_amount   = sell_base_token.storage.targetQuoteTokenAmount
 
     # Get dodo mav
-    dodo_mav        = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
     dodo_mav.quote_balance              = quote_balance
     dodo_mav.base_balance               = base_balance
     dodo_mav.target_base_token_amount   = target_base_token_amount

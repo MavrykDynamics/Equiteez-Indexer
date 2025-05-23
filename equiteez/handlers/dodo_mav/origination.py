@@ -36,6 +36,13 @@ async def origination(
     slippage_factor                 = dodo_mav_origination.storage.slippageFactor
     pause_ledger                    = dodo_mav_origination.storage.pauseLedger
 
+    # Get the orderbook
+    orderbook    = await models.Orderbook.get_or_none(
+        address  = rwa_orderbook_address
+    )
+    if not orderbook:
+        return
+
     # Create new indexes for all token
     contracts_to_index  = [
         quote_token_address,
@@ -70,12 +77,6 @@ async def origination(
                     fa2_contract=contract_name
                 )
             )
-
-    # Get the orderbook
-    orderbook, _    = await models.Orderbook.get_or_create(
-        address  = rwa_orderbook_address
-    )
-    await orderbook.save()
 
     # Register the various tokens
     quote_token = await register_token(

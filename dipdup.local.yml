@@ -39,5 +39,5 @@ datasources:
     network: oxfordnet
   mvkt_atlasnet:
     kind: tezos.tzkt
-    url: https://atlasnet.api.mavryk.network
+    url: http://localhost:5000
     merge_subscriptions: true

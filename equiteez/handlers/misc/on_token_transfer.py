@@ -1,8 +1,6 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTokenTransferData
 from equiteez import models as models
-from equiteez.utils.utils import register_token
-
 
 async def on_token_transfer(
     ctx: HandlerContext,
@@ -18,10 +16,11 @@ async def on_token_transfer(
     transfer_type       = models.TransferType.TRANSFER
 
     # Register token
-    token               = await register_token(
-        ctx     = ctx,
+    token           = await models.Token.get_or_none(
         address = contract_address
     )
+    if not token:
+        return
 
     # Create the transfer record
     sender              = None

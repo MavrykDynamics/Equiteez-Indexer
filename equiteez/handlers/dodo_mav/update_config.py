@@ -16,9 +16,11 @@ async def update_config(
     fee_decimals    = update_config.storage.config.feeDecimals
 
     # Get dodo mav
-    dodo_mav        = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
 
     # Update record
     dodo_mav.lp_fee         = lp_fee

@@ -15,9 +15,11 @@ async def withdraw_quote_token(
     target_quote_token_amount   = withdraw_quote_token.storage.targetQuoteTokenAmount
 
     # Get dodo mav
-    dodo_mav        = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
     dodo_mav.quote_balance              = quote_balance
     dodo_mav.target_quote_token_amount  = target_quote_token_amount
     await dodo_mav.save()

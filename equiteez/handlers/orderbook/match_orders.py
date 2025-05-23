@@ -3,7 +3,6 @@ from dipdup.models.tezos import TezosTransaction
 from equiteez import models as models
 from equiteez.types.orderbook.tezos_parameters.match_orders import MatchOrdersParameter
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
-from equiteez.utils.utils import register_token
 from dateutil import parser
 
 async def match_orders(
@@ -57,10 +56,10 @@ async def match_orders(
         buy_order_map       = rwa_order_record.buyOrderMap
         sell_price_map      = rwa_order_record.sellPriceMap
         sell_order_map      = rwa_order_record.sellOrderMap
-        rwa_order_token     = await register_token(
-            ctx = ctx,
+        rwa_order_token, _  = await models.Token.get_or_create(
             address = rwa_order_token_address
         )
+        await rwa_order_token.save()
         rwa_order           = await models.OrderbookRwaOrder.get(
             orderbook   = orderbook,
             rwa_token   = rwa_order_token

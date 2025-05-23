@@ -1,8 +1,6 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTokenBalanceData
 from equiteez import models as models
-from equiteez.utils.utils import register_token
-
 
 async def on_balance_update(
     ctx: HandlerContext,
@@ -14,10 +12,11 @@ async def on_balance_update(
     balance         = token_balance.balance
 
     # Register token
-    token           = await register_token(
-        ctx     = ctx,
+    token           = await models.Token.get_or_none(
         address = address
     )
+    if not token:
+        return
 
     # Update user balance
     user, _         = await models.EquiteezUser.get_or_create(

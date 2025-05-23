@@ -15,9 +15,11 @@ async def withdraw_all_base_tokens(
     target_base_token_amount    = withdraw_all_base_tokens.storage.targetBaseTokenAmount
 
     # Get dodo mav
-    dodo_mav        = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
     dodo_mav.base_balance               = base_balance
     dodo_mav.target_base_token_amount   = target_base_token_amount
     await dodo_mav.save()

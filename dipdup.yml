@@ -453,3 +453,13 @@ templates:
       pattern:
       - destination: <dodo_mav_contract>
         entrypoint: depositBaseToken
+
+hooks:
+  refresh_tokens:
+    callback: refresh_tokens
+    atomic: False
+
+jobs:
+  refresh_tokens:
+    hook: refresh_tokens
+    interval: 300

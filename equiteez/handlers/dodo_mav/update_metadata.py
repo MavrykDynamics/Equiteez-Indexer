@@ -14,9 +14,11 @@ async def update_metadata(
     address = update_metadata.data.target_address
 
     # Get dodo mav
-    dodo_mav    = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
 
     # Update record
     dodo_mav.metadata = await get_contract_metadata(

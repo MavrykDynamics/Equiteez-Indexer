@@ -14,8 +14,10 @@ async def update_guide_price(
     guide_price                         = update_guide_price.storage.guidePrice
 
     # Update dodo mav
-    dodo_mav    = await models.DodoMav.get(
+    dodo_mav        = await models.DodoMav.get_or_none(
         address = address
     )
+    if not dodo_mav:
+        return
     dodo_mav.guide_price                = guide_price
     await dodo_mav.save()
