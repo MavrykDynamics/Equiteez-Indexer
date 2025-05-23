@@ -1,20 +1,4 @@
 indexes:
-  mars1_dodo_mav:
-    template: dodo_mav_template
-    values:
-      dodo_mav_contract: mars1_dodo_mav
-  ocean_dodo_mav:
-    template: dodo_mav_template
-    values:
-      dodo_mav_contract: ocean_dodo_mav
-  queen_dodo_mav:
-    template: dodo_mav_template
-    values:
-      dodo_mav_contract: queen_dodo_mav
-  ntbm_dodo_mav:
-    template: dodo_mav_template
-    values:
-      dodo_mav_contract: ntbm_dodo_mav
   mars1_orderbook:
     template: orderbook_template
     values:
@@ -265,6 +249,104 @@ indexes:
   #     pattern:
   #     - destination: marketplace
   #       entrypoint: removeOffer
+  dodo_mav:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - dodo_mav
+    types:
+    - origination
+    - transaction
+    handlers:
+    - callback: dodo_mav.origination
+      pattern:
+      - type: origination
+        originated_contract: dodo_mav
+    - callback: dodo_mav.set_lambda
+      pattern:
+      - destination: dodo_mav
+        entrypoint: setLambda
+    - callback: dodo_mav.set_super_admin
+      pattern:
+      - destination: dodo_mav
+        entrypoint: setSuperAdmin
+    - callback: dodo_mav.claim_super_admin
+      pattern:
+      - destination: dodo_mav
+        entrypoint: claimSuperAdmin
+    - callback: dodo_mav.set_guide_price
+      pattern:
+      - destination: dodo_mav
+        entrypoint: setGuidePrice
+    - callback: dodo_mav.update_guide_price
+      pattern:
+      - destination: dodo_mav
+        entrypoint: updateGuidePrice
+    - callback: dodo_mav.update_metadata
+      pattern:
+      - destination: dodo_mav
+        entrypoint: updateMetadata
+    - callback: dodo_mav.update_config
+      pattern:
+      - destination: dodo_mav
+        entrypoint: updateConfig
+    - callback: dodo_mav.toggle_pause_entrypoint
+      pattern:
+      - destination: dodo_mav
+        entrypoint: togglePauseEntrypoint
+    - callback: dodo_mav.buy_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: buyBaseToken
+      - type: transaction
+        destination: base_token
+        entrypoint: transfer
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+      - type: transaction
+        destination: base_token
+        entrypoint: transfer
+        optional: True
+    - callback: dodo_mav.sell_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: sellBaseToken
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+      - type: transaction
+        destination: base_token
+        entrypoint: transfer
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+        optional: True
+    - callback: dodo_mav.withdraw_quote_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawQuoteToken
+    - callback: dodo_mav.withdraw_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawBaseToken
+    - callback: dodo_mav.withdraw_all_quote_tokens
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawAllQuoteTokens
+    - callback: dodo_mav.withdraw_all_base_tokens
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawAllBaseTokens
+    - callback: dodo_mav.deposit_quote_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: depositQuoteToken
+    - callback: dodo_mav.deposit_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: depositBaseToken
 
 templates:
   fa2_balances_template:
@@ -355,104 +437,6 @@ templates:
       pattern:
       - destination: <orderbook_contract>
         entrypoint: processRefund
-  dodo_mav_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - <dodo_mav_contract>
-    types:
-    - origination
-    - transaction
-    handlers:
-    - callback: dodo_mav.origination
-      pattern:
-      - type: origination
-        originated_contract: <dodo_mav_contract>
-    - callback: dodo_mav.set_lambda
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: setLambda
-    - callback: dodo_mav.set_super_admin
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: setSuperAdmin
-    - callback: dodo_mav.claim_super_admin
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: claimSuperAdmin
-    - callback: dodo_mav.set_guide_price
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: setGuidePrice
-    - callback: dodo_mav.update_guide_price
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: updateGuidePrice
-    - callback: dodo_mav.update_metadata
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: updateMetadata
-    - callback: dodo_mav.update_config
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: updateConfig
-    - callback: dodo_mav.toggle_pause_entrypoint
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: togglePauseEntrypoint
-    - callback: dodo_mav.buy_base_token
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: buyBaseToken
-      - type: transaction
-        destination: base_token
-        entrypoint: transfer
-      - type: transaction
-        destination: quote_token
-        entrypoint: transfer
-      - type: transaction
-        destination: base_token
-        entrypoint: transfer
-        optional: True
-    - callback: dodo_mav.sell_base_token
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: sellBaseToken
-      - type: transaction
-        destination: quote_token
-        entrypoint: transfer
-      - type: transaction
-        destination: base_token
-        entrypoint: transfer
-      - type: transaction
-        destination: quote_token
-        entrypoint: transfer
-        optional: True
-    - callback: dodo_mav.withdraw_quote_token
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: withdrawQuoteToken
-    - callback: dodo_mav.withdraw_base_token
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: withdrawBaseToken
-    - callback: dodo_mav.withdraw_all_quote_tokens
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: withdrawAllQuoteTokens
-    - callback: dodo_mav.withdraw_all_base_tokens
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: withdrawAllBaseTokens
-    - callback: dodo_mav.deposit_quote_token
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: depositQuoteToken
-    - callback: dodo_mav.deposit_base_token
-      pattern:
-      - destination: <dodo_mav_contract>
-        entrypoint: depositBaseToken
 
 hooks:
   refresh_tokens:

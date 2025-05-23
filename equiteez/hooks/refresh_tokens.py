@@ -8,4 +8,4 @@ async def refresh_tokens(
     print("Refreshing all Equiteez tokens metadata")
     tokens = await models.Token.all()
     for token in tokens:
-        await register_token(token.address)
+        await register_token(ctx, token.address)

@@ -36,6 +36,15 @@ async def origination(
     slippage_factor                 = dodo_mav_origination.storage.slippageFactor
     pause_ledger                    = dodo_mav_origination.storage.pauseLedger
 
+    # Check if orderbook is known to the indexer
+    should_index = False
+    for config_contract_name in ctx.config.contracts:
+        config_contract = ctx.config.contracts[config_contract_name]
+        if config_contract.address == rwa_orderbook_address:
+            should_index = True
+    if not should_index:
+        return
+
     # Get the orderbook
     orderbook    = await models.Orderbook.get_or_none(
         address  = rwa_orderbook_address
