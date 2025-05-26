@@ -434,4 +434,4 @@ hooks:
 jobs:
   refresh_tokens:
     hook: refresh_tokens
-    interval: 300
+    interval: 600

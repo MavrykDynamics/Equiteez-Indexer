@@ -59,33 +59,33 @@ async def origination(
         quote_lp_token_address,
         base_lp_token_address
     ]
-    for contract_to_index in contracts_to_index:
-        contract_name           = f"{contract_to_index}_contract"
-        balances_index_name     = f"{contract_to_index}_balances_index"
-        transfers_index_name    = f"{contract_to_index}_transfers_index"
-        if not contract_name in ctx.config.contracts: 
-            await ctx.add_contract(
-                kind="tezos",
-                name=contract_name,
-                address=contract_to_index,
-                typename="fa2"
-            )
-        if not balances_index_name in ctx.config.indexes:
-            await ctx.add_index(
-                name=balances_index_name,
-                template="fa2_balances_template",
-                values=dict(
-                    fa2_contract=contract_name
-                )
-            )
-        if not transfers_index_name in ctx.config.indexes:
-            await ctx.add_index(
-                name=transfers_index_name,
-                template="fa2_transfers_template",
-                values=dict(
-                    fa2_contract=contract_name
-                )
-            )
+    # for contract_to_index in contracts_to_index:
+    #     contract_name           = f"{contract_to_index}_contract"
+    #     balances_index_name     = f"{contract_to_index}_balances_index"
+    #     transfers_index_name    = f"{contract_to_index}_transfers_index"
+    #     if not contract_name in ctx.config.contracts: 
+    #         await ctx.add_contract(
+    #             kind="tezos",
+    #             name=contract_name,
+    #             address=contract_to_index,
+    #             typename="fa2"
+    #         )
+    #     if not balances_index_name in ctx.config.indexes:
+    #         await ctx.add_index(
+    #             name=balances_index_name,
+    #             template="fa2_balances_template",
+    #             values=dict(
+    #                 fa2_contract=contract_name
+    #             )
+    #         )
+    #     if not transfers_index_name in ctx.config.indexes:
+    #         await ctx.add_index(
+    #             name=transfers_index_name,
+    #             template="fa2_transfers_template",
+    #             values=dict(
+    #                 fa2_contract=contract_name
+    #             )
+    #         )
 
     # Register the various tokens
     quote_token = await register_token(

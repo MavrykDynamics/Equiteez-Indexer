@@ -349,20 +349,20 @@ indexes:
         entrypoint: depositBaseToken
 
 templates:
-  fa2_balances_template:
-    kind: tezos.token_balances
-    datasources:
-      - mvkt_atlasnet
-    handlers:
-      - callback: misc.on_balance_update
-        contract: <fa2_contract>
-  fa2_transfers_template:
-    kind: tezos.token_transfers
-    datasources:
-      - mvkt_atlasnet
-    handlers:
-      - callback: misc.on_token_transfer
-        contract: <fa2_contract> 
+  # fa2_balances_template:
+  #   kind: tezos.token_balances
+  #   datasources:
+  #     - mvkt_atlasnet
+  #   handlers:
+  #     - callback: misc.on_balance_update
+  #       contract: <fa2_contract>
+  # fa2_transfers_template:
+  #   kind: tezos.token_transfers
+  #   datasources:
+  #     - mvkt_atlasnet
+  #   handlers:
+  #     - callback: misc.on_token_transfer
+  #       contract: <fa2_contract> 
   orderbook_template:
     kind: tezos.operations
     datasources:
@@ -446,4 +446,4 @@ hooks:
 jobs:
   refresh_tokens:
     hook: refresh_tokens
-    interval: 300
+    interval: 600
