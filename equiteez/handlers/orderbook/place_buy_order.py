@@ -51,11 +51,12 @@ async def place_buy_order(
 
         for buy_price in buy_order_map:
             buy_order_ids               = buy_order_map[buy_price]
+            buy_order_ids_int           = [int(x) for x in buy_order_ids]
             buy_order_record, _         = await models.OrderbookRwaOrderBuyOrder.get_or_create(
                 rwa_order   = rwa_order,
                 price       = buy_price
             )
-            buy_order_record.order_ids  = buy_order_ids
+            buy_order_record.order_ids  = buy_order_ids_int
             await buy_order_record.save()
 
     for buy_order_id in buy_order_ledger:

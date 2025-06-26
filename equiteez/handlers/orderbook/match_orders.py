@@ -92,11 +92,12 @@ async def match_orders(
 
         for buy_price in buy_order_map:
             buy_order_ids               = buy_order_map[buy_price]
+            buy_order_ids_int           = [int(x) for x in buy_order_ids]
             buy_order_record, _         = await models.OrderbookRwaOrderBuyOrder.get_or_create(
                 rwa_order   = rwa_order,
                 price       = buy_price
             )
-            buy_order_record.order_ids  = buy_order_ids
+            buy_order_record.order_ids  = buy_order_ids_int
             await buy_order_record.save()
 
         for sell_price_counter in sell_price_map:
@@ -110,11 +111,12 @@ async def match_orders(
 
         for sell_price in sell_order_map:
             sell_order_ids               = sell_order_map[sell_price]
+            sell_order_ids_int           = [int(x) for x in sell_order_ids]
             sell_order_record, _         = await models.OrderbookRwaOrderSellOrder.get_or_create(
                 rwa_order   = rwa_order,
                 price       = sell_price
             )
-            sell_order_record.order_ids  = sell_order_ids
+            sell_order_record.order_ids  = sell_order_ids_int
             await sell_order_record.save()
 
     # Update order ledgers
