@@ -25,9 +25,9 @@ async def origination(
     base_token_address              = dodo_mav_origination.storage.baseToken.tokenContractAddress
     quote_lp_token_address          = dodo_mav_origination.storage.quoteLpToken.tokenContractAddress
     base_lp_token_address           = dodo_mav_origination.storage.baseLpToken.tokenContractAddress
-    quote_balance                   = dodo_mav_origination.storage.config.maintainerFee
-    base_balance                    = dodo_mav_origination.storage.quoteBalance
-    target_quote_token_amount       = dodo_mav_origination.storage.targetBaseTokenAmount
+    quote_balance                   = dodo_mav_origination.storage.quoteBalance
+    base_balance                    = dodo_mav_origination.storage.baseBalance
+    target_quote_token_amount       = dodo_mav_origination.storage.targetQuoteTokenAmount
     target_base_token_amount        = dodo_mav_origination.storage.targetBaseTokenAmount
     quote_balance_limit             = dodo_mav_origination.storage.quoteBalanceLimit
     base_balance_limit              = dodo_mav_origination.storage.baseBalanceLimit
