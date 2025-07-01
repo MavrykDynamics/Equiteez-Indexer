@@ -96,7 +96,7 @@ class DodoMav(Model):
     # Base token balance limit
     base_balance_limit                      = fields.FloatField(default=0)
 
-    # R status (liquidity parameter)
+    # R status (balance indicator)
     r_status                                = fields.BigIntField(default=0, index=True)
 
     # Guide price for trading
