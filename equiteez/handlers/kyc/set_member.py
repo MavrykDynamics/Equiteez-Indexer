@@ -24,7 +24,6 @@ async def set_member(
         country                 = member_record.country
         region                  = member_record.region
         investor_type           = member_record.investorType
-        expire_at               = parser.parse(member_record.expireAt) if member_record.expireAt else None
         frozen                  = member_record.frozen
         kyc_registrar_address   = member_record.kycRegistrar
         registrar, _            = await models.EquiteezUser.get_or_create(
@@ -47,6 +46,7 @@ async def set_member(
         member.country          = country
         member.region           = region
         member.investor_type    = investor_type
-        member.expire_at        = expire_at
+        if member_record.expireAt:
+            member.expire_at        = parser.parse(member_record.expireAt)
         member.frozen           = frozen
         await member.save()

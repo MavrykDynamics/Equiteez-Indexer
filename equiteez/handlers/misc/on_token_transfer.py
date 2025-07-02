@@ -1,6 +1,7 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTokenTransferData
 from equiteez import models as models
+from dateutil import parser 
 
 async def on_token_transfer(
     ctx: HandlerContext,
@@ -8,7 +9,7 @@ async def on_token_transfer(
 ) -> None:
     # Fetch operation info
     level               = token_transfer.level
-    timestamp           = token_transfer.timestamp
+    timestamp           = parser.parse(token_transfer.timestamp)
     contract_address    = token_transfer.contract_address
     from_address        = token_transfer.from_address
     to_address          = token_transfer.to_address

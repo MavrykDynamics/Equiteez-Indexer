@@ -28,8 +28,7 @@ async def cancel_orders(
         is_expired                          = buy_order_record.booleans.bool_2
         is_refunded                         = buy_order_record.isRefunded
         refunded_amount                     = buy_order_record.refundedAmount
-        order_expiry                        = buy_order_record.orderExpiry
-        ended_at                            = parser.parse(buy_order_record.orderTimestamps.timestamp_1) if buy_order_record.orderTimestamps.timestamp_1 else None
+        order_expiry                        = parser.parse(buy_order_record.orderExpiry)
 
         # Save buy order
         buy_order                           = await models.OrderbookOrder.get(
@@ -43,7 +42,8 @@ async def cancel_orders(
         buy_order.is_refunded                             = is_refunded
         buy_order.refunded_amount                         = refunded_amount
         buy_order.order_expiry                            = order_expiry
-        buy_order.ended_at                                = ended_at
+        if buy_order_record.orderTimestamps.timestamp_1:
+            buy_order.ended_at                                = parser.parse(buy_order_record.orderTimestamps.timestamp_1)
         await buy_order.save()
 
     for sell_order_id in sell_order_ledger:
@@ -54,8 +54,7 @@ async def cancel_orders(
         is_expired                          = sell_order_record.booleans.bool_2
         is_refunded                         = sell_order_record.isRefunded
         refunded_amount                     = sell_order_record.refundedAmount
-        order_expiry                        = sell_order_record.orderExpiry
-        ended_at                            = parser.parse(sell_order_record.orderTimestamps.timestamp_1) if sell_order_record.orderTimestamps.timestamp_1 else None
+        order_expiry                        = parser.parse(sell_order_record.orderExpiry)
 
         # Save buy order
         sell_order                           = await models.OrderbookOrder.get(
@@ -69,5 +68,6 @@ async def cancel_orders(
         sell_order.is_refunded                             = is_refunded
         sell_order.refunded_amount                         = refunded_amount
         sell_order.order_expiry                            = order_expiry
-        sell_order.ended_at                                = ended_at
+        if sell_order_record.orderTimestamps.timestamp_1:
+            sell_order.ended_at                             = parser.parse(sell_order_record.orderTimestamps.timestamp_1)
         await sell_order.save()

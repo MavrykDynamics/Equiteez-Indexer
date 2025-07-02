@@ -76,9 +76,7 @@ async def place_buy_order(
         is_expired                          = buy_order_record.booleans.bool_2
         is_refunded                         = buy_order_record.isRefunded
         refunded_amount                     = buy_order_record.refundedAmount
-        order_expiry                        = buy_order_record.orderExpiry
-        created_at                          = parser.parse(buy_order_record.orderTimestamps.timestamp_0) if buy_order_record.orderTimestamps.timestamp_0 else None
-        ended_at                            = parser.parse(buy_order_record.orderTimestamps.timestamp_1) if buy_order_record.orderTimestamps.timestamp_1 else None
+        order_expiry                        = parser.parse(buy_order_record.orderExpiry)
         
         # Get currency
         currency, _                         = await models.OrderbookCurrency.get_or_create(
@@ -111,8 +109,10 @@ async def place_buy_order(
             is_expired                              = is_expired,
             is_refunded                             = is_refunded,
             refunded_amount                         = refunded_amount,
-            order_expiry                            = order_expiry,
-            created_at                              = created_at,
-            ended_at                                = ended_at
+            order_expiry                            = order_expiry
         )
+        if buy_order_record.orderTimestamps.timestamp_0:
+            buy_order.created_at    = parser.parse(buy_order_record.orderTimestamps.timestamp_0)
+        if buy_order_record.orderTimestamps.timestamp_1:
+            buy_order.ended_at      = parser.parse(buy_order_record.orderTimestamps.timestamp_1)
         await buy_order.save()

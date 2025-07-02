@@ -8,7 +8,7 @@ from equiteez.types.dodo_mav.tezos_storage import DodoMavStorage
 from equiteez.types.quote_token.tezos_parameters.transfer import TransferParameter as MaintainerFeeParameter
 from equiteez.types.quote_token.tezos_parameters.transfer import TransferParameter as QuoteTokenTransferParameter
 from equiteez.types.quote_token.tezos_storage import QuoteTokenStorage
-
+from dateutil import parser
 
 async def sell_base_token(
     ctx: HandlerContext,
@@ -20,7 +20,7 @@ async def sell_base_token(
     # Fetch operation info
     address                     = sell_base_token.data.target_address
     trader_address              = sell_base_token.data.sender_address
-    timestamp                   = sell_base_token.data.timestamp
+    timestamp                   = parser.parse(sell_base_token.data.timestamp)
     quote_token_qty             = quote_token_transfer.parameter.root[0].txs[0].amount
     base_token_qty              = base_token_transfer.parameter.root[0].txs[0].amount
     level                       = sell_base_token.data.level

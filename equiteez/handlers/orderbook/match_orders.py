@@ -132,10 +132,8 @@ async def match_orders(
         is_expired                          = buy_order_record.booleans.bool_2
         is_refunded                         = buy_order_record.isRefunded
         refunded_amount                     = buy_order_record.refundedAmount
-        order_expiry                        = buy_order_record.orderExpiry
-        created_at                          = parser.parse(buy_order_record.orderTimestamps.timestamp_0) if buy_order_record.orderTimestamps.timestamp_0 else None
-        ended_at                            = parser.parse(buy_order_record.orderTimestamps.timestamp_1) if buy_order_record.orderTimestamps.timestamp_1 else None
-
+        order_expiry                        = parser.parse(buy_order_record.orderExpiry)
+        
         # Save buy order
         buy_order                           = await models.OrderbookOrder.get(
             orderbook   = orderbook,
@@ -152,8 +150,10 @@ async def match_orders(
         buy_order.is_refunded                             = is_refunded
         buy_order.refunded_amount                         = refunded_amount
         buy_order.order_expiry                            = order_expiry
-        buy_order.created_at                              = created_at
-        buy_order.ended_at                                = ended_at
+        if buy_order_record.orderTimestamps.timestamp_0:
+            buy_order.created_at                              = parser.parse(buy_order_record.orderTimestamps.timestamp_0)
+        if buy_order_record.orderTimestamps.timestamp_1:
+            buy_order.ended_at                                = parser.parse(buy_order_record.orderTimestamps.timestamp_1)
         await buy_order.save()
 
     for sell_order_id in sell_order_ledger:
@@ -168,10 +168,8 @@ async def match_orders(
         is_expired                          = sell_order_record.booleans.bool_2
         is_refunded                         = sell_order_record.isRefunded
         refunded_amount                     = sell_order_record.refundedAmount
-        order_expiry                        = sell_order_record.orderExpiry
-        created_at                          = parser.parse(sell_order_record.orderTimestamps.timestamp_0) if sell_order_record.orderTimestamps.timestamp_0 else None
-        ended_at                            = parser.parse(sell_order_record.orderTimestamps.timestamp_1) if sell_order_record.orderTimestamps.timestamp_1 else None
-
+        order_expiry                        = parser.parse(sell_order_record.orderExpiry)
+        
         # Save sell order
         sell_order                           = await models.OrderbookOrder.get(
             orderbook   = orderbook,
@@ -188,6 +186,8 @@ async def match_orders(
         sell_order.is_refunded                             = is_refunded
         sell_order.refunded_amount                         = refunded_amount
         sell_order.order_expiry                            = order_expiry
-        sell_order.created_at                              = created_at
-        sell_order.ended_at                                = ended_at
+        if sell_order_record.orderTimestamps.timestamp_0:
+            sell_order.created_at                              = parser.parse(sell_order_record.orderTimestamps.timestamp_0)
+        if sell_order_record.orderTimestamps.timestamp_1:
+            sell_order.ended_at                                = parser.parse(sell_order_record.orderTimestamps.timestamp_1)
         await sell_order.save()
