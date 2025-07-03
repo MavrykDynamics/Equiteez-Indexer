@@ -152,7 +152,7 @@ indexes:
     datasources:
     - mvkt_atlasnet
     contracts:
-    - mars1_dodo_mav
+    - dodo_mav
     types:
     - origination
     - transaction
@@ -160,42 +160,42 @@ indexes:
     - callback: dodo_mav.origination
       pattern:
       - type: origination
-        originated_contract: mars1_dodo_mav
+        originated_contract: dodo_mav
     - callback: dodo_mav.set_lambda
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: setLambda
     - callback: dodo_mav.set_super_admin
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: setSuperAdmin
     - callback: dodo_mav.claim_super_admin
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: claimSuperAdmin
     - callback: dodo_mav.set_guide_price
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: setGuidePrice
     - callback: dodo_mav.update_guide_price
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: updateGuidePrice
     - callback: dodo_mav.update_metadata
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: updateMetadata
     - callback: dodo_mav.update_config
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: updateConfig
     - callback: dodo_mav.toggle_pause_entrypoint
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: togglePauseEntrypoint
     - callback: dodo_mav.buy_base_token
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: buyBaseToken
       - type: transaction
         alias: base_token_transfer
@@ -212,7 +212,7 @@ indexes:
         optional: True
     - callback: dodo_mav.sell_base_token
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: sellBaseToken
       - type: transaction
         alias: quote_token_transfer
@@ -229,27 +229,27 @@ indexes:
         optional: True
     - callback: dodo_mav.withdraw_quote_token
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: withdrawQuoteToken
     - callback: dodo_mav.withdraw_base_token
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: withdrawBaseToken
     - callback: dodo_mav.withdraw_all_quote_tokens
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: withdrawAllQuoteTokens
     - callback: dodo_mav.withdraw_all_base_tokens
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: withdrawAllBaseTokens
     - callback: dodo_mav.deposit_quote_token
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: depositQuoteToken
     - callback: dodo_mav.deposit_base_token
       pattern:
-      - destination: mars1_dodo_mav
+      - destination: dodo_mav
         entrypoint: depositBaseToken
   # marketplace:
   #   kind: tezos.operations

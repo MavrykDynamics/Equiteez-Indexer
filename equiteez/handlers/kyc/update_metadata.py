@@ -14,12 +14,7 @@ async def update_metadata(
     address = update_metadata.data.target_address
 
     # Get kyc
-    kyc     = await models.Kyc.get(
-        address = address
-    )
+    kyc = await models.Kyc.get(address=address)
 
     # Update record
-    kyc.metadata = await get_contract_metadata(
-        ctx=ctx,
-        address=address
-    )
+    kyc.metadata = await get_contract_metadata(ctx=ctx, address=address)

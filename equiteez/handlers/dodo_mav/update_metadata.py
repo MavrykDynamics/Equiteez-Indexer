@@ -1,7 +1,9 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 from equiteez import models as models
-from equiteez.types.dodo_mav.tezos_parameters.update_metadata import UpdateMetadataParameter
+from equiteez.types.dodo_mav.tezos_parameters.update_metadata import (
+    UpdateMetadataParameter,
+)
 from equiteez.types.dodo_mav.tezos_storage import DodoMavStorage
 from equiteez.utils.utils import get_contract_metadata
 
@@ -14,14 +16,9 @@ async def update_metadata(
     address = update_metadata.data.target_address
 
     # Get dodo mav
-    dodo_mav        = await models.DodoMav.get_or_none(
-        address = address
-    )
+    dodo_mav = await models.DodoMav.get_or_none(address=address)
     if not dodo_mav:
         return
 
     # Update record
-    dodo_mav.metadata = await get_contract_metadata(
-        ctx=ctx,
-        address=address
-    )
+    dodo_mav.metadata = await get_contract_metadata(ctx=ctx, address=address)

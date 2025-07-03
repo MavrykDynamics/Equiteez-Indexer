@@ -9,28 +9,28 @@ from pydantic import BaseModel, ConfigDict
 
 class UpdateConfigAction(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     configMarketplaceFee: Dict[str, Any]
 
 
 class UpdateConfigAction1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     configMinOfferAmount: Dict[str, Any]
 
 
 class UpdateConfigAction2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     configRoyalty: Dict[str, Any]
 
 
 class UpdateConfigParameter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     updateConfigNewValue: str
     updateConfigAction: UpdateConfigAction | UpdateConfigAction1 | UpdateConfigAction2

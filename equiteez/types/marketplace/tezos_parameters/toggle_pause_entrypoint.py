@@ -9,63 +9,63 @@ from pydantic import BaseModel, ConfigDict
 
 class TargetEntrypoint(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     acceptOffer: bool
 
 
 class TargetEntrypoint1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     createListing: bool
 
 
 class TargetEntrypoint2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     editListing: bool
 
 
 class TargetEntrypoint3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     offer: bool
 
 
 class TargetEntrypoint4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     purchase: bool
 
 
 class TargetEntrypoint5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     removeListing: bool
 
 
 class TargetEntrypoint6(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     removeOffer: bool
 
 
 class TargetEntrypoint7(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     setCurrency: bool
 
 
 class TogglePauseEntrypointParameter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     targetEntrypoint: (
         TargetEntrypoint

@@ -7,5 +7,4 @@ from equiteez.types.marketplace.tezos_storage import MarketplaceStorage
 async def origination(
     ctx: HandlerContext,
     marketplace_origination: TezosOrigination[MarketplaceStorage],
-) -> None:
-    ...
+) -> None: ...

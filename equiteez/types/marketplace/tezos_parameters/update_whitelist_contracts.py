@@ -9,21 +9,21 @@ from pydantic import BaseModel, ConfigDict
 
 class UpdateType(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     remove: Dict[str, Any]
 
 
 class UpdateType1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     update: Dict[str, Any]
 
 
 class UpdateWhitelistContractsParameter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     whitelistContractName: str
     whitelistContractAddress: str

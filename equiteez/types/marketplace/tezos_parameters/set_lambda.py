@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 
 class SetLambdaParameter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     name: str
     func_bytes: str

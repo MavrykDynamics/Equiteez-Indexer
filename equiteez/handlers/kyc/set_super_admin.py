@@ -10,12 +10,10 @@ async def set_super_admin(
     set_super_admin: TezosTransaction[SetSuperAdminParameter, KycStorage],
 ) -> None:
     # Fetch operation info
-    address         = set_super_admin.data.target_address
+    address = set_super_admin.data.target_address
     new_super_admin = set_super_admin.storage.newSuperAdmin
 
     # Update kyc
-    kyc             = await models.Kyc.get(
-        address = address
-    )
-    kyc.new_super_admin   = new_super_admin
+    kyc = await models.Kyc.get(address=address)
+    kyc.new_super_admin = new_super_admin
     await kyc.save()

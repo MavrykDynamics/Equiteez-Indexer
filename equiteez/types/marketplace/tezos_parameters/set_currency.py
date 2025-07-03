@@ -7,14 +7,14 @@ from pydantic import BaseModel, ConfigDict
 
 class Token(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa12Token: str
 
 
 class Fa2Token(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tokenContractAddress: str
     tokenId: str
@@ -22,14 +22,14 @@ class Fa2Token(BaseModel):
 
 class Token1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa2Token: Fa2Token
 
 
 class SetCurrencyParameter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     actionType: str
     token: Token | Token1

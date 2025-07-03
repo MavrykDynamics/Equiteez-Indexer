@@ -11,9 +11,7 @@ async def set_lambda(
     set_lambda: TezosTransaction[SetLambdaParameter, DodoMavStorage],
 ) -> None:
     # Persist lambda
-    dodo_mav        = await models.DodoMav.get_or_none(
-        address = set_lambda.data.target_address
-    )
+    dodo_mav = await models.DodoMav.get_or_none(address=set_lambda.data.target_address)
     if not dodo_mav:
         return
     await persist_lambda(models.DodoMav, models.DodoMavLambda, set_lambda)
