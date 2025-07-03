@@ -28,7 +28,6 @@ async def cancel_orders(
         is_expired                          = buy_order_record.booleans.bool_2
         is_refunded                         = buy_order_record.isRefunded
         refunded_amount                     = buy_order_record.refundedAmount
-        order_expiry                        = parser.parse(buy_order_record.orderExpiry)
 
         # Save buy order
         buy_order                           = await models.OrderbookOrder.get(
@@ -41,7 +40,8 @@ async def cancel_orders(
         buy_order.is_expired                              = is_expired
         buy_order.is_refunded                             = is_refunded
         buy_order.refunded_amount                         = refunded_amount
-        buy_order.order_expiry                            = order_expiry
+        if buy_order_record.orderExpiry:
+            buy_order.order_expiry                            = parser.parse(buy_order_record.orderExpiry)
         if buy_order_record.orderTimestamps.timestamp_1:
             buy_order.ended_at                                = parser.parse(buy_order_record.orderTimestamps.timestamp_1)
         await buy_order.save()
@@ -54,7 +54,6 @@ async def cancel_orders(
         is_expired                          = sell_order_record.booleans.bool_2
         is_refunded                         = sell_order_record.isRefunded
         refunded_amount                     = sell_order_record.refundedAmount
-        order_expiry                        = parser.parse(sell_order_record.orderExpiry)
 
         # Save buy order
         sell_order                           = await models.OrderbookOrder.get(
@@ -67,7 +66,8 @@ async def cancel_orders(
         sell_order.is_expired                              = is_expired
         sell_order.is_refunded                             = is_refunded
         sell_order.refunded_amount                         = refunded_amount
-        sell_order.order_expiry                            = order_expiry
+        if sell_order_record.orderExpiry:
+            sell_order.order_expiry                         = parser.parse(sell_order_record.orderExpiry)
         if sell_order_record.orderTimestamps.timestamp_1:
             sell_order.ended_at                             = parser.parse(sell_order_record.orderTimestamps.timestamp_1)
         await sell_order.save()
