@@ -167,10 +167,12 @@ async def create_super_admin_action(handler):
             signers_count       = signers_count,
             start_datetime      = start_datetime,
             start_level         = start_level,
-            executed_datetime   = executed_datetime,
             executed_level      = executed_level,
             expiration_datetime = expiration_datetime,
         )
+
+        if action_record.executedDateTime:
+            action.executed_datetime   = parser.parse(action_record.executedDateTime)
         await action.save()
 
         # Create data records

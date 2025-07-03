@@ -148,10 +148,9 @@ async def match_orders(
         buy_order.is_expired                              = is_expired
         buy_order.is_refunded                             = is_refunded
         buy_order.refunded_amount                         = refunded_amount
+        buy_order.created_at                              = parser.parse(buy_order_record.orderTimestamps.timestamp_0)
         if buy_order_record.orderExpiry:
             buy_order.order_expiry                            = parser.parse(buy_order_record.orderExpiry)
-        if buy_order_record.orderTimestamps.timestamp_0:
-            buy_order.created_at                              = parser.parse(buy_order_record.orderTimestamps.timestamp_0)
         if buy_order_record.orderTimestamps.timestamp_1:
             buy_order.ended_at                                = parser.parse(buy_order_record.orderTimestamps.timestamp_1)
         await buy_order.save()

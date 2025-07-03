@@ -107,12 +107,11 @@ async def place_buy_order(
             is_canceled                             = is_canceled,
             is_expired                              = is_expired,
             is_refunded                             = is_refunded,
-            refunded_amount                         = refunded_amount
+            refunded_amount                         = refunded_amount,
+            created_at                              = parser.parse(buy_order_record.orderTimestamps.timestamp_0)
         )
         if buy_order_record.orderExpiry:
             buy_order.order_expiry  = parser.parse(buy_order_record.orderExpiry)
-        if buy_order_record.orderTimestamps.timestamp_0:
-            buy_order.created_at    = parser.parse(buy_order_record.orderTimestamps.timestamp_0)
         if buy_order_record.orderTimestamps.timestamp_1:
             buy_order.ended_at      = parser.parse(buy_order_record.orderTimestamps.timestamp_1)
         await buy_order.save()

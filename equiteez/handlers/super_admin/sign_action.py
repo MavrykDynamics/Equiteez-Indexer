@@ -61,7 +61,6 @@ async def sign_action(
         executed            = action_record.executed
         status              = models.ActionStatus.EXECUTED if action_record.status == 'EXECUTED' else models.ActionStatus.FLUSHED
         signers_count       = action_record.signersCount
-        executed_datetime   = parser.parse(action_record.executedDateTime) if action_record.executedDateTime else None
         executed_level      = action_record.executedLevel
 
         # Save action
@@ -72,7 +71,8 @@ async def sign_action(
         action.executed            = executed
         action.status              = status
         action.signers_count       = signers_count
-        action.executed_datetime   = executed_datetime
+        if action_record.executedDateTime:
+            action.executed_datetime   = parser.parse(action_record.executedDateTime)
         action.executed_level      = executed_level
         await action.save()
 
