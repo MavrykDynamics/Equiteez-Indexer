@@ -88,7 +88,7 @@ class Orderbook(Model):
     last_matched_price = fields.BigIntField(default=0)
 
     # Timestamp of last matched price
-    last_matched_price_timestamp = fields.TimeField(null=True)
+    last_matched_price_timestamp = fields.DatetimeField(null=True)
 
     # Counter for buy orders
     buy_order_counter = fields.BigIntField(default=0)
