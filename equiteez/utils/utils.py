@@ -142,7 +142,6 @@ async def create_super_admin_action(handler):
         data_map            = action_record.dataMap
         start_datetime      = parser.parse(action_record.startDateTime)
         start_level         = action_record.startLevel
-        executed_datetime   = parser.parse(action_record.executedDateTime) if action_record.executedDateTime else None
         executed_level      = action_record.executedLevel
         expiration_datetime = parser.parse(action_record.expirationDateTime)
 
@@ -170,7 +169,6 @@ async def create_super_admin_action(handler):
             executed_level      = executed_level,
             expiration_datetime = expiration_datetime,
         )
-
         if action_record.executedDateTime:
             action.executed_datetime   = parser.parse(action_record.executedDateTime)
         await action.save()

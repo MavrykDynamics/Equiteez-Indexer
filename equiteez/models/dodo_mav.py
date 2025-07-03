@@ -158,7 +158,7 @@ class DodoMavHistoryData(Model):
     trader                                  = fields.ForeignKeyField('models.EquiteezUser', related_name='dodo_mav_history_datas')
 
     # Trade timestamp
-    timestamp                               = fields.DatetimeField(use_tz=True)
+    timestamp                               = fields.DatetimeField()
 
     # Mavryk blockchain level
     level                                   = fields.BigIntField()

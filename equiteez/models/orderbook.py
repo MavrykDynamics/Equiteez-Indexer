@@ -379,7 +379,7 @@ class OrderbookOrder(Model):
 #     orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='history_data')
 #     order                                   = fields.ForeignKeyField('models.OrderbookOrder', related_name='history_data')
 #     trader                                  = fields.ForeignKeyField('models.EquiteezUser', related_name='orderbook_history_data')
-#     timestamp                               = fields.DatetimeField(use_tz=True)
+#     timestamp                               = fields.DatetimeField()
 #     level                                   = fields.BigIntField()
 #     token_price                             = fields.FloatField(default=0.0)
 #     token_price_usd                         = fields.FloatField(null=True)
