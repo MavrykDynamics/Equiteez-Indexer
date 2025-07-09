@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict
 
 class Config(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     minOfferAmount: str
     standardUnit: str
@@ -19,7 +19,7 @@ class Config(BaseModel):
 
 class BreakGlassConfig(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     createListingIsPaused: bool
     editListingIsPaused: bool
@@ -33,14 +33,14 @@ class BreakGlassConfig(BaseModel):
 
 class Token(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa12Token: str
 
 
 class Fa2Token(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tokenContractAddress: str
     tokenId: str
@@ -48,21 +48,21 @@ class Fa2Token(BaseModel):
 
 class Token1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa2Token: Fa2Token
 
 
 class Currency(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa12: str
 
 
 class Fa2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tokenContractAddress: str
     tokenId: str
@@ -70,21 +70,21 @@ class Fa2(BaseModel):
 
 class Currency1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa2: Fa2
 
 
 class Currency2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tez: Dict[str, Any]
 
 
 class ListingLedger(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     initiator: str
     status: str
@@ -98,28 +98,28 @@ class ListingLedger(BaseModel):
 
 class Currency3(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa12: str
 
 
 class Currency4(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa2: Fa2
 
 
 class Currency5(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tez: Dict[str, Any]
 
 
 class OfferLedger(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     initiator: str
     status: str
@@ -132,7 +132,7 @@ class OfferLedger(BaseModel):
 
 class CurrencyLedger(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tokenType: str
     tokenIds: List[str]
@@ -140,7 +140,7 @@ class CurrencyLedger(BaseModel):
 
 class MarketplaceStorage(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     superAdmin: str
     newSuperAdmin: str | None = None

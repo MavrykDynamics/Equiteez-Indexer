@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, RootModel
 
 class PartialPurchase(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     listingId: str
     amount: str
@@ -15,14 +15,14 @@ class PartialPurchase(BaseModel):
 
 class PurchaseParameter1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     partialPurchase: PartialPurchase
 
 
 class PurchaseParameter2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     quickBuyPurchase: str
 

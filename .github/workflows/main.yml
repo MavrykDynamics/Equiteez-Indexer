@@ -3,11 +3,13 @@ on:
   push:
     branches:
       - 'main'
+      - 'new-contracts'
     tags:
       - '*.*.*'
   pull_request:
     branches:
       - 'main'
+      - 'new-contracts'
 jobs:
   build-docker-image:
     name: Build indexer image

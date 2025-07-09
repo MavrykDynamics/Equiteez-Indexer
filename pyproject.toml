@@ -6,10 +6,11 @@ authors = ["Tristan ALLAIRE <tristan.allaire@alarch.fr>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "<3.13,>=3.12"
-dipdup = "^8.0.0"
-python-dateutil = "^2.9.0.post0"
+python = "3.12.4"
+python-dateutil = "^2.8.2"
+dipdup = { git = "https://github.com/mavryk-network/dipdup.git", branch = "hasura-model-comment" }
+pdoc = "^15.0.4"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

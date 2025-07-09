@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 
 class UpdateMetadataParameter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     metadataKey: str
     metadataHash: str

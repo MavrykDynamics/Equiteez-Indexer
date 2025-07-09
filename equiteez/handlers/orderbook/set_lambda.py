@@ -5,6 +5,7 @@ from equiteez.types.orderbook.tezos_parameters.set_lambda import SetLambdaParame
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
 from equiteez.utils.utils import persist_lambda
 
+
 async def set_lambda(
     ctx: HandlerContext,
     set_lambda: TezosTransaction[SetLambdaParameter, OrderbookStorage],

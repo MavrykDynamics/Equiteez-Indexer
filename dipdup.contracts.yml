@@ -7,6 +7,14 @@ contracts:
     kind: tezos
     address: KT1TYqkzAYKDrCmPo7Be1vZtC7kdUoNfKyZa
     typename: kyc
+  base_token:
+    kind: tezos
+    code_hash: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj
+    typename: base_token
+  quote_token:
+    kind: tezos
+    code_hash: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
+    typename: quote_token
   mars1_orderbook:
     kind: tezos
     address: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6
@@ -23,21 +31,9 @@ contracts:
     kind: tezos
     address: KT1SAdsMEHm4WDPh5Dj9Rw9P7LdBZXyiuXGT
     typename: orderbook
-  mars1_dodo_mav:
+  dodo_mav:
     kind: tezos
-    address: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
-    typename: dodo_mav
-  ocean_dodo_mav:
-    kind: tezos
-    address: KT1BzSxqXNmejXB1ujGCV79rocGfnQyVTK5e
-    typename: dodo_mav
-  queen_dodo_mav:
-    kind: tezos
-    address: KT1XpG3UASMqVZDvzbkn8xHGMDuEQNLpkGxq
-    typename: dodo_mav
-  ntbm_dodo_mav:
-    kind: tezos
-    address: KT1SQ63D1hk4n2B78FPgijt99Hso2tPFHNEb
+    code_hash: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
     typename: dodo_mav
   # marketplace:
   #   kind: tezos

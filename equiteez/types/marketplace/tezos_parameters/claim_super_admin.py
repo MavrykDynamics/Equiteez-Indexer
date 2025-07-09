@@ -8,5 +8,5 @@ from pydantic import BaseModel, ConfigDict
 class ClaimSuperAdminParameter(BaseModel):
     pass
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )

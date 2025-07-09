@@ -9,14 +9,14 @@ from pydantic import BaseModel, ConfigDict
 
 class Token(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa12Token: str
 
 
 class Fa2Token(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tokenContractAddress: str
     tokenId: str
@@ -24,21 +24,21 @@ class Fa2Token(BaseModel):
 
 class Token1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa2Token: Fa2Token
 
 
 class Currency(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa12: str
 
 
 class Fa2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tokenContractAddress: str
     tokenId: str
@@ -46,21 +46,21 @@ class Fa2(BaseModel):
 
 class Currency1(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     fa2: Fa2
 
 
 class Currency2(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     tez: Dict[str, Any]
 
 
 class CreateListingParameter(BaseModel):
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
     amount: str
     pricePerUnit: str

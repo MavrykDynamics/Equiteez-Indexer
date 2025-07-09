@@ -8,5 +8,5 @@ from pydantic import BaseModel, ConfigDict
 class PauseAllParameter(BaseModel):
     pass
     model_config = ConfigDict(
-        extra='forbid',
+        extra="forbid",
     )
