@@ -178,32 +178,31 @@ async def match_orders(
         refunded_amount = sell_order_record.refundedAmount
 
         # Save sell order
-        try:
-            sell_order = await models.OrderbookOrder.get(
-                orderbook=orderbook,
-                order_type=models.OrderType.SELL,
-                order_id=sell_order_id,
+        print ("ADDRESS: "+ address)
+        print ("ID: "+ sell_order_id)
+        sell_order = await models.OrderbookOrder.get(
+            orderbook=orderbook,
+            order_type=models.OrderType.SELL,
+            order_id=sell_order_id,
+        )
+        sell_order.fulfilled_amount = fulfilled_amount
+        sell_order.unfulfilled_amount = unfulfilled_amount
+        sell_order.total_paid_out = total_paid_out
+        sell_order.total_usd_value_of_rwa_token_amount = (
+            total_usd_value_of_rwa_token_amount
+        )
+        sell_order.is_fulfilled = is_fulfilled
+        sell_order.is_canceled = is_canceled
+        sell_order.is_expired = is_expired
+        sell_order.is_refunded = is_refunded
+        sell_order.refunded_amount = refunded_amount
+        sell_order.created_at = parser.parse(
+            sell_order_record.orderTimestamps.timestamp_0
+        )
+        if sell_order_record.orderExpiry:
+            sell_order.order_expiry = parser.parse(sell_order_record.orderExpiry)
+        if sell_order_record.orderTimestamps.timestamp_1:
+            sell_order.ended_at = parser.parse(
+                sell_order_record.orderTimestamps.timestamp_1
             )
-            sell_order.fulfilled_amount = fulfilled_amount
-            sell_order.unfulfilled_amount = unfulfilled_amount
-            sell_order.total_paid_out = total_paid_out
-            sell_order.total_usd_value_of_rwa_token_amount = (
-                total_usd_value_of_rwa_token_amount
-            )
-            sell_order.is_fulfilled = is_fulfilled
-            sell_order.is_canceled = is_canceled
-            sell_order.is_expired = is_expired
-            sell_order.is_refunded = is_refunded
-            sell_order.refunded_amount = refunded_amount
-            sell_order.created_at = parser.parse(
-                sell_order_record.orderTimestamps.timestamp_0
-            )
-            if sell_order_record.orderExpiry:
-                sell_order.order_expiry = parser.parse(sell_order_record.orderExpiry)
-            if sell_order_record.orderTimestamps.timestamp_1:
-                sell_order.ended_at = parser.parse(
-                    sell_order_record.orderTimestamps.timestamp_1
-                )
-            await sell_order.save()
-        except:
-            raise Exception("Error on sell order "+ address + " " + sell_order_id)
+        await sell_order.save()
