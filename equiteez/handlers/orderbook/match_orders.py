@@ -21,6 +21,15 @@ async def match_orders(
     last_matched_price = match_orders.storage.lastMatchedPrice
     order_id = match_orders.parameter.root
 
+    # Basic checks
+    # TODO: check if the orders are properly matched
+    if not order_id in buy_order_ledger or not order_id in sell_order_ledger:
+        print ("ADDRESS: "+ address)
+        print ("ID: "+ order_id)
+        print ("LEVEL: "+ str(match_orders.data.level))
+        print ("HASH: "+ match_orders.data.hash)
+        return
+
     # Update orderbook
     orderbook = await models.Orderbook.get(address=address)
     orderbook.highest_buy_price = highest_buy_price.price
@@ -176,10 +185,6 @@ async def match_orders(
     refunded_amount = sell_order_record.refundedAmount
 
     # Save sell order
-    print ("ADDRESS: "+ address)
-    print ("ID: "+ order_id)
-    print ("LEVEL: "+ str(match_orders.data.level))
-    print ("HASH: "+ match_orders.data.hash)
     sell_order = await models.OrderbookOrder.get(
         orderbook=orderbook,
         order_type=models.OrderType.SELL,
