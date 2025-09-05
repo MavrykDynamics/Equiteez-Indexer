@@ -180,7 +180,7 @@ async def match_orders(
         # Save sell order
         print ("ADDRESS: "+ address)
         print ("ID: "+ sell_order_id)
-        print ("LEVEL: "+ match_orders.data.level)
+        print ("LEVEL: "+ str(match_orders.data.level))
         print ("HASH: "+ match_orders.data.hash)
         sell_order = await models.OrderbookOrder.get(
             orderbook=orderbook,
