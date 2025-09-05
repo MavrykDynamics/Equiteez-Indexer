@@ -19,7 +19,7 @@ async def match_orders(
     highest_buy_price = match_orders.storage.highestBuyPrice
     lowest_sell_price = match_orders.storage.lowestSellPrice
     last_matched_price = match_orders.storage.lastMatchedPrice
-    order_id = match_orders.parameters.root
+    order_id = match_orders.parameter.root
 
     # Update orderbook
     orderbook = await models.Orderbook.get(address=address)
