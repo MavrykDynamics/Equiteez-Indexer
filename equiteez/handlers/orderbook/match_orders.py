@@ -101,10 +101,7 @@ async def match_orders(
 
         for sell_price_counter in sell_price_map:
             sell_price = sell_price_map[sell_price_counter]
-            (
-                sell_price_record,
-                _,
-            ) = await models.OrderbookRwaOrderSellPrice.get_or_create(
+            sell_price_record, _ = await models.OrderbookRwaOrderSellPrice.get_or_create(
                 rwa_order=rwa_order, counter=sell_price_counter
             )
             sell_price_record.price = sell_price
@@ -113,10 +110,7 @@ async def match_orders(
         for sell_price in sell_order_map:
             sell_order_ids = sell_order_map[sell_price]
             sell_order_ids_int = [int(x) for x in sell_order_ids]
-            (
-                sell_order_record,
-                _,
-            ) = await models.OrderbookRwaOrderSellOrder.get_or_create(
+            sell_order_record, _ = await models.OrderbookRwaOrderSellOrder.get_or_create(
                 rwa_order=rwa_order, price=sell_price
             )
             sell_order_record.order_ids = sell_order_ids_int
