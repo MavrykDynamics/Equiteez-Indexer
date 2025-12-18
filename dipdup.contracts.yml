@@ -31,14 +31,6 @@ contracts:
     kind: tezos
     address: KT1SAdsMEHm4WDPh5Dj9Rw9P7LdBZXyiuXGT
     typename: orderbook
-  dodo_mav:
-    kind: tezos
-    code_hash: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
-    typename: dodo_mav
-  # marketplace:
-  #   kind: tezos
-  #   address: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok
-  #   typename: marketplace
   fa2:
     kind: tezos
     address: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj

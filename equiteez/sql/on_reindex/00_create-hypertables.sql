@@ -10,33 +10,3 @@ END $$;
 SELECT create_hypertable('equiteez_user_token_transfer', 'timestamp', 
                         chunk_time_interval => INTERVAL '1 day',
                         if_not_exists => TRUE);
-
--- Check if DodoMavHistoryData is already a hypertable
-DO $$ 
-DECLARE
-    is_hypertable boolean;
-BEGIN
-    -- Check if table is already a hypertable
-    SELECT EXISTS (
-        SELECT 1 
-        FROM timescaledb_information.hypertables 
-        WHERE hypertable_name = 'dodo_mav_history_data'
-    ) INTO is_hypertable;
-
-    -- Only proceed if not already a hypertable
-    IF NOT is_hypertable THEN
-        -- Drop existing primary key if it exists
-        IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'dodo_mav_history_data_pkey') THEN
-            ALTER TABLE dodo_mav_history_data DROP CONSTRAINT dodo_mav_history_data_pkey;
-        END IF;
-        
-        -- Add new primary key
-        ALTER TABLE dodo_mav_history_data ADD PRIMARY KEY (id, timestamp);
-        
-        -- Create hypertable
-        PERFORM create_hypertable('dodo_mav_history_data', 'timestamp', 
-                                chunk_time_interval => INTERVAL '1 day',
-                                if_not_exists => TRUE,
-                                migrate_data => TRUE);
-    END IF;
-END $$;
