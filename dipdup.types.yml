@@ -411,20 +411,48 @@ indexes:
       pattern:
       - destination: super_admin
         entrypoint: signAction
-  fa2_balances:
-    kind: tezos.token_balances
+  base_token_balances:
+    template: fa2_balances_template
+    values:
+      token_contract: base_token
+  quote_token_balances:
+    template: fa2_balances_template
+    values:
+      token_contract: quote_token
+  base_token_transfers:
+    template: token_transfers_template
+    values:
+      token_contract: base_token
+  quote_token_transfers:
+    template: token_transfers_template
+    values:
+      token_contract: quote_token
+
+templates:
+  fa2_balances_template:
+    kind: tezos.big_maps
+    first_level: ${FIRST_LEVEL:-0}
+    last_level: ${LAST_LEVEL:-}
+    skip_history: never
     datasources:
-      - mvkt_atlasnet
+    - mvkt_atlasnet
     handlers:
-      - callback: misc.on_balance_update
-        contract: fa2
-  fa2_transfers:
-    kind: tezos.token_transfers
+    - callback: balances.on_balance_update
+      contract: <token_contract>
+      path: ledger
+  token_transfers_template:
+    kind: tezos.operations
     datasources:
-      - mvkt_atlasnet
+    - mvkt_atlasnet
+    contracts:
+    - <token_contract>
+    types:
+    - transaction
     handlers:
-      - callback: misc.on_token_transfer
-        contract: fa2
+    - callback: transfers.on_transfer
+      pattern:
+      - destination: <token_contract>
+        entrypoint: transfer
 
 hooks:
   refresh_tokens:

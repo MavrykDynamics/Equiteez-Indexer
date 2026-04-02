@@ -175,6 +175,9 @@ class EquiteezUserTokenTransfer(Model):
     # Type of transfer (TRANSFER/MINT/BURN)
     transfer_type = fields.IntEnumField(enum_type=TransferType, index=True)
 
+    # Mavryk operation hash
+    operation_hash = fields.CharField(max_length=64, index=True, null=True)
+
     # Transfer amount (in smallest unit)
     amount = fields.BigIntField()
 

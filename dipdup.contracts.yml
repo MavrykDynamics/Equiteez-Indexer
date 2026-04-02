@@ -13,7 +13,7 @@ contracts:
     typename: base_token
   quote_token:
     kind: tezos
-    code_hash: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
+    address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
     typename: quote_token
   mars1_orderbook:
     kind: tezos

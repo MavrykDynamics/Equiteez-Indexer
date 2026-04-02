@@ -345,6 +345,9 @@ class OrderbookOrder(Model):
     # Unique order identifier
     order_id = fields.BigIntField(default=0, index=True)
 
+    # Mavryk operation hash of the tx that last created/updated this row (place_* / etc.)
+    operation_hash = fields.CharField(max_length=64, null=True, index=True)
+
     # Type of order (BUY/SELL)
     order_type = fields.IntEnumField(enum_type=OrderType, index=True)
 
