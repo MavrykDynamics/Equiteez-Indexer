@@ -24,15 +24,6 @@ def _load_contracts() -> Dict:
     return data.get("contracts", {})
 
 
-def get_orderbook_addresses() -> List[str]:
-    contracts = _load_contracts()
-    return [
-        contract["address"]
-        for contract in contracts.values()
-        if contract.get("typename") == "orderbook" and contract.get("address")
-    ]
-
-
 def get_quote_token_address() -> Optional[str]:
     contracts = _load_contracts()
     for contract in contracts.values():
@@ -41,30 +32,12 @@ def get_quote_token_address() -> Optional[str]:
     return None
 
 
-def get_base_token_addresses() -> List[str]:
-    contracts = _load_contracts()
-    return [
-        contract["address"]
-        for contract in contracts.values()
-        if contract.get("typename") == "base_token" and contract.get("address")
-    ]
-
-
 def get_liquidity_pool_addresses() -> List[str]:
     contracts = _load_contracts()
     return [
         contract["address"]
         for contract in contracts.values()
         if contract.get("typename") == "liquidity_pool" and contract.get("address")
-    ]
-
-
-def get_superadmin_addresses() -> List[str]:
-    contracts = _load_contracts()
-    return [
-        contract["address"]
-        for contract in contracts.values()
-        if contract.get("typename") == "superadmin" and contract.get("address")
     ]
 
 

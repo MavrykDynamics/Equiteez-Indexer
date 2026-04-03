@@ -1,36 +1,29 @@
 contracts:
-  super_admin:
+  super_admin_watcher:
     kind: tezos
-    address: KT1JkmXcgKQ3oNpLhjDD4WgvgMfyccUZwsws
+    code_hash: KT1JkmXcgKQ3oNpLhjDD4WgvgMfyccUZwsws
     typename: super_admin
-  kyc:
+
+  kyc_watcher:
     kind: tezos
-    address: KT1TYqkzAYKDrCmPo7Be1vZtC7kdUoNfKyZa
+    code_hash: KT1TYqkzAYKDrCmPo7Be1vZtC7kdUoNfKyZa
     typename: kyc
-  base_token:
+
+  token_watcher:
     kind: tezos
     code_hash: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj
     typename: base_token
+
   quote_token:
     kind: tezos
     address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
     typename: quote_token
-  mars1_orderbook:
+
+  orderbook_watcher:
     kind: tezos
-    address: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6
+    code_hash: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6
     typename: orderbook
-  ocean_orderbook:
-    kind: tezos
-    address: KT1KFbUGFtUjTENbhuGRCAuTmuuJFEwnBBrB
-    typename: orderbook
-  queen_orderbook:
-    kind: tezos
-    address: KT1RZB8ZK4PtWPD8pV5hj4DJeke4am3A4gz2
-    typename: orderbook
-  ntbm_orderbook:
-    kind: tezos
-    address: KT1SAdsMEHm4WDPh5Dj9Rw9P7LdBZXyiuXGT
-    typename: orderbook
+
   dodo_mav:
     kind: tezos
     code_hash: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
@@ -39,7 +32,3 @@ contracts:
   #   kind: tezos
   #   address: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok
   #   typename: marketplace
-  fa2:
-    kind: tezos
-    address: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj
-    typename: fa2

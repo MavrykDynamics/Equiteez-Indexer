@@ -15,6 +15,36 @@ class EventType(str, Enum):
 
     TRANSFER_CREATED = "TRANSFER_CREATED"
 
+    # Super Admin — aggregate_id = Super Admin contract address (KT1…).
+    #
+    # Suggested common payload fields: level, operation_hash, timestamp, entrypoint (Michelson).
+    #
+    # Handler → event type (when emitting from the indexer):
+    #   origination → SUPER_ADMIN_CREATED
+    #   update_metadata → SUPER_ADMIN_METADATA_UPDATED
+    #   set_lambda → SUPER_ADMIN_LAMBDA_UPDATED
+    #   * via create_super_admin_action (proposal in ledger) → SUPER_ADMIN_ACTION_PROPOSED
+    #       (set_super_admin, set_general_admin, set_contract_admin, add/remove signatory,
+    #        remove_general/contract_admin, update_config, set_token_kyc_address,
+    #        kill_token, flush_action, claim_super_admin — disambiguate with payload.proposal_kind)
+    #   sign_action → SUPER_ADMIN_ACTION_SIGNED (+ on status transition to EXECUTED/FLUSHED)
+    #   flush_action (executed path) / storage → SUPER_ADMIN_ACTION_FLUSHED | SUPER_ADMIN_ACTION_EXECUTED
+    SUPER_ADMIN_CREATED = "SUPER_ADMIN_CREATED"
+    SUPER_ADMIN_METADATA_UPDATED = "SUPER_ADMIN_METADATA_UPDATED"
+    SUPER_ADMIN_LAMBDA_UPDATED = "SUPER_ADMIN_LAMBDA_UPDATED"
+
+    SUPER_ADMIN_SIGNATORY_ADDED = "SUPER_ADMIN_SIGNATORY_ADDED"
+    SUPER_ADMIN_SIGNATORY_REMOVED = "SUPER_ADMIN_SIGNATORY_REMOVED"
+    SUPER_ADMIN_GENERAL_ADMIN_ADDED = "SUPER_ADMIN_GENERAL_ADMIN_ADDED"
+    SUPER_ADMIN_GENERAL_ADMIN_REMOVED = "SUPER_ADMIN_GENERAL_ADMIN_REMOVED"
+    SUPER_ADMIN_CONTRACT_ADMIN_ADDED = "SUPER_ADMIN_CONTRACT_ADMIN_ADDED"
+    SUPER_ADMIN_CONTRACT_ADMIN_REMOVED = "SUPER_ADMIN_CONTRACT_ADMIN_REMOVED"
+
+    SUPER_ADMIN_ACTION_PROPOSED = "SUPER_ADMIN_ACTION_PROPOSED"
+    SUPER_ADMIN_ACTION_SIGNED = "SUPER_ADMIN_ACTION_SIGNED"
+    SUPER_ADMIN_ACTION_EXECUTED = "SUPER_ADMIN_ACTION_EXECUTED"
+    SUPER_ADMIN_ACTION_FLUSHED = "SUPER_ADMIN_ACTION_FLUSHED"
+
 
 class AggregateType(str, Enum):
     """Enumeration of all aggregate types in the system."""
@@ -22,6 +52,7 @@ class AggregateType(str, Enum):
     ACCOUNT = "ACCOUNT"
     ORDER = "ORDER"
     TRANSFER = "TRANSFER"
+    SUPER_ADMIN = "SUPER_ADMIN"
 
 
 class EventEnvelope:
@@ -93,12 +124,32 @@ TOPIC_MAPPING = {
     AggregateType.ACCOUNT: "balances.events",
     AggregateType.ORDER: "orders.events",
     AggregateType.TRANSFER: "transfers.events",
+    AggregateType.SUPER_ADMIN: "super_admin.events",
 }
 
 
 def get_topic_for_aggregate(aggregate_type: AggregateType) -> str:
     """Get the Event Bus topic name for an aggregate type."""
     return TOPIC_MAPPING.get(aggregate_type, "events.default")
+
+
+_SUPER_ADMIN_EVENT_TYPES = frozenset(
+    {
+        EventType.SUPER_ADMIN_CREATED,
+        EventType.SUPER_ADMIN_METADATA_UPDATED,
+        EventType.SUPER_ADMIN_LAMBDA_UPDATED,
+        EventType.SUPER_ADMIN_SIGNATORY_ADDED,
+        EventType.SUPER_ADMIN_SIGNATORY_REMOVED,
+        EventType.SUPER_ADMIN_GENERAL_ADMIN_ADDED,
+        EventType.SUPER_ADMIN_GENERAL_ADMIN_REMOVED,
+        EventType.SUPER_ADMIN_CONTRACT_ADMIN_ADDED,
+        EventType.SUPER_ADMIN_CONTRACT_ADMIN_REMOVED,
+        EventType.SUPER_ADMIN_ACTION_PROPOSED,
+        EventType.SUPER_ADMIN_ACTION_SIGNED,
+        EventType.SUPER_ADMIN_ACTION_EXECUTED,
+        EventType.SUPER_ADMIN_ACTION_FLUSHED,
+    }
+)
 
 
 def get_topic_for_event_type(event_type: EventType) -> str:
@@ -113,5 +164,7 @@ def get_topic_for_event_type(event_type: EventType) -> str:
         return TOPIC_MAPPING[AggregateType.ORDER]
     elif event_type == EventType.TRANSFER_CREATED:
         return TOPIC_MAPPING[AggregateType.TRANSFER]
+    elif event_type in _SUPER_ADMIN_EVENT_TYPES:
+        return TOPIC_MAPPING[AggregateType.SUPER_ADMIN]
     else:
         return "events.default"

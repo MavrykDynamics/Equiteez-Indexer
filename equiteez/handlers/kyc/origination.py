@@ -1,17 +1,51 @@
+import logging
+
+from dateutil import parser
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
-from equiteez import models as models
+
+from equiteez import models
 from equiteez.types.kyc.tezos_storage import KycStorage
+from equiteez.utils.contract_allowlist import (
+    KYC,
+    allowlist_contains,
+    fetch_allowlist,
+)
+from equiteez.utils.dynamic_index import attach_index_kyc
 from equiteez.utils.utils import get_contract_metadata
-from dateutil import parser
+
+logger = logging.getLogger(__name__)
 
 
 async def origination(
     ctx: HandlerContext,
     kyc_origination: TezosOrigination[KycStorage],
 ) -> None:
-    # Fetch operation info
     address = kyc_origination.data.originated_contract_address
+    first_level = kyc_origination.data.level
+
+    if not address:
+        return
+
+    tracked, _ = await models.TrackedContract.get_or_create(
+        address=address,
+        defaults={
+            "contract_type": models.ContractType.KYC,
+            "first_level": first_level,
+            "status": models.ContractStatus.PENDING,
+        },
+    )
+
+    if tracked.status == models.ContractStatus.INDEXED:
+        return
+
+    allowlist = await fetch_allowlist()
+    if not allowlist_contains(allowlist, KYC, address):
+        logger.info("kyc %s not in allowlist, saved as PENDING at level %d", address, first_level)
+        return
+
+    await attach_index_kyc(ctx, address, first_level=tracked.first_level)
+
     super_admin = kyc_origination.storage.superAdmin
     new_super_admin = kyc_origination.storage.newSuperAdmin
     whitelist_ledger = kyc_origination.storage.whitelistLedger
@@ -22,32 +56,24 @@ async def origination(
     member_ledger = kyc_origination.storage.memberLedger
     pause_ledger = kyc_origination.storage.pauseLedger
 
-    # Prepare the kyc
     kyc, _ = await models.Kyc.get_or_create(address=address)
     kyc.super_admin = super_admin
     kyc.new_super_admin = new_super_admin
-
-    # Get contract metadata
     kyc.metadata = await get_contract_metadata(ctx=ctx, address=address)
-
-    # Save the orderbook
     await kyc.save()
 
-    # Prepare the whitelist ledger
     for whitelist_address in whitelist_ledger:
         user, _ = await models.EquiteezUser.get_or_create(address=whitelist_address)
         await user.save()
         kyc_whitelist, _ = await models.KycWhitelisted.get_or_create(kyc=kyc, user=user)
         await kyc_whitelist.save()
 
-    # Prepare the blacklist ledger
     for blacklist_address in blacklist_ledger:
         user, _ = await models.EquiteezUser.get_or_create(address=blacklist_address)
         await user.save()
         kyc_blacklist, _ = await models.KycBlacklisted.get_or_create(kyc=kyc, user=user)
         await kyc_blacklist.save()
 
-    # Prepare the valid input ledger
     for category in valid_inputs:
         valid_input_list = valid_inputs[category]
         if category == "country":
@@ -69,7 +95,6 @@ async def origination(
             investor_types.valid_inputs = valid_input_list
             await investor_types.save()
 
-    # Prepare the registrar ledger
     for registrar_address in kyc_registrars:
         kyc_registrar = kyc_registrars[registrar_address]
         kyc_admins = kyc_registrar.kycAdmins
@@ -91,7 +116,6 @@ async def origination(
         registrar.unfreeze_member_paused = unfreeze_member_paused
         await registrar.save()
 
-    # Prepare the country transfer rules ledger
     for country in country_transfer_rule_ledger:
         transfer_rule = country_transfer_rule_ledger[country]
         whitelist_countries = transfer_rule.whitelistCountries
@@ -107,7 +131,6 @@ async def origination(
         country_transfer_rule.receiving_frozen = receiving_frozen
         await country_transfer_rule.save()
 
-    # Prepare the member ledger
     for member_address in member_ledger:
         member_record = member_ledger[member_address]
         country = member_record.country
@@ -119,11 +142,11 @@ async def origination(
             address=kyc_registrar_address
         )
         await registrar.save()
-        kyc_registrar = await models.KycRegistrar.get(kyc=kyc, user=registrar)
+        kyc_registrar_obj = await models.KycRegistrar.get(kyc=kyc, user=registrar)
         user, _ = await models.EquiteezUser.get_or_create(address=member_address)
         await user.save()
         member, _ = await models.KycMember.get_or_create(kyc=kyc, user=user)
-        member.kyc_registrar = kyc_registrar
+        member.kyc_registrar = kyc_registrar_obj
         member.country = country
         member.region = region
         member.investor_type = investor_type
@@ -132,10 +155,10 @@ async def origination(
         member.frozen = frozen
         await member.save()
 
-    # Save the entrypoints status
     for entrypoint in pause_ledger:
-        paused = pause_ledger[entrypoint]
         entrypoint_status = models.KycEntrypointStatus(
-            contract=kyc, entrypoint=entrypoint, paused=paused
+            contract=kyc, entrypoint=entrypoint, paused=pause_ledger[entrypoint]
         )
         await entrypoint_status.save()
+
+    logger.info("KYC %s registered at level %d", address, first_level)

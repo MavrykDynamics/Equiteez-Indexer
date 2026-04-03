@@ -6,6 +6,18 @@ from enum import IntEnum
 ###
 
 
+class ContractType(IntEnum):
+    BASE_TOKEN = 0
+    ORDERBOOK = 1
+    SUPER_ADMIN = 2
+    KYC = 3
+
+
+class ContractStatus(IntEnum):
+    PENDING = 0
+    INDEXED = 1
+
+
 class TokenType(IntEnum):
     FA12 = 0
     FA2 = 1
@@ -21,6 +33,29 @@ class TransferType(IntEnum):
 ###
 # Shared Tables
 ###
+
+
+class TrackedContract(Model):
+    """
+    Lifecycle registry for all contracts seen by the indexer.
+
+    PENDING  — origination observed, first_level preserved, not yet in allowlist.
+    INDEXED  — registered in DipDup (ctx.add_contract + ctx.add_index).
+
+    Merges the old IndexedContract (infra) and PendingContract (buffer) into one
+    table so first_level from the origination event is never lost.
+    """
+
+    id = fields.IntField(primary_key=True)
+    address = fields.CharField(max_length=36, unique=True, index=True)
+    contract_type = fields.IntEnumField(enum_type=ContractType)
+    first_level = fields.BigIntField()
+    status = fields.IntEnumField(enum_type=ContractStatus, default=ContractStatus.PENDING, index=True)
+    seen_at = fields.DatetimeField(auto_now_add=True)
+    indexed_at = fields.DatetimeField(null=True)
+
+    class Meta:
+        table = "tracked_contract"
 
 
 class Token(Model):

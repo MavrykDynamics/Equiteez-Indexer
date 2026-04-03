@@ -78,7 +78,7 @@ indexes:
     datasources:
     - mvkt_atlasnet
     contracts:
-    - mars1_orderbook
+    - base_orderbook
     types:
     - origination
     - transaction
@@ -86,66 +86,66 @@ indexes:
     - callback: orderbook.origination
       pattern:
       - type: origination
-        originated_contract: mars1_orderbook
+        originated_contract: base_orderbook
     - callback: orderbook.set_lambda
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: setLambda
     - callback: orderbook.set_currency
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: setCurrency
     - callback: orderbook.set_super_admin
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: setSuperAdmin
     - callback: orderbook.set_kyc_address
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: setKycAddress
     - callback: orderbook.claim_super_admin
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: claimSuperAdmin
     - callback: orderbook.update_metadata
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: updateMetadata
     - callback: orderbook.update_config
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: updateConfig
     - callback: orderbook.toggle_pause_entrypoint
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: togglePauseEntrypoint
     - callback: orderbook.transfer_fees
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: transferFees
     - callback: orderbook.clear_expired_orders
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: clearExpiredOrders
     - callback: orderbook.match_orders
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: matchOrders
     - callback: orderbook.place_buy_order
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: placeBuyOrder
     - callback: orderbook.place_sell_order
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: placeSellOrder
     - callback: orderbook.cancel_orders
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: cancelOrders
     - callback: orderbook.process_refund
       pattern:
-      - destination: mars1_orderbook
+      - destination: base_orderbook
         entrypoint: processRefund
   dodo_mav:
     kind: tezos.operations
@@ -411,14 +411,6 @@ indexes:
       pattern:
       - destination: super_admin
         entrypoint: signAction
-  base_token_balances:
-    template: fa2_balances_template
-    values:
-      token_contract: base_token
-  quote_token_balances:
-    template: fa2_balances_template
-    values:
-      token_contract: quote_token
   base_token_transfers:
     template: token_transfers_template
     values:
@@ -429,17 +421,6 @@ indexes:
       token_contract: quote_token
 
 templates:
-  fa2_balances_template:
-    kind: tezos.big_maps
-    first_level: ${FIRST_LEVEL:-0}
-    last_level: ${LAST_LEVEL:-}
-    skip_history: never
-    datasources:
-    - mvkt_atlasnet
-    handlers:
-    - callback: balances.on_balance_update
-      contract: <token_contract>
-      path: ledger
   token_transfers_template:
     kind: tezos.operations
     datasources:

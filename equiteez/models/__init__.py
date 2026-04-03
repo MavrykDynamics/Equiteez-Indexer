@@ -1,4 +1,5 @@
 from equiteez.models.shared import *
+from equiteez.models.shared import TrackedContract, ContractType, ContractStatus
 from equiteez.models.kyc import *
 from equiteez.models.orderbook import *
 from equiteez.models.dodo_mav import *
