@@ -7,7 +7,7 @@ SELECT
     transfer_type,
     SUM(amount) AS total_volume,
     COUNT(*) AS transfer_count
-FROM user_token_transfer
+FROM equiteez_user_token_transfer
 GROUP BY 1, 2, 3
 WITH NO DATA;
 

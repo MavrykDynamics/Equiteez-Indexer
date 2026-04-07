@@ -195,7 +195,7 @@ class EquiteezUserTokenTransfer(Model):
     amount = fields.BigIntField()
 
     class Meta:
-        table = "user_token_transfer"
+        table = "equiteez_user_token_transfer"
         indexes = [
             ("from_user_id", "token_id"),
             ("to_user_id", "token_id"),
