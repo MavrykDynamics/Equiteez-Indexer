@@ -24,10 +24,10 @@ contracts:
     address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
     typename: quote_token
 
-  dodo_mav:
-    kind: tezos
-    code_hash: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
-    typename: dodo_mav
+  # dodo_mav:
+  #   kind: tezos
+  #   code_hash: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
+  #   typename: dodo_mav
 
   # marketplace:
   #   kind: tezos
