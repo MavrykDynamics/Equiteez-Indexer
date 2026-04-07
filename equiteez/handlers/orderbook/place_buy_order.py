@@ -13,7 +13,7 @@ async def place_buy_order(
     ctx: HandlerContext,
     place_buy_order: TezosTransaction[PlaceBuyOrderParameter, OrderbookStorage],
 ) -> None:
-    # Fetch operation info (no DB)
+    # Fetch operation info
     address = place_buy_order.data.target_address
     highest_buy_price = place_buy_order.storage.highestBuyPrice
     buy_order_counter = place_buy_order.storage.buyOrderCounter
