@@ -1,17 +1,19 @@
 indexes:
-  token_origination_watcher:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - token_watcher
-    types:
-    - origination
-    handlers:
-    - callback: tokens.origination
-      pattern:
-      - type: origination
-        originated_contract: token_watcher
+  # token_origination_watcher:
+  #  kind: tezos.operations
+  #  first_level: ${FIRST_LEVEL:-0}
+  #  last_level: ${LAST_LEVEL:-}
+  #  datasources:
+  #  - mvkt_atlasnet
+  #  contracts:
+  #  - token_watcher
+  #  types:
+  #  - origination
+  #  handlers:
+  #  - callback: tokens.origination
+  #    pattern:
+  #    - type: origination
+  #      originated_contract: token_watcher
 
   orderbook_origination_watcher:
     kind: tezos.operations
@@ -56,158 +58,12 @@ indexes:
         originated_contract: kyc_watcher
 
   quote_token_transfers:
-    template: token_transfers_template
-    values:
-      token_contract: quote_token
+   template: token_transfers_template
+   first_level: ${FIRST_LEVEL:-0}
+   last_level: ${LAST_LEVEL:-}
+   values:
+     token_contract: quote_token
 
-  # kyc:
-  #   kind: tezos.operations
-  #   datasources:
-  #   - mvkt_atlasnet
-  #   contracts:
-  #   - kyc
-  #   types:
-  #   - origination
-  #   - transaction
-  #   handlers:
-  #   - callback: kyc.origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: kyc
-  #   - callback: kyc.update_metadata
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: updateMetadata
-  #   - callback: kyc.set_super_admin
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setSuperAdmin
-  #   - callback: kyc.claim_super_admin
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: claimSuperAdmin
-  #   - callback: kyc.set_lambda
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setLambda
-  #   - callback: kyc.toggle_pause_entrypoint
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: togglePauseEntrypoint
-  #   - callback: kyc.set_country_transfer_rule
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setCountryTransferRule
-  #   - callback: kyc.set_kyc_registrar
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setKycRegistrar
-  #   - callback: kyc.pause_kyc_registrar
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: pauseKycRegistrar
-  #   - callback: kyc.set_valid_input
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setValidInput
-  #   - callback: kyc.set_whitelist
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setWhitelist
-  #   - callback: kyc.set_blacklist
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setBlacklist
-  #   - callback: kyc.set_member
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setMember
-  #   - callback: kyc.set_registrar_admin
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: setRegistrarAdmin
-  #   - callback: kyc.freeze_member
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: freezeMember
-  #   - callback: kyc.unfreeze_member
-  #     pattern:
-  #     - destination: kyc
-  #       entrypoint: unfreezeMember
-  # super_admin:
-  #   kind: tezos.operations
-  #   datasources:
-  #   - mvkt_atlasnet
-  #   contracts:
-  #   - super_admin
-  #   types:
-  #   - origination
-  #   - transaction
-  #   handlers:
-  #   - callback: super_admin.origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: super_admin
-  #   - callback: super_admin.set_lambda
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: setLambda
-  #   - callback: super_admin.set_super_admin
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: setSuperAdmin
-  #   - callback: super_admin.claim_super_admin
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: claimSuperAdmin
-  #   - callback: super_admin.update_metadata
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: updateMetadata
-  #   - callback: super_admin.set_general_admin
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: setGeneralAdmin
-  #   - callback: super_admin.remove_general_admin
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: removeGeneralAdmin
-  #   - callback: super_admin.set_contract_admin
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: setContractAdmin
-  #   - callback: super_admin.remove_contract_admin
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: removeContractAdmin
-  #   - callback: super_admin.update_config
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: updateConfig
-  #   - callback: super_admin.add_signatory
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: addSignatory
-  #   - callback: super_admin.remove_signatory
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: removeSignatory
-  #   - callback: super_admin.set_token_kyc_address
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: setTokenKycAddress
-  #   - callback: super_admin.kill_token
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: killToken
-  #   - callback: super_admin.flush_action
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: flushAction
-  #   - callback: super_admin.sign_action
-  #     pattern:
-  #     - destination: super_admin
-  #       entrypoint: signAction
   # marketplace:
   #   kind: tezos.operations
   #   datasources:
@@ -294,108 +150,110 @@ indexes:
   #     pattern:
   #     - destination: marketplace
   #       entrypoint: removeOffer
-  # dodo_mav:
-  #   kind: tezos.operations
-  #   datasources:
-  #   - mvkt_atlasnet
-  #   contracts:
-  #   - dodo_mav
-  #   types:
-  #   - origination
-  #   - transaction
-  #   handlers:
-  #   - callback: dodo_mav.origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: dodo_mav
-  #   - callback: dodo_mav.set_lambda
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: setLambda
-  #   - callback: dodo_mav.set_super_admin
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: setSuperAdmin
-  #   - callback: dodo_mav.claim_super_admin
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: claimSuperAdmin
-  #   - callback: dodo_mav.set_guide_price
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: setGuidePrice
-  #   - callback: dodo_mav.update_guide_price
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: updateGuidePrice
-  #   - callback: dodo_mav.update_metadata
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: updateMetadata
-  #   - callback: dodo_mav.update_config
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: updateConfig
-  #   - callback: dodo_mav.toggle_pause_entrypoint
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: togglePauseEntrypoint
-  #   - callback: dodo_mav.buy_base_token
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: buyBaseToken
-  #     - type: transaction
-  #       destination: base_token
-  #       entrypoint: transfer
-  #     - type: transaction
-  #       destination: quote_token
-  #       entrypoint: transfer
-  #     - type: transaction
-  #       destination: base_token
-  #       entrypoint: transfer
-  #       optional: True
-  #   - callback: dodo_mav.sell_base_token
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: sellBaseToken
-  #     - type: transaction
-  #       destination: quote_token
-  #       entrypoint: transfer
-  #     - type: transaction
-  #       destination: base_token
-  #       entrypoint: transfer
-  #     - type: transaction
-  #       destination: quote_token
-  #       entrypoint: transfer
-  #       optional: True
-  #   - callback: dodo_mav.withdraw_quote_token
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: withdrawQuoteToken
-  #   - callback: dodo_mav.withdraw_base_token
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: withdrawBaseToken
-  #   - callback: dodo_mav.withdraw_all_quote_tokens
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: withdrawAllQuoteTokens
-  #   - callback: dodo_mav.withdraw_all_base_tokens
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: withdrawAllBaseTokens
-  #   - callback: dodo_mav.deposit_quote_token
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: depositQuoteToken
-  #   - callback: dodo_mav.deposit_base_token
-  #     pattern:
-  #     - destination: dodo_mav
-  #       entrypoint: depositBaseToken
+  dodo_mav:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - dodo_mav
+    types:
+    - origination
+    - transaction
+    handlers:
+    - callback: dodo_mav.origination
+      pattern:
+      - type: origination
+        originated_contract: dodo_mav
+    - callback: dodo_mav.set_lambda
+      pattern:
+      - destination: dodo_mav
+        entrypoint: setLambda
+    - callback: dodo_mav.set_super_admin
+      pattern:
+      - destination: dodo_mav
+        entrypoint: setSuperAdmin
+    - callback: dodo_mav.claim_super_admin
+      pattern:
+      - destination: dodo_mav
+        entrypoint: claimSuperAdmin
+    - callback: dodo_mav.set_guide_price
+      pattern:
+      - destination: dodo_mav
+        entrypoint: setGuidePrice
+    - callback: dodo_mav.update_guide_price
+      pattern:
+      - destination: dodo_mav
+        entrypoint: updateGuidePrice
+    - callback: dodo_mav.update_metadata
+      pattern:
+      - destination: dodo_mav
+        entrypoint: updateMetadata
+    - callback: dodo_mav.update_config
+      pattern:
+      - destination: dodo_mav
+        entrypoint: updateConfig
+    - callback: dodo_mav.toggle_pause_entrypoint
+      pattern:
+      - destination: dodo_mav
+        entrypoint: togglePauseEntrypoint
+    - callback: dodo_mav.buy_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: buyBaseToken
+      - type: transaction
+        destination: token_watcher
+        entrypoint: transfer
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+      - type: transaction
+        destination: token_watcher
+        entrypoint: transfer
+        optional: True
+    - callback: dodo_mav.sell_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: sellBaseToken
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+      - type: transaction
+        destination: token_watcher
+        entrypoint: transfer
+      - type: transaction
+        destination: quote_token
+        entrypoint: transfer
+        optional: True
+    - callback: dodo_mav.withdraw_quote_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawQuoteToken
+    - callback: dodo_mav.withdraw_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawBaseToken
+    - callback: dodo_mav.withdraw_all_quote_tokens
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawAllQuoteTokens
+    - callback: dodo_mav.withdraw_all_base_tokens
+      pattern:
+      - destination: dodo_mav
+        entrypoint: withdrawAllBaseTokens
+    - callback: dodo_mav.deposit_quote_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: depositQuoteToken
+    - callback: dodo_mav.deposit_base_token
+      pattern:
+      - destination: dodo_mav
+        entrypoint: depositBaseToken
 
 templates:
   token_transfers_template:
     kind: tezos.operations
+    first_level: ${FIRST_LEVEL:-0}
+    last_level: ${LAST_LEVEL:-}
     datasources:
     - mvkt_atlasnet
     contracts:

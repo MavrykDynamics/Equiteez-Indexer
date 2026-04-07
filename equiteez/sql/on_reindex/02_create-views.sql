@@ -161,22 +161,6 @@ FROM
 GROUP BY 
     o.id, o.address, rwt.address, rwt.token_id, rwt.token_metadata;
 
--- Token holder count view
-CREATE OR REPLACE VIEW token_holders_view AS
-SELECT 
-    t.id AS token_id,
-    t.address AS token_address,
-    t.token_id AS token_number,
-    COUNT(DISTINCT eub.user_id) AS holder_count,
-    SUM(eub.balance) AS total_supply
-FROM 
-    token t
-    LEFT JOIN equiteez_user_balance eub ON t.id = eub.token_id
-WHERE 
-    eub.balance > 0
-GROUP BY 
-    t.id, t.address, t.token_id;
-
 -- User's active orders summary view
 CREATE OR REPLACE VIEW user_orders_summary_view AS
 SELECT 

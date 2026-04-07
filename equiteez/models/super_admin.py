@@ -48,6 +48,8 @@ class SuperAdmin(Model):
     # Action expiry time in seconds
     action_expiry_in_seconds = fields.BigIntField(default=0)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "super_admin"
 
@@ -92,6 +94,8 @@ class SuperAdminSignatory(Model):
     # Whether signatory is active
     is_active = fields.BooleanField(default=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "super_admin_signatory"
 
@@ -115,6 +119,8 @@ class SuperAdminGeneralAdmin(Model):
     user = fields.ForeignKeyField(
         "models.EquiteezUser", related_name="super_admin_general_admins"
     )
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "super_admin_general_admin"
@@ -142,6 +148,8 @@ class SuperAdminContractAdmin(Model):
 
     # Contract address this admin manages
     contract_address = fields.CharField(max_length=36, index=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "super_admin_contract_admin"
@@ -200,6 +208,8 @@ class SuperAdminSignatoryAction(Model):
     # Action expiration timestamp
     expiration_datetime = fields.DatetimeField(null=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "super_admin_signatory_action"
 
@@ -224,6 +234,8 @@ class SuperAdminSignatoryActionData(Model):
 
     # Serialized action data
     bytes = fields.TextField()
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "super_admin_signatory_action_data"

@@ -1,9 +1,7 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
-from tortoise.transactions import in_transaction
 
 from equiteez import models as models
-from equiteez.shared import AggregateType, EventType
 from equiteez.types.orderbook.tezos_parameters.place_sell_order import (
     PlaceSellOrderParameter,
 )
@@ -126,22 +124,4 @@ async def place_sell_order(
                 sell_order_record.orderTimestamps.timestamp_1
             )
 
-        outbox_event = await models.EventsOutbox.create_event(
-            event_type=EventType.ORDER_CREATED,
-            aggregate_type=AggregateType.ORDER,
-            aggregate_id=str(sell_order_id),
-            payload={
-                "user_address": initiator,
-                "order_id": str(sell_order_id),
-                "entrypoint": "placeSellOrder",
-                "rwa_token_address": place_sell_order.storage.rwaTokenAddress,
-                "level": _op.level,
-                "operation_hash": operation_hash,
-                "timestamp": timestamp.isoformat(),
-            },
-            occurred_at=timestamp,
-        )
-
-        async with in_transaction() as connection:
-            await sell_order.save(using_db=connection)
-            await outbox_event.save(using_db=connection)
+        await sell_order.save()

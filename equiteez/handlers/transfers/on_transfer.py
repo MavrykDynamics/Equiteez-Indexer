@@ -3,11 +3,9 @@ from typing import Optional, Set
 
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
-from tortoise.transactions import in_transaction
 
 from equiteez import models
 from equiteez.models.shared import TransferType
-from equiteez.shared import AggregateType, EventType
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
 from equiteez.utils.configs import (
     get_liquidity_pool_addresses,
@@ -157,22 +155,4 @@ async def on_transfer(ctx: HandlerContext, transaction: TezosTransaction) -> Non
                 transfer_type=transfer_type,
             )
 
-            async with in_transaction() as connection:
-                await transfer.save(using_db=connection)
-                outbox_event = await models.EventsOutbox.create_event(
-                    event_type=EventType.TRANSFER_CREATED,
-                    aggregate_type=AggregateType.TRANSFER,
-                    aggregate_id=str(transfer.id),
-                    payload={
-                        "from_address": from_address,
-                        "to_address": to_address,
-                        "token_address": contract_address,
-                        "token_id": token_id,
-                        "amount": str(amount),
-                        "operation_hash": operation_hash,
-                        "level": level,
-                        "timestamp": timestamp.isoformat(),
-                    },
-                    occurred_at=timestamp,
-                )
-                await outbox_event.save(using_db=connection)
+            await transfer.save()

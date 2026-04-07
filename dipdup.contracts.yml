@@ -14,21 +14,22 @@ contracts:
     code_hash: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj
     typename: base_token
 
-  quote_token:
-    kind: tezos
-    address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
-    typename: quote_token
-
   orderbook_watcher:
     kind: tezos
     code_hash: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6
     typename: orderbook
 
+  quote_token:
+    kind: tezos
+    address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
+    typename: quote_token
+
   dodo_mav:
     kind: tezos
     code_hash: KT1AGpECXWNXms5AQpmaxFKR4qn5GmfJkbLR
     typename: dodo_mav
+
   # marketplace:
   #   kind: tezos
-  #   address: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok
+  #   code_hash: KT1WHYgkyNwqzcFt8suAweMwcng76dXhsNok
   #   typename: marketplace

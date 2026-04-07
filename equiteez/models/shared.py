@@ -39,7 +39,7 @@ class TrackedContract(Model):
     """
     Lifecycle registry for all contracts seen by the indexer.
 
-    PENDING  — origination observed, first_level preserved, not yet in allowlist.
+    PENDING  — origination observed, first_level preserved; still waiting on allowlist / reconcile.
     INDEXED  — registered in DipDup (ctx.add_contract + ctx.add_index).
 
     Merges the old IndexedContract (infra) and PendingContract (buffer) into one
@@ -53,6 +53,7 @@ class TrackedContract(Model):
     status = fields.IntEnumField(enum_type=ContractStatus, default=ContractStatus.PENDING, index=True)
     seen_at = fields.DatetimeField(auto_now_add=True)
     indexed_at = fields.DatetimeField(null=True)
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "tracked_contract"
@@ -83,6 +84,8 @@ class Token(Model):
 
     # Token standard type (FA12, FA2, MAV)
     token_standard = fields.IntEnumField(enum_type=TokenType, index=True, null=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "token"
@@ -127,6 +130,8 @@ class EntrypointStatus:
     # Whether the entrypoint is currently paused
     paused = fields.BooleanField(default=False)
 
+    updated_at = fields.DatetimeField(auto_now=True)
+
 
 class EquiteezUser(Model):
     """
@@ -142,37 +147,10 @@ class EquiteezUser(Model):
     # Public key hash of the user (Mavryk address)
     address = fields.CharField(max_length=36, index=True, unique=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "equiteez_user"
-
-
-class EquiteezUserBalance(Model):
-    """
-    Tracks token balances for each user.
-    This table maintains the current balance of each token for every user in
-    Equiteez. Balances are stored in the smallest unit (e.g., micromav for MVRK)
-    and are updated whenever transfers occur.
-    """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Reference to the user
-    user = fields.ForeignKeyField("models.EquiteezUser", related_name="balances")
-
-    # Reference to the token
-    token = fields.ForeignKeyField(
-        "models.Token", related_name="equiteez_user_balances"
-    )
-
-    # Current token balance (in smallest unit)
-    balance = fields.BigIntField(default=0)
-
-    class Meta:
-        table = "equiteez_user_balance"
-        indexes = [
-            ("user_id", "token_id"),
-        ]
 
 
 class EquiteezUserTokenTransfer(Model):
@@ -198,7 +176,7 @@ class EquiteezUserTokenTransfer(Model):
 
     # Token being transferred
     token = fields.ForeignKeyField(
-        "models.Token", related_name="equiteez_user_token_transfers"
+        "models.Token", related_name="user_token_transfers"
     )
 
     # Transfer timestamp
@@ -217,7 +195,7 @@ class EquiteezUserTokenTransfer(Model):
     amount = fields.BigIntField()
 
     class Meta:
-        table = "equiteez_user_token_transfer"
+        table = "user_token_transfer"
         indexes = [
             ("from_user_id", "token_id"),
             ("to_user_id", "token_id"),

@@ -41,6 +41,8 @@ class Kyc(Model):
     # Contract metadata
     metadata = fields.JSONField(null=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "kyc"
 
@@ -137,6 +139,8 @@ class KycValidInput(Model):
     # Array of valid input values
     valid_inputs = fields.ArrayField(element_type="TEXT", default=[])
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "kyc_valid_input"
         indexes = [
@@ -182,6 +186,8 @@ class KycRegistrar(Model):
     # Whether unfreeze_member entrypoint is paused
     unfreeze_member_is_paused = fields.BooleanField(default=False)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "kyc_registrar"
         indexes = [
@@ -217,6 +223,8 @@ class KycCountryTransferRule(Model):
 
     # Whether receiving to this country is frozen
     receiving_frozen = fields.BooleanField(default=False)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "kyc_country_transfer_rule"
@@ -263,6 +271,8 @@ class KycMember(Model):
 
     # Whether member account is frozen
     frozen = fields.BooleanField(default=False, index=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "kyc_member"

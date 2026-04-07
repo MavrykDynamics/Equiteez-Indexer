@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta, timezone
 from typing import Callable
 
 from dipdup.context import HookContext
@@ -35,6 +36,8 @@ _ATTACH_INDEX_FN: dict[models.ContractType, Callable] = {
     models.ContractType.KYC: attach_index_kyc,
 }
 
+RECONCILE_PENDING_MAX_AGE_DAYS = 7
+
 
 async def reconcile_allowlist_contracts(
     ctx: HookContext,
@@ -46,12 +49,17 @@ async def reconcile_allowlist_contracts(
         logger.warning("reconcile_allowlist_contracts: allowlist fetch failed, skipping")
         return
 
+    cutoff = datetime.now(timezone.utc) - timedelta(days=RECONCILE_PENDING_MAX_AGE_DAYS)
     pending = await models.TrackedContract.filter(
         status=models.ContractStatus.PENDING,
+        updated_at__gte=cutoff,
     ).all()
 
     if not pending:
-        logger.info("reconcile_allowlist_contracts: no pending contracts")
+        logger.info(
+            "reconcile_allowlist_contracts: no PENDING contracts within last %d days (by updated_at)",
+            RECONCILE_PENDING_MAX_AGE_DAYS,
+        )
         return
 
     reconciled = 0

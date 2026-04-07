@@ -96,6 +96,8 @@ class Orderbook(Model):
     # Counter for sell orders
     sell_order_counter = fields.BigIntField(default=0)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook"
         indexes = [
@@ -154,6 +156,8 @@ class OrderbookCurrency(Model):
     # Name of the currency
     currency_name = fields.TextField(index=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_currency"
         indexes = [
@@ -210,6 +214,8 @@ class OrderbookRwaOrder(Model):
         "models.Token", related_name="orderbook_rwa_orders"
     )
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_rwa_order"
         indexes = [
@@ -238,6 +244,8 @@ class OrderbookRwaOrderBuyPrice(Model):
     # Buy price level
     price = fields.BigIntField(default=0)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_rwa_order_buy_price"
         indexes = [
@@ -265,6 +273,8 @@ class OrderbookRwaOrderSellPrice(Model):
 
     # Sell price level
     price = fields.BigIntField(default=0)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "orderbook_rwa_order_sell_price"
@@ -302,6 +312,8 @@ class OrderbookRwaOrderBuyOrder(Model, OrderbookRwaOrderPrice):
         "models.OrderbookRwaOrder", related_name="orderbook_rwa_order_buy_orders"
     )
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_rwa_order_buy_order"
         indexes = [
@@ -320,6 +332,8 @@ class OrderbookRwaOrderSellOrder(Model, OrderbookRwaOrderPrice):
     rwa_order = fields.ForeignKeyField(
         "models.OrderbookRwaOrder", related_name="orderbook_rwa_order_sell_orders"
     )
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "orderbook_rwa_order_sell_order"
@@ -400,6 +414,8 @@ class OrderbookOrder(Model):
 
     # Order completion timestamp
     ended_at = fields.DatetimeField(null=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "orderbook_order"
