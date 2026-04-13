@@ -1,9 +1,6 @@
-import logging
-
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
-
-from equiteez import models
+from equiteez import models as models
 from equiteez.types.super_admin.tezos_storage import SuperAdminStorage
 from equiteez.utils.contract_allowlist import (
     SUPER_ADMINS,
@@ -13,20 +10,18 @@ from equiteez.utils.contract_allowlist import (
 from equiteez.utils.dynamic_index import attach_index_super_admin
 from equiteez.utils.utils import get_contract_metadata
 
-logger = logging.getLogger(__name__)
-
 
 async def origination(
     ctx: HandlerContext,
     super_admin_origination: TezosOrigination[SuperAdminStorage],
 ) -> None:
+    # Fetch operation info
     address = super_admin_origination.data.originated_contract_address
-    first_level = super_admin_origination.data.level
 
     if not address:
         return
 
-    await attach_index_super_admin(ctx, address, first_level=first_level)
+    await attach_index_super_admin(ctx, address, first_level=super_admin_origination.data.originated_contract_address)
 
     signatory_ledger = super_admin_origination.storage.signatoryLedger
     signatory_size = super_admin_origination.storage.signatorySize
@@ -39,6 +34,8 @@ async def origination(
     )
 
     allowlist = await fetch_allowlist()
+
+    # Prepare the super admin
     super_admin = models.SuperAdmin(
         address=address,
         signatory_size=signatory_size,
@@ -47,15 +44,21 @@ async def origination(
         action_expiry_in_seconds=action_expiry_in_seconds,
         in_allowlist=allowlist_contains(allowlist, SUPER_ADMINS, address),
     )
+
+    # Get contract metadata
     super_admin.metadata = await get_contract_metadata(ctx=ctx, address=address)
+
+    # Save the super admin
     await super_admin.save()
 
+    # Save the signatories
     for signatory_address in signatory_ledger:
         user, _ = await models.EquiteezUser.get_or_create(address=signatory_address)
         await user.save()
         signatory = models.SuperAdminSignatory(super_admin=super_admin, user=user)
         await signatory.save()
 
+    # Save the general admins
     for general_admin_address in general_admin_ledger:
         user, _ = await models.EquiteezUser.get_or_create(address=general_admin_address)
         await user.save()
@@ -64,9 +67,13 @@ async def origination(
         )
         await general_admin.save()
 
+    # Save the contract admins
     for contract_admin_record in contract_admin_ledger:
+        # Fetch params
         contract_admin_address = contract_admin_record.key.address_0
         contract_address = contract_admin_record.key.address_1
+
+        # Save contract admin
         user, _ = await models.EquiteezUser.get_or_create(
             address=contract_admin_address
         )
@@ -75,5 +82,3 @@ async def origination(
             super_admin=super_admin, user=user, contract_address=contract_address
         )
         await contract_admin.save()
-
-    logger.info("super_admin %s registered at level %d", address, first_level)
