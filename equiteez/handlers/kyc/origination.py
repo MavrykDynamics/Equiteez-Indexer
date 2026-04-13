@@ -2,6 +2,12 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
 from equiteez import models as models
 from equiteez.types.kyc.tezos_storage import KycStorage
+from equiteez.utils.contract_allowlist import (
+    KYC,
+    allowlist_contains,
+    fetch_allowlist,
+)
+from equiteez.utils.dynamic_index import attach_index_orderbook
 from equiteez.utils.utils import get_contract_metadata
 from dateutil import parser
 

@@ -1,10 +1,7 @@
-import logging
-
 from dateutil import parser
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
-
-from equiteez import models
+from equiteez import models as models
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
 from equiteez.utils.contract_allowlist import (
     ORDERBOOKS,
@@ -13,8 +10,6 @@ from equiteez.utils.contract_allowlist import (
 )
 from equiteez.utils.dynamic_index import attach_index_orderbook
 from equiteez.utils.utils import get_contract_metadata, register_token
-
-logger = logging.getLogger(__name__)
 
 
 async def origination(
@@ -57,7 +52,7 @@ async def origination(
     currency_ledger = orderbook_origination.storage.currencyLedger
     pause_ledger = orderbook_origination.storage.pauseLedger
 
-    # Get KYC contract
+    # Get KYC
     kyc, _ = await models.Kyc.get_or_create(address=kyc_address)
     await kyc.save()
 
@@ -85,7 +80,7 @@ async def origination(
 
     # Get RWA Token
     orderbook.rwa_token = await register_token(ctx=ctx, address=rwa_token_address)
-    
+
     # Get contract metadata
     orderbook.metadata = await get_contract_metadata(ctx=ctx, address=address)
 
