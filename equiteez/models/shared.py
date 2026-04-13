@@ -13,11 +13,6 @@ class ContractType(IntEnum):
     KYC = 3
 
 
-class ContractStatus(IntEnum):
-    PENDING = 0
-    INDEXED = 1
-
-
 class TokenType(IntEnum):
     FA12 = 0
     FA2 = 1
@@ -35,43 +30,28 @@ class TransferType(IntEnum):
 ###
 
 
-class TrackedContract(Model):
+class ContractBase(Model):
     """
-    Lifecycle registry for all contracts seen by the indexer.
-
-    PENDING  — origination observed, first_level preserved; still waiting on allowlist / reconcile.
-    INDEXED  — registered in DipDup (ctx.add_contract + ctx.add_index).
-
-    Merges the old IndexedContract (infra) and PendingContract (buffer) into one
-    table so first_level from the origination event is never lost.
+    Common fields for on-chain contract rows (orderbook, KYC, super admin, base token).
+    DipDup tracks deployed contracts in dipdup_contract; allowlist membership is denormalized here.
     """
 
     id = fields.IntField(primary_key=True)
-    address = fields.CharField(max_length=36, unique=True, index=True)
-    contract_type = fields.IntEnumField(enum_type=ContractType)
-    first_level = fields.BigIntField()
-    status = fields.IntEnumField(enum_type=ContractStatus, default=ContractStatus.PENDING, index=True)
-    seen_at = fields.DatetimeField(auto_now_add=True)
-    indexed_at = fields.DatetimeField(null=True)
+    address = fields.CharField(max_length=36, index=True)
+    in_allowlist = fields.BooleanField(default=False, index=True)
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
-        table = "tracked_contract"
+        abstract = True
 
 
-class Token(Model):
+class Token(ContractBase):
     """
     Stores information about all tokens tracked by the indexer.
     This table contains metadata and configuration for all tokens in Equiteez,
     including FA1.2, FA2, and Mavryk-specific tokens. Each token is identified by its
     contract address and token ID (for FA2 tokens with multiple token types).
     """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Mavryk contract address of the token
-    address = fields.CharField(max_length=36, index=True)
 
     # Token ID (for FA2 tokens with multiple token types)
     token_id = fields.SmallIntField(default=0)
@@ -84,8 +64,6 @@ class Token(Model):
 
     # Token standard type (FA12, FA2, MAV)
     token_standard = fields.IntEnumField(enum_type=TokenType, index=True, null=True)
-
-    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "token"
@@ -175,9 +153,7 @@ class EquiteezUserTokenTransfer(Model):
     )
 
     # Token being transferred
-    token = fields.ForeignKeyField(
-        "models.Token", related_name="user_token_transfers"
-    )
+    token = fields.ForeignKeyField("models.Token", related_name="user_token_transfers")
 
     # Transfer timestamp
     timestamp = fields.DatetimeField(index=True)

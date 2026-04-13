@@ -20,7 +20,6 @@ async def place_sell_order(
     rwa_order_ledger = place_sell_order.storage.rwaOrderLedger
     _op = place_sell_order.data
     operation_hash = _op.hash
-    timestamp = _op.timestamp
 
     orderbook = await models.Orderbook.get(address=address)
 
@@ -45,11 +44,12 @@ async def place_sell_order(
 
         for sell_price_counter in sell_price_map:
             sell_price = sell_price_map[sell_price_counter]
-            sell_price_record, _ = (
-                await models.OrderbookRwaOrderSellPrice.get_or_create(
-                    rwa_order=rwa_order,
-                    counter=sell_price_counter,
-                )
+            (
+                sell_price_record,
+                _,
+            ) = await models.OrderbookRwaOrderSellPrice.get_or_create(
+                rwa_order=rwa_order,
+                counter=sell_price_counter,
             )
             sell_price_record.price = sell_price
             await sell_price_record.save()
@@ -57,11 +57,12 @@ async def place_sell_order(
         for sell_price in sell_order_map:
             sell_order_ids = sell_order_map[sell_price]
             sell_order_ids_int = [int(x) for x in sell_order_ids]
-            sell_order_record, _ = (
-                await models.OrderbookRwaOrderSellOrder.get_or_create(
-                    rwa_order=rwa_order,
-                    price=sell_price,
-                )
+            (
+                sell_order_record,
+                _,
+            ) = await models.OrderbookRwaOrderSellOrder.get_or_create(
+                rwa_order=rwa_order,
+                price=sell_price,
             )
             sell_order_record.order_ids = sell_order_ids_int
             await sell_order_record.save()
@@ -111,14 +112,10 @@ async def place_sell_order(
             is_expired=is_expired,
             is_refunded=is_refunded,
             refunded_amount=refunded_amount,
-            created_at=parser.parse(
-                sell_order_record.orderTimestamps.timestamp_0
-            ),
+            created_at=parser.parse(sell_order_record.orderTimestamps.timestamp_0),
         )
         if sell_order_record.orderExpiry:
-            sell_order.order_expiry = parser.parse(
-                sell_order_record.orderExpiry
-            )
+            sell_order.order_expiry = parser.parse(sell_order_record.orderExpiry)
         if sell_order_record.orderTimestamps.timestamp_1:
             sell_order.ended_at = parser.parse(
                 sell_order_record.orderTimestamps.timestamp_1

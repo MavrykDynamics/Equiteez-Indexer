@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime, timezone
 
 from dipdup.context import DipDupContext
 
@@ -25,19 +24,15 @@ async def _attach_index(
     template_key: str,
     first_level: int,
 ) -> bool:
-    tracked = await models.TrackedContract.get_or_none(
-        address=address,
-        contract_type=contract_type,
-    )
-
-    if tracked and tracked.status == models.ContractStatus.INDEXED:
-        logger.debug("%s %s already indexed, skipping", contract_type.name, address)
-        return False
-
     contract_name = f"{name_prefix}_{address}"
-    effective_level = tracked.first_level if tracked else first_level
+    index_name = f"{index_name_prefix}_{address}"
 
-    logger.info("Attaching index for %s %s (from level %d)", contract_type.name, address, effective_level)
+    logger.info(
+        "Attaching index for %s %s (from level %d)",
+        contract_type.name,
+        address,
+        first_level,
+    )
 
     try:
         await ctx.add_contract(
@@ -47,28 +42,22 @@ async def _attach_index(
             typename=typename,
         )
     except Exception as exc:
-        logger.debug("add_contract for %s %s skipped: %s", contract_type.name, address, exc)
-
-    await ctx.add_index(
-        name=f"{index_name_prefix}_{address}",
-        template=template,
-        values={template_key: contract_name},
-        first_level=effective_level,
-    )
-
-    now = datetime.now(timezone.utc)
-    if tracked:
-        tracked.status = models.ContractStatus.INDEXED
-        tracked.indexed_at = now
-        await tracked.save()
-    else:
-        await models.TrackedContract.create(
-            address=address,
-            contract_type=contract_type,
-            first_level=first_level,
-            status=models.ContractStatus.INDEXED,
-            indexed_at=now,
+        logger.debug(
+            "add_contract for %s %s skipped: %s", contract_type.name, address, exc
         )
+
+    try:
+        await ctx.add_index(
+            name=index_name,
+            template=template,
+            values={template_key: contract_name},
+            first_level=first_level,
+        )
+    except Exception as exc:
+        logger.debug(
+            "add_index for %s %s skipped: %s", contract_type.name, address, exc
+        )
+        return False
 
     invalidate_cache()
     logger.info("Index attached for %s %s", contract_type.name, address)

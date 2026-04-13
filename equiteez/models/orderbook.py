@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda, EntrypointStatus
+from equiteez.models.shared import ContractBase, ContractLambda, EntrypointStatus
 
 ###
 # Orderbook Enums
@@ -17,19 +17,13 @@ class OrderType(IntEnum):
 ###
 
 
-class Orderbook(Model):
+class Orderbook(ContractBase):
     """
     Orderbook contract configuration and state.
     This table stores the configuration and current state of orderbook contracts
     for RWA trading. Orderbooks manage buy and sell orders,
     track prices, fees, and order statistics for specific RWA tokens.
     """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Orderbook contract address
-    address = fields.CharField(max_length=36, index=True)
 
     # Current super admin address
     super_admin = fields.CharField(max_length=36, index=True, null=True)
@@ -95,8 +89,6 @@ class Orderbook(Model):
 
     # Counter for sell orders
     sell_order_counter = fields.BigIntField(default=0)
-
-    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "orderbook"

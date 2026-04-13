@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda
+from equiteez.models.shared import ContractBase, ContractLambda
 
 ###
 # SuperAdmin Enums
@@ -18,7 +18,7 @@ class ActionStatus(IntEnum):
 ###
 
 
-class SuperAdmin(Model):
+class SuperAdmin(ContractBase):
     """
     Super admin contract configuration and state.
     This table stores the configuration and current state of super admin contracts,
@@ -26,12 +26,6 @@ class SuperAdmin(Model):
     can perform operations like updating contracts, minting/burning tokens, and
     pausing/unpausing contracts across the platform.
     """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Super admin contract address
-    address = fields.CharField(max_length=36, index=True)
 
     # Contract metadata
     metadata = fields.JSONField(null=True)
@@ -47,8 +41,6 @@ class SuperAdmin(Model):
 
     # Action expiry time in seconds
     action_expiry_in_seconds = fields.BigIntField(default=0)
-
-    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "super_admin"

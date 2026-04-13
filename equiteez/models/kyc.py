@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda, EntrypointStatus
+from equiteez.models.shared import ContractBase, ContractLambda, EntrypointStatus
 
 ###
 # Kyc Enums
@@ -18,19 +18,13 @@ class ValidInputCategory(IntEnum):
 ###
 
 
-class Kyc(Model):
+class Kyc(ContractBase):
     """
     KYC contract configuration and metadata.
     This table stores the configuration and metadata for KYC (Know Your Customer) contracts
     in Equiteez. KYC contracts handle user verification for regulatory compliance,
     tracking user countries, regions, and investor types.
     """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # KYC contract address
-    address = fields.CharField(max_length=36, index=True)
 
     # Current super admin address
     super_admin = fields.CharField(max_length=36, index=True, null=True)
@@ -40,8 +34,6 @@ class Kyc(Model):
 
     # Contract metadata
     metadata = fields.JSONField(null=True)
-
-    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "kyc"

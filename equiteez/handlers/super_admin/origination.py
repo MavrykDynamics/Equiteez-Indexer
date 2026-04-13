@@ -26,24 +26,7 @@ async def origination(
     if not address:
         return
 
-    tracked, _ = await models.TrackedContract.get_or_create(
-        address=address,
-        defaults={
-            "contract_type": models.ContractType.SUPER_ADMIN,
-            "first_level": first_level,
-            "status": models.ContractStatus.PENDING,
-        },
-    )
-
-    if tracked.status == models.ContractStatus.INDEXED:
-        return
-
-    allowlist = await fetch_allowlist()
-    if not allowlist_contains(allowlist, SUPER_ADMINS, address):
-        logger.info("super_admin %s not in allowlist, saved as PENDING at level %d", address, first_level)
-        return
-
-    await attach_index_super_admin(ctx, address, first_level=tracked.first_level)
+    await attach_index_super_admin(ctx, address, first_level=first_level)
 
     signatory_ledger = super_admin_origination.storage.signatoryLedger
     signatory_size = super_admin_origination.storage.signatorySize
@@ -55,12 +38,14 @@ async def origination(
         super_admin_origination.storage.config.actionExpiryInSeconds
     )
 
+    allowlist = await fetch_allowlist()
     super_admin = models.SuperAdmin(
         address=address,
         signatory_size=signatory_size,
         action_counter=action_counter,
         threshold=threshold,
         action_expiry_in_seconds=action_expiry_in_seconds,
+        in_allowlist=allowlist_contains(allowlist, SUPER_ADMINS, address),
     )
     super_admin.metadata = await get_contract_metadata(ctx=ctx, address=address)
     await super_admin.save()

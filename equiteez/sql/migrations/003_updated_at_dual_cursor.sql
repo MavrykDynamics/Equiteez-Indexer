@@ -1,7 +1,6 @@
 -- DualCursor: updated_at on domain tables; last_updated_at on *lambda tables only.
 -- Indexes (cursor column ASC, id ASC) for polling.
 
-ALTER TABLE tracked_contract ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE token ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE equiteez_user ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
@@ -32,7 +31,6 @@ ALTER TABLE super_admin_contract_admin ADD COLUMN IF NOT EXISTS updated_at TIMES
 ALTER TABLE super_admin_signatory_action ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE super_admin_signatory_action_data ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
-CREATE INDEX IF NOT EXISTS idx_tracked_contract_updated_at_id ON tracked_contract (updated_at ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_token_updated_at_id ON token (updated_at ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_equiteez_user_updated_at_id ON equiteez_user (updated_at ASC, id ASC);
 

@@ -1,17 +1,17 @@
 indexes:
-  # token_origination_watcher:
-  #   kind: tezos.operations
-  #   datasources:
-  #   - mvkt_atlasnet
-  #   contracts:
-  #   - token_watcher
-  #   types:
-  #   - origination
-  #   handlers:
-  #   - callback: tokens.origination
-  #     pattern:
-  #     - type: origination
-  #       originated_contract: token_watcher
+  token_origination_watcher:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - token_watcher
+    types:
+    - origination
+    handlers:
+    - callback: tokens.origination
+      pattern:
+      - type: origination
+        originated_contract: token_watcher
 
   orderbook_origination_watcher:
     kind: tezos.operations
@@ -474,19 +474,3 @@ templates:
       pattern:
       - destination: <kyc_contract>
         entrypoint: unfreezeMember
-
-hooks:
-  refresh_tokens:
-    callback: refresh_tokens
-    atomic: False
-  reconcile_allowlist_contracts:
-    callback: reconcile_allowlist_contracts
-    atomic: False
-
-jobs:
-  refresh_tokens:
-    hook: refresh_tokens
-    interval: 600
-  reconcile_allowlist_contracts:
-    hook: reconcile_allowlist_contracts
-    interval: 300

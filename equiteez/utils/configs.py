@@ -26,9 +26,9 @@ def _load_contracts() -> Dict:
 
 def get_quote_token_address() -> Optional[str]:
     contracts = _load_contracts()
-    for contract in contracts.values():
-        if contract.get("typename") == "quote_token":
-            return contract.get("address")
+    entry = contracts.get("quote_token")
+    if entry and entry.get("address"):
+        return str(entry["address"])
     return None
 
 

@@ -27,24 +27,7 @@ async def origination(
     if not address:
         return
 
-    tracked, _ = await models.TrackedContract.get_or_create(
-        address=address,
-        defaults={
-            "contract_type": models.ContractType.KYC,
-            "first_level": first_level,
-            "status": models.ContractStatus.PENDING,
-        },
-    )
-
-    if tracked.status == models.ContractStatus.INDEXED:
-        return
-
-    allowlist = await fetch_allowlist()
-    if not allowlist_contains(allowlist, KYC, address):
-        logger.info("kyc %s not in allowlist, saved as PENDING at level %d", address, first_level)
-        return
-
-    await attach_index_kyc(ctx, address, first_level=tracked.first_level)
+    await attach_index_kyc(ctx, address, first_level=first_level)
 
     super_admin = kyc_origination.storage.superAdmin
     new_super_admin = kyc_origination.storage.newSuperAdmin
@@ -60,6 +43,9 @@ async def origination(
     kyc.super_admin = super_admin
     kyc.new_super_admin = new_super_admin
     kyc.metadata = await get_contract_metadata(ctx=ctx, address=address)
+
+    allowlist = await fetch_allowlist()
+    kyc.in_allowlist = allowlist_contains(allowlist, KYC, address)
     await kyc.save()
 
     for whitelist_address in whitelist_ledger:

@@ -4,9 +4,10 @@ from typing import Optional, Set
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 
-from equiteez import models
+from equiteez import models as models
 from equiteez.models.shared import TransferType
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
+from equiteez.types.base_token.tezos_storage import BaseTokenStorage
 from equiteez.utils.configs import (
     get_liquidity_pool_addresses,
     get_maven_lending_addresses,
@@ -16,14 +17,6 @@ from equiteez.utils.indexed_addresses import get_indexed_addresses
 from equiteez.utils.utils import register_token
 
 logger = logging.getLogger(__name__)
-
-
-def resolve_transfer_type(from_addr: Optional[str], to_addr: Optional[str]) -> TransferType:
-    if not from_addr:
-        return TransferType.MINT
-    if not to_addr:
-        return TransferType.BURN
-    return TransferType.TRANSFER
 
 
 def is_user_transfer(
@@ -42,7 +35,9 @@ def is_user_transfer(
 
     addr_set = {from_addr, to_addr}
 
-    if addr_set & orderbook and (token_addr == quote_token or token_addr in base_tokens):
+    if addr_set & orderbook and (
+        token_addr == quote_token or token_addr in base_tokens
+    ):
         return False
     if addr_set & pools or addr_set & superadmins or addr_set & maven_lending:
         return False
@@ -50,17 +45,9 @@ def is_user_transfer(
     return True
 
 
-async def get_or_create_user(address: str, connection=None) -> Optional[models.EquiteezUser]:
-    if not address:
-        return None
-    kwargs = {"address": address}
-    if connection:
-        kwargs["using_db"] = connection
-    user, _ = await models.EquiteezUser.get_or_create(**kwargs)
-    return user
-
-
-def parse_transfer_param(transaction: TezosTransaction, level: int) -> Optional[TransferParameter]:
+def parse_transfer_param(
+    transaction: TezosTransaction, level: int
+) -> Optional[TransferParameter]:
     param = getattr(transaction, "parameter", None)
     if not param:
         logger.warning("No parameter found at level %d", level)
@@ -76,13 +63,16 @@ def parse_transfer_param(transaction: TezosTransaction, level: int) -> Optional[
         return None
 
 
-async def on_transfer(ctx: HandlerContext, transaction: TezosTransaction) -> None:
-    level = transaction.data.level
-    timestamp = transaction.data.timestamp
-    contract_address = transaction.data.target_address
-    operation_hash = transaction.data.hash
+async def on_transfer(
+    ctx: HandlerContext,
+    transfer: TezosTransaction[TransferParameter, BaseTokenStorage],
+) -> None:
+    level = transfer.data.level
+    timestamp = transfer.data.timestamp
+    contract_address = transfer.data.target_address
+    operation_hash = transfer.data.hash
 
-    transfer_param = parse_transfer_param(transaction, level)
+    transfer_param = parse_transfer_param(transfer, level)
     if not transfer_param:
         return
 
@@ -140,9 +130,14 @@ async def on_transfer(ctx: HandlerContext, transaction: TezosTransaction) -> Non
                 token.token_standard = token.token_standard or base_token.token_standard
                 await token.save()
 
-            sender = await get_or_create_user(from_address)
-            receiver = await get_or_create_user(to_address)
-            transfer_type = resolve_transfer_type(from_address, to_address)
+            sender, _ = await models.EquiteezUser.get_or_create(address=from_address)
+            receiver, _ = await models.EquiteezUser.get_or_create(address=to_address)
+            if not from_address:
+                transfer_type = TransferType.MINT
+            elif not to_address:
+                transfer_type = TransferType.BURN
+            else:
+                transfer_type = TransferType.TRANSFER
 
             transfer = models.EquiteezUserTokenTransfer(
                 from_user=sender,

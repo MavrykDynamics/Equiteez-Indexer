@@ -27,31 +27,16 @@ async def origination(
     if not address:
         return
 
-    tracked, _ = await models.TrackedContract.get_or_create(
-        address=address,
-        defaults={
-            "contract_type": models.ContractType.ORDERBOOK,
-            "first_level": first_level,
-            "status": models.ContractStatus.PENDING,
-        },
-    )
-
-    if tracked.status == models.ContractStatus.INDEXED:
-        return
-
-    allowlist = await fetch_allowlist()
-    if not allowlist_contains(allowlist, ORDERBOOKS, address):
-        logger.info("orderbook %s not in allowlist, saved as PENDING at level %d", address, first_level)
-        return
-
-    await attach_index_orderbook(ctx, address, first_level=tracked.first_level)
+    await attach_index_orderbook(ctx, address, first_level=first_level)
 
     super_admin = orderbook_origination.storage.superAdmin
     new_super_admin = orderbook_origination.storage.newSuperAdmin
     rwa_token_address = orderbook_origination.storage.rwaTokenAddress
     kyc_address = orderbook_origination.storage.kycAddress
     min_expiry_time = orderbook_origination.storage.config.minExpiryTime
-    min_time_before_closing_order = orderbook_origination.storage.config.minTimeBeforeClosingOrder
+    min_time_before_closing_order = (
+        orderbook_origination.storage.config.minTimeBeforeClosingOrder
+    )
     min_buy_order_amount = orderbook_origination.storage.config.minBuyOrderAmount
     min_buy_order_value = orderbook_origination.storage.config.minBuyOrderValue
     min_sell_order_amount = orderbook_origination.storage.config.minSellOrderAmount
@@ -97,6 +82,9 @@ async def origination(
     orderbook.sell_order_counter = sell_order_counter
     orderbook.rwa_token = await register_token(ctx=ctx, address=rwa_token_address)
     orderbook.metadata = await get_contract_metadata(ctx=ctx, address=address)
+
+    allowlist = await fetch_allowlist()
+    orderbook.in_allowlist = allowlist_contains(allowlist, ORDERBOOKS, address)
     await orderbook.save()
 
     for currency_name in fee_ledger:
@@ -115,7 +103,9 @@ async def origination(
 
     for currency_name in currency_ledger:
         currency_record = currency_ledger[currency_name]
-        token = await register_token(ctx=ctx, address=currency_record.tokenContractAddress)
+        token = await register_token(
+            ctx=ctx, address=currency_record.tokenContractAddress
+        )
         currency, _ = await models.OrderbookCurrency.get_or_create(
             orderbook=orderbook, currency_name=currency_name
         )

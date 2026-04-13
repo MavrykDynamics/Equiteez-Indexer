@@ -21,7 +21,6 @@ async def place_buy_order(
     rwa_order_ledger = place_buy_order.storage.rwaOrderLedger
     _op = place_buy_order.data
     operation_hash = _op.hash
-    timestamp = _op.timestamp
 
     orderbook = await models.Orderbook.get(address=address)
 
@@ -46,11 +45,9 @@ async def place_buy_order(
 
         for buy_price_counter in buy_price_map:
             buy_price = buy_price_map[buy_price_counter]
-            buy_price_record, _ = (
-                await models.OrderbookRwaOrderBuyPrice.get_or_create(
-                    rwa_order=rwa_order,
-                    counter=buy_price_counter,
-                )
+            buy_price_record, _ = await models.OrderbookRwaOrderBuyPrice.get_or_create(
+                rwa_order=rwa_order,
+                counter=buy_price_counter,
             )
             buy_price_record.price = buy_price
             await buy_price_record.save()
@@ -58,11 +55,9 @@ async def place_buy_order(
         for buy_price in buy_order_map:
             buy_order_ids = buy_order_map[buy_price]
             buy_order_ids_int = [int(x) for x in buy_order_ids]
-            buy_order_record, _ = (
-                await models.OrderbookRwaOrderBuyOrder.get_or_create(
-                    rwa_order=rwa_order,
-                    price=buy_price,
-                )
+            buy_order_record, _ = await models.OrderbookRwaOrderBuyOrder.get_or_create(
+                rwa_order=rwa_order,
+                price=buy_price,
             )
             buy_order_record.order_ids = buy_order_ids_int
             await buy_order_record.save()
@@ -77,9 +72,7 @@ async def place_buy_order(
         fulfilled_amount = buy_order_record.fulfilledAmount
         unfulfilled_amount = buy_order_record.unfulfilledAmount
         total_paid_out = buy_order_record.totalOrderFulfilled.nat_0
-        total_usd_value_of_rwa_token_amount = (
-            buy_order_record.totalOrderFulfilled.nat_1
-        )
+        total_usd_value_of_rwa_token_amount = buy_order_record.totalOrderFulfilled.nat_1
         is_fulfilled = buy_order_record.booleans.bool_0
         is_canceled = buy_order_record.booleans.bool_1
         is_expired = buy_order_record.booleans.bool_2
@@ -112,14 +105,10 @@ async def place_buy_order(
             is_expired=is_expired,
             is_refunded=is_refunded,
             refunded_amount=refunded_amount,
-            created_at=parser.parse(
-                buy_order_record.orderTimestamps.timestamp_0
-            ),
+            created_at=parser.parse(buy_order_record.orderTimestamps.timestamp_0),
         )
         if buy_order_record.orderExpiry:
-            buy_order.order_expiry = parser.parse(
-                buy_order_record.orderExpiry
-            )
+            buy_order.order_expiry = parser.parse(buy_order_record.orderExpiry)
         if buy_order_record.orderTimestamps.timestamp_1:
             buy_order.ended_at = parser.parse(
                 buy_order_record.orderTimestamps.timestamp_1

@@ -48,9 +48,7 @@ async def fetch_allowlist() -> Optional[Dict[str, Set[str]]]:
     for key in _KEYS:
         items = raw.get(key) or []
         out[key] = {
-            addr.strip()
-            for addr in items
-            if isinstance(addr, str) and addr.strip()
+            addr.strip() for addr in items if isinstance(addr, str) and addr.strip()
         }
 
     logger.info(

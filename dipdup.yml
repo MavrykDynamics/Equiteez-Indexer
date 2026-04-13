@@ -1,19 +1,17 @@
 indexes:
-  # token_origination_watcher:
-  #  kind: tezos.operations
-  #  first_level: ${FIRST_LEVEL:-0}
-  #  last_level: ${LAST_LEVEL:-}
-  #  datasources:
-  #  - mvkt_atlasnet
-  #  contracts:
-  #  - token_watcher
-  #  types:
-  #  - origination
-  #  handlers:
-  #  - callback: tokens.origination
-  #    pattern:
-  #    - type: origination
-  #      originated_contract: token_watcher
+  token_origination_watcher:
+   kind: tezos.operations
+   datasources:
+   - mvkt_atlasnet
+   contracts:
+   - token_watcher
+   types:
+   - origination
+   handlers:
+   - callback: tokens.origination
+     pattern:
+     - type: origination
+       originated_contract: token_watcher
 
   orderbook_origination_watcher:
     kind: tezos.operations
@@ -59,8 +57,6 @@ indexes:
 
   quote_token_transfers:
    template: token_transfers_template
-   first_level: ${FIRST_LEVEL:-0}
-   last_level: ${LAST_LEVEL:-}
    values:
      token_contract: quote_token
 
@@ -252,8 +248,6 @@ indexes:
 templates:
   token_transfers_template:
     kind: tezos.operations
-    first_level: ${FIRST_LEVEL:-0}
-    last_level: ${LAST_LEVEL:-}
     datasources:
     - mvkt_atlasnet
     contracts:
@@ -479,14 +473,14 @@ hooks:
   refresh_tokens:
     callback: refresh_tokens
     atomic: False
-  reconcile_allowlist_contracts:
-    callback: reconcile_allowlist_contracts
+  update_allowlist_status:
+    callback: update_allowlist_status
     atomic: False
 
 jobs:
   refresh_tokens:
     hook: refresh_tokens
     interval: 600
-  reconcile_allowlist_contracts:
-    hook: reconcile_allowlist_contracts
+  update_allowlist_status:
+    hook: update_allowlist_status
     interval: 300
