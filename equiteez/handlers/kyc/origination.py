@@ -7,7 +7,6 @@ from equiteez.utils.contract_allowlist import (
     allowlist_contains,
     fetch_allowlist,
 )
-from equiteez.utils.dynamic_index import attach_index_orderbook
 from equiteez.utils.utils import get_contract_metadata
 from dateutil import parser
 
@@ -44,7 +43,7 @@ async def origination(
 
     allowlist = await fetch_allowlist()
     kyc.in_allowlist = allowlist_contains(allowlist, KYC, address)
-    
+
     # Save the orderbook
     await kyc.save()
 

@@ -22,7 +22,9 @@ async def origination(
     if not address:
         return
 
-    await attach_index_orderbook(ctx, address, first_level=orderbook_origination.data.level)
+    await attach_index_orderbook(
+        ctx, address, first_level=orderbook_origination.data.level
+    )
 
     super_admin = orderbook_origination.storage.superAdmin
     new_super_admin = orderbook_origination.storage.newSuperAdmin
