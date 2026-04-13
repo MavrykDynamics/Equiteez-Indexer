@@ -1,6 +1,5 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
-
 from equiteez import models as models
 from equiteez.types.orderbook.tezos_parameters.place_buy_order import (
     PlaceBuyOrderParameter,
@@ -19,35 +18,32 @@ async def place_buy_order(
     buy_order_counter = place_buy_order.storage.buyOrderCounter
     buy_order_ledger = place_buy_order.storage.buyOrderLedger
     rwa_order_ledger = place_buy_order.storage.rwaOrderLedger
-    _op = place_buy_order.data
-    operation_hash = _op.hash
 
+    # Update orderbook
     orderbook = await models.Orderbook.get(address=address)
-
     orderbook.highest_buy_price = highest_buy_price.price
     orderbook.highest_buy_price_order_id = highest_buy_price.orderId
     orderbook.buy_order_counter = buy_order_counter
     await orderbook.save()
 
+    # Create records
     for rwa_order_token_address in rwa_order_ledger:
         rwa_order_record = rwa_order_ledger[rwa_order_token_address]
         buy_price_map = rwa_order_record.buyPriceMap
         buy_order_map = rwa_order_record.buyOrderMap
         rwa_order_token, _ = await models.Token.get_or_create(
-            address=rwa_order_token_address,
+            address=rwa_order_token_address
         )
         await rwa_order_token.save()
         rwa_order, _ = await models.OrderbookRwaOrder.get_or_create(
-            orderbook=orderbook,
-            rwa_token=rwa_order_token,
+            orderbook=orderbook, rwa_token=rwa_order_token
         )
         await rwa_order.save()
 
         for buy_price_counter in buy_price_map:
             buy_price = buy_price_map[buy_price_counter]
             buy_price_record, _ = await models.OrderbookRwaOrderBuyPrice.get_or_create(
-                rwa_order=rwa_order,
-                counter=buy_price_counter,
+                rwa_order=rwa_order, counter=buy_price_counter
             )
             buy_price_record.price = buy_price
             await buy_price_record.save()
@@ -56,13 +52,13 @@ async def place_buy_order(
             buy_order_ids = buy_order_map[buy_price]
             buy_order_ids_int = [int(x) for x in buy_order_ids]
             buy_order_record, _ = await models.OrderbookRwaOrderBuyOrder.get_or_create(
-                rwa_order=rwa_order,
-                price=buy_price,
+                rwa_order=rwa_order, price=buy_price
             )
             buy_order_record.order_ids = buy_order_ids_int
             await buy_order_record.save()
 
     for buy_order_id in buy_order_ledger:
+        # Get buy order parameters
         buy_order_record = buy_order_ledger[buy_order_id]
         order_type = models.OrderType.BUY
         initiator = buy_order_record.initiator
@@ -79,19 +75,22 @@ async def place_buy_order(
         is_refunded = buy_order_record.isRefunded
         refunded_amount = buy_order_record.refundedAmount
 
+        # Get currency
         currency, _ = await models.OrderbookCurrency.get_or_create(
-            orderbook=orderbook,
-            currency_name=currency_name,
+            orderbook=orderbook, currency_name=currency_name
         )
-        user, _ = await models.EquiteezUser.get_or_create(
-            address=initiator,
-        )
+        await currency.save()
 
+        # Create initiator
+        user, _ = await models.EquiteezUser.get_or_create(address=initiator)
+        await user.save()
+
+        # Save buy order
         buy_order = models.OrderbookOrder(
             orderbook=orderbook,
             currency=currency,
             order_id=buy_order_id,
-            operation_hash=operation_hash,
+            operation_hash=place_buy_order.data.hash,
             order_type=order_type,
             initiator=user,
             rwa_token_amount=rwa_token_amount,
@@ -113,5 +112,4 @@ async def place_buy_order(
             buy_order.ended_at = parser.parse(
                 buy_order_record.orderTimestamps.timestamp_1
             )
-
         await buy_order.save()

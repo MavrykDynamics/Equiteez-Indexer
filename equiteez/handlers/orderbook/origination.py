@@ -21,13 +21,13 @@ async def origination(
     ctx: HandlerContext,
     orderbook_origination: TezosOrigination[OrderbookStorage],
 ) -> None:
+    # Fetch operation info
     address = orderbook_origination.data.originated_contract_address
-    first_level = orderbook_origination.data.level
 
     if not address:
         return
 
-    await attach_index_orderbook(ctx, address, first_level=first_level)
+    await attach_index_orderbook(ctx, address, first_level=orderbook_origination.data.level)
 
     super_admin = orderbook_origination.storage.superAdmin
     new_super_admin = orderbook_origination.storage.newSuperAdmin
@@ -57,9 +57,11 @@ async def origination(
     currency_ledger = orderbook_origination.storage.currencyLedger
     pause_ledger = orderbook_origination.storage.pauseLedger
 
+    # Get KYC contract
     kyc, _ = await models.Kyc.get_or_create(address=kyc_address)
     await kyc.save()
 
+    # Prepare the orderbook
     orderbook, _ = await models.Orderbook.get_or_create(address=address)
     orderbook.super_admin = super_admin
     orderbook.new_super_admin = new_super_admin
@@ -80,15 +82,24 @@ async def origination(
     orderbook.last_matched_price_timestamp = last_matched_price_timestamp
     orderbook.buy_order_counter = buy_order_counter
     orderbook.sell_order_counter = sell_order_counter
+
+    # Get RWA Token
     orderbook.rwa_token = await register_token(ctx=ctx, address=rwa_token_address)
+    
+    # Get contract metadata
     orderbook.metadata = await get_contract_metadata(ctx=ctx, address=address)
 
     allowlist = await fetch_allowlist()
     orderbook.in_allowlist = allowlist_contains(allowlist, ORDERBOOKS, address)
+
+    # Save the orderbook
     await orderbook.save()
 
+    # Prepare the fee ledger
     for currency_name in fee_ledger:
         fee_record = fee_ledger[currency_name]
+        fee_amount = fee_record.nat_0
+        paid_fee = fee_record.nat_1
         currency, _ = await models.OrderbookCurrency.get_or_create(
             orderbook=orderbook, currency_name=currency_name
         )
@@ -96,26 +107,26 @@ async def origination(
         orderbook_fee = models.OrderbookFee(
             orderbook=orderbook,
             currency=currency,
-            fee_amount=fee_record.nat_0,
-            paid_fee=fee_record.nat_1,
+            fee_amount=fee_amount,
+            paid_fee=paid_fee,
         )
         await orderbook_fee.save()
 
+    # Prepare the currency ledger
     for currency_name in currency_ledger:
         currency_record = currency_ledger[currency_name]
-        token = await register_token(
-            ctx=ctx, address=currency_record.tokenContractAddress
-        )
+        token_address = currency_record.tokenContractAddress
+        token = await register_token(ctx=ctx, address=token_address)
         currency, _ = await models.OrderbookCurrency.get_or_create(
             orderbook=orderbook, currency_name=currency_name
         )
         currency.token = token
         await currency.save()
 
+    # Save the entrypoints status
     for entrypoint in pause_ledger:
+        paused = pause_ledger[entrypoint]
         entrypoint_status = models.OrderbookEntrypointStatus(
-            contract=orderbook, entrypoint=entrypoint, paused=pause_ledger[entrypoint]
+            contract=orderbook, entrypoint=entrypoint, paused=paused
         )
         await entrypoint_status.save()
-
-    logger.info("Orderbook %s registered at level %d", address, first_level)
