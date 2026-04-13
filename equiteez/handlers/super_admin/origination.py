@@ -21,7 +21,9 @@ async def origination(
     if not address:
         return
 
-    await attach_index_super_admin(ctx, address, first_level=super_admin_origination.data.level)
+    await attach_index_super_admin(
+        ctx, address, first_level=super_admin_origination.data.level
+    )
 
     signatory_ledger = super_admin_origination.storage.signatoryLedger
     signatory_size = super_admin_origination.storage.signatorySize
