@@ -22,7 +22,7 @@ contracts:
   quote_token:
     kind: tezos
     address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
-    typename: base_token
+    typename: quote_token
 
   # dodo_mav:
   #   kind: tezos

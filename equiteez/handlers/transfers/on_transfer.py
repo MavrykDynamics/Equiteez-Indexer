@@ -8,6 +8,7 @@ from equiteez import models as models
 from equiteez.models.shared import TransferType
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
 from equiteez.types.base_token.tezos_storage import BaseTokenStorage
+from equiteez.types.quote_token.tezos_storage import QuoteTokenStorage
 from equiteez.utils.configs import (
     get_liquidity_pool_addresses,
     get_maven_lending_addresses,
@@ -65,7 +66,7 @@ def parse_transfer_param(
 
 async def on_transfer(
     ctx: HandlerContext,
-    transfer: TezosTransaction[TransferParameter, BaseTokenStorage],
+    transfer: TezosTransaction[TransferParameter, BaseTokenStorage | QuoteTokenStorage],
 ) -> None:
     level = transfer.data.level
     timestamp = transfer.data.timestamp
