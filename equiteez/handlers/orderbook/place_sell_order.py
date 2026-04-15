@@ -98,7 +98,7 @@ async def place_sell_order(
             orderbook=orderbook,
             currency=currency,
             order_id=sell_order_id,
-            operation_hash=place_buy_order.data.hash,
+            operation_hash=place_sell_order.data.hash,
             order_type=order_type,
             initiator=user,
             rwa_token_amount=rwa_token_amount,
