@@ -1,6 +1,4 @@
 import logging
-from typing import Optional, Set
-
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 
@@ -18,32 +16,6 @@ from equiteez.utils.indexed_addresses import get_indexed_addresses
 from equiteez.utils.utils import register_token
 
 logger = logging.getLogger(__name__)
-
-
-def is_user_transfer(
-    from_addr: Optional[str],
-    to_addr: Optional[str],
-    token_addr: str,
-    orderbook: Set[str],
-    pools: Set[str],
-    superadmins: Set[str],
-    maven_lending: Set[str],
-    quote_token: Optional[str],
-    base_tokens: Set[str],
-) -> bool:
-    if not (from_addr and to_addr):
-        return False
-
-    addr_set = {from_addr, to_addr}
-
-    if addr_set & orderbook and (
-        token_addr == quote_token or token_addr in base_tokens
-    ):
-        return False
-    if addr_set & pools or addr_set & superadmins or addr_set & maven_lending:
-        return False
-
-    return True
 
 
 def parse_transfer_param(
@@ -77,14 +49,6 @@ async def on_transfer(
     if not transfer_param:
         return
 
-    indexed = await get_indexed_addresses()
-    orderbook = indexed.orderbook
-    base_tokens = indexed.base_tokens
-    superadmins = indexed.super_admins
-    quote_token = get_quote_token_address()
-    pools = set(get_liquidity_pool_addresses())
-    maven_lending = set(get_maven_lending_addresses())
-
     for item in transfer_param.root:
         from_address = item.from_
 
@@ -93,17 +57,7 @@ async def on_transfer(
             token_id = int(tx.token_id)
             amount = int(tx.amount)
 
-            if not is_user_transfer(
-                from_address,
-                to_address,
-                contract_address,
-                orderbook,
-                pools,
-                superadmins,
-                maven_lending,
-                quote_token,
-                base_tokens,
-            ):
+            if not (from_address and to_address) or from_address.startswith("KT"):
                 continue
 
             token = await models.Token.get_or_none(
