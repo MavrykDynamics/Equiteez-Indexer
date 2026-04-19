@@ -1,4 +1,6 @@
 import logging
+from typing import Optional
+
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 
