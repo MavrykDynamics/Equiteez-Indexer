@@ -7,7 +7,6 @@ from equiteez.models.shared import TransferType
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
 from equiteez.types.base_token.tezos_storage import BaseTokenStorage
 from equiteez.types.quote_token.tezos_storage import QuoteTokenStorage
-from equiteez.utils.indexed_addresses import get_indexed_addresses
 from equiteez.utils.utils import register_token
 
 logger = logging.getLogger(__name__)
