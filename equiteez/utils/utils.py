@@ -145,27 +145,33 @@ async def create_super_admin_action(handler):
         )
 
         # Create action
-        action = models.SuperAdminSignatoryAction(
-            super_admin=super_admin,
-            initiator=initiator,
-            action_id=action_id,
-            action_type=action_type,
-            executed=executed,
-            status=status,
-            signers_count=signers_count,
-            start_datetime=start_datetime,
-            start_level=start_level,
-            executed_level=executed_level,
-            expiration_datetime=expiration_datetime,
-        )
+        defaults = {
+            "initiator": initiator,
+            "action_type": action_type,
+            "executed": executed,
+            "status": status,
+            "signers_count": signers_count,
+            "start_datetime": start_datetime,
+            "start_level": start_level,
+            "executed_level": executed_level,
+            "expiration_datetime": expiration_datetime,
+        }
         if action_record.executedDateTime:
-            action.executed_datetime = parser.parse(action_record.executedDateTime)
-        await action.save()
+            defaults["executed_datetime"] = parser.parse(
+                action_record.executedDateTime
+            )
+
+        action, _ = await models.SuperAdminSignatoryAction.get_or_create(
+            super_admin=super_admin,
+            action_id=action_id,
+            defaults=defaults,
+        )
 
         # Create data records
         for data_name in data_map:
             bytes = data_map[data_name]
-            action_data = models.SuperAdminSignatoryActionData(
-                action=action, name=data_name, bytes=bytes
+            await models.SuperAdminSignatoryActionData.get_or_create(
+                action=action,
+                name=data_name,
+                defaults={"bytes": bytes},
             )
-            await action_data.save()

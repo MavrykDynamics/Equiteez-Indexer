@@ -108,8 +108,9 @@ async def sign_action(
     for signatory_address in signatory_ledger:
         user, _ = await models.EquiteezUser.get_or_create(address=signatory_address)
         await user.save()
-        signatory = models.SuperAdminSignatory(super_admin=super_admin, user=user)
-        await signatory.save()
+        await models.SuperAdminSignatory.get_or_create(
+            super_admin=super_admin, user=user
+        )
 
     # Diff based removals
     for diff in diffs:
