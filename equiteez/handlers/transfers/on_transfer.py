@@ -92,7 +92,7 @@ async def on_transfer(
             sender, _ = await models.EquiteezUser.get_or_create(address=from_address)
             receiver, _ = await models.EquiteezUser.get_or_create(address=to_address)
 
-            transfer_record = models.EquiteezUserTokenTransfer(
+            user_transfer = models.EquiteezUserTokenTransfer(
                 from_user=sender,
                 to_user=receiver,
                 token=token,
@@ -102,4 +102,4 @@ async def on_transfer(
                 amount=amount,
             )
 
-            await transfer_record.save()
+            await user_transfer.save()
