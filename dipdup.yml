@@ -56,9 +56,9 @@ indexes:
         originated_contract: kyc_watcher
 
   quote_token_transfers:
-   template: token_transfers_template
-   values:
-     token_contract: quote_token
+    template: token_transfers_template
+    values:
+      token_contract: quote_token
 
   # marketplace:
   #   kind: tezos.operations

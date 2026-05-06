@@ -4,11 +4,10 @@ WITH (timescaledb.continuous) AS
 SELECT 
     time_bucket('1 day', timestamp) AS day,
     token_id,
-    transfer_type,
     SUM(amount) AS total_volume,
     COUNT(*) AS transfer_count
 FROM equiteez_user_token_transfer
-GROUP BY 1, 2, 3
+GROUP BY 1, 2
 WITH NO DATA;
 
 -- Select an appropriate refresh policy

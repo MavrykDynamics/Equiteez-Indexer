@@ -5,7 +5,6 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 
 from equiteez import models as models
-from equiteez.models.shared import TransferType
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
 from equiteez.types.base_token.tezos_storage import BaseTokenStorage
 from equiteez.types.quote_token.tezos_storage import QuoteTokenStorage
@@ -32,10 +31,17 @@ def parse_transfer_param(
         return None
 
 
+def _is_user_to_user(from_address: str, to_address: str) -> bool:
+    return not from_address.startswith("KT") and not to_address.startswith("KT")
+
+
 async def on_transfer(
     ctx: HandlerContext,
     transfer: TezosTransaction[TransferParameter, BaseTokenStorage | QuoteTokenStorage],
 ) -> None:
+    if transfer.data.nonce is not None:
+        return
+
     level = transfer.data.level
     timestamp = transfer.data.timestamp
     contract_address = transfer.data.target_address
@@ -53,7 +59,10 @@ async def on_transfer(
             token_id = int(tx.token_id)
             amount = int(tx.amount)
 
-            if not (from_address and to_address) or from_address.startswith("KT"):
+            if not (from_address and to_address):
+                continue
+
+            if not _is_user_to_user(from_address, to_address):
                 continue
 
             token = await models.Token.get_or_none(
@@ -71,7 +80,6 @@ async def on_transfer(
                     )
                     continue
 
-            if not token:
                 token, _ = await models.Token.get_or_create(
                     address=contract_address,
                     token_id=token_id,
@@ -83,14 +91,8 @@ async def on_transfer(
 
             sender, _ = await models.EquiteezUser.get_or_create(address=from_address)
             receiver, _ = await models.EquiteezUser.get_or_create(address=to_address)
-            if not from_address:
-                transfer_type = TransferType.MINT
-            elif not to_address:
-                transfer_type = TransferType.BURN
-            else:
-                transfer_type = TransferType.TRANSFER
 
-            transfer = models.EquiteezUserTokenTransfer(
+            transfer_record = models.EquiteezUserTokenTransfer(
                 from_user=sender,
                 to_user=receiver,
                 token=token,
@@ -98,7 +100,6 @@ async def on_transfer(
                 level=level,
                 operation_hash=operation_hash,
                 amount=amount,
-                transfer_type=transfer_type,
             )
 
-            await transfer.save()
+            await transfer_record.save()

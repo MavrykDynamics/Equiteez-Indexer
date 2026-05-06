@@ -19,12 +19,6 @@ class TokenType(IntEnum):
     MAV = 2
 
 
-class TransferType(IntEnum):
-    TRANSFER = 0
-    MINT = 1
-    BURN = 2
-
-
 ###
 # Shared Tables
 ###
@@ -133,10 +127,8 @@ class EquiteezUser(Model):
 
 class EquiteezUserTokenTransfer(Model):
     """
-    Tracks all token transfers between users.
-    This table maintains a complete audit trail of all token transfers in Equiteez,
-    including transfers between users, minting operations, and burning operations.
-    Each transfer is recorded with its timestamp, blockchain level, and amount.
+    Tracks plain FA2 `transfer` movements between users (or between a user
+    and a contract when initiated directly by the user).
     """
 
     # Primary key identifier
@@ -160,9 +152,6 @@ class EquiteezUserTokenTransfer(Model):
 
     # Mavryk blockchain level
     level = fields.BigIntField(index=True)
-
-    # Type of transfer (TRANSFER/MINT/BURN)
-    transfer_type = fields.IntEnumField(enum_type=TransferType, index=True)
 
     # Mavryk operation hash
     operation_hash = fields.CharField(max_length=64, index=True, null=True)
