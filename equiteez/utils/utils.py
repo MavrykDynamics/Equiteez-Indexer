@@ -114,6 +114,7 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
 async def create_super_admin_action(handler):
     # Fetch operations info
     address = handler.data.target_address
+    operation_hash = handler.data.hash
     signatory_action_ledger = handler.storage.signatoryActionLedger
     action_counter = handler.storage.actionCounter
 
@@ -137,10 +138,10 @@ async def create_super_admin_action(handler):
         executed_level = action_record.executedLevel
         expiration_datetime = parser.parse(action_record.expirationDateTime)
 
-        # Get initiator
+        # Get initiator (lazy-create if origination wasn't replayed)
         user, _ = await models.EquiteezUser.get_or_create(address=initiator_address)
         await user.save()
-        initiator = await models.SuperAdminSignatory.get(
+        initiator, _ = await models.SuperAdminSignatory.get_or_create(
             super_admin=super_admin, user=user
         )
 
@@ -155,6 +156,7 @@ async def create_super_admin_action(handler):
             "start_level": start_level,
             "executed_level": executed_level,
             "expiration_datetime": expiration_datetime,
+            "operation_hash": operation_hash,
         }
         if action_record.executedDateTime:
             defaults["executed_datetime"] = parser.parse(

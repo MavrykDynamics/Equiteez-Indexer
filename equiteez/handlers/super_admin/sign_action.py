@@ -39,7 +39,7 @@ async def sign_action(
         # Create a signature
         user, _ = await models.EquiteezUser.get_or_create(address=signatory_address)
         await user.save()
-        signatory = await models.SuperAdminSignatory.get(
+        signatory, _ = await models.SuperAdminSignatory.get_or_create(
             super_admin=super_admin, user=user
         )
         signature = models.SuperAdminSignature(

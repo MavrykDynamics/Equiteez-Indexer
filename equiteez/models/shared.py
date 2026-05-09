@@ -156,8 +156,9 @@ class EquiteezUserTokenTransfer(Model):
     # Mavryk operation hash
     operation_hash = fields.CharField(max_length=64, index=True, null=True)
 
-    # Transfer amount (in smallest unit)
-    amount = fields.BigIntField()
+    # Transfer amount (in smallest unit). numeric(76,0) to fit raw on-chain
+    # amounts of high-decimal tokens that overflow int64.
+    amount = fields.DecimalField(max_digits=76, decimal_places=0)
 
     class Meta:
         table = "equiteez_user_token_transfer"

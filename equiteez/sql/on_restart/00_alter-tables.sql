@@ -12,6 +12,13 @@ ALTER TABLE equiteez_user_token_transfer
 CREATE INDEX IF NOT EXISTS idx_equiteez_user_token_transfer_operation_hash
     ON equiteez_user_token_transfer (operation_hash);
 
+-- operation_hash: Mavryk operation hash that initiated a super-admin signatory action
+ALTER TABLE super_admin_signatory_action
+    ADD COLUMN IF NOT EXISTS operation_hash VARCHAR(64) NULL;
+
+CREATE INDEX IF NOT EXISTS idx_super_admin_signatory_action_operation_hash
+    ON super_admin_signatory_action (operation_hash);
+
 -- DualCursor: updated_at on domain tables; last_updated_at on *lambda tables.
 -- Indexes (cursor column ASC, id ASC) for polling.
 ALTER TABLE token          ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();

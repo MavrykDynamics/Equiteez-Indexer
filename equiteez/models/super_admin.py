@@ -200,6 +200,9 @@ class SuperAdminSignatoryAction(Model):
     # Action expiration timestamp
     expiration_datetime = fields.DatetimeField(null=True)
 
+    # Mavryk operation hash that initiated the action
+    operation_hash = fields.CharField(max_length=64, null=True, index=True)
+
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
