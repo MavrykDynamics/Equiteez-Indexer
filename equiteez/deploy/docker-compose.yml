@@ -1,6 +1,6 @@
 services:
   db:
-    image: timescale/timescaledb:2.26.4-pg16
+    image: timescale/timescaledb:latest-pg15
     ports:
       - 127.0.0.1:5432:5432
     restart: always
