@@ -10,8 +10,9 @@ ORDERBOOKS = "orderbooks"
 BASE_TOKENS = "base_tokens"
 SUPER_ADMINS = "super_admins"
 KYC = "kyc"
+LAUNCHPADS = "launchpads"
 
-_KEYS = (ORDERBOOKS, BASE_TOKENS, SUPER_ADMINS, KYC)
+_KEYS = (ORDERBOOKS, BASE_TOKENS, SUPER_ADMINS, KYC, LAUNCHPADS)
 
 
 def allowlist_url() -> str:
@@ -52,11 +53,12 @@ async def fetch_allowlist() -> Optional[Dict[str, Set[str]]]:
         }
 
     logger.info(
-        "Allowlist loaded: orderbooks=%d base_tokens=%d super_admins=%d kyc=%d",
+        "Allowlist loaded: orderbooks=%d base_tokens=%d super_admins=%d kyc=%d launchpads=%d",
         len(out[ORDERBOOKS]),
         len(out[BASE_TOKENS]),
         len(out[SUPER_ADMINS]),
         len(out[KYC]),
+        len(out[LAUNCHPADS]),
     )
     return out
 

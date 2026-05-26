@@ -11,6 +11,7 @@ BASE_TOKEN_TYPENAME = "base_token"
 ORDERBOOK_TYPENAME = "orderbook"
 SUPER_ADMIN_TYPENAME = "super_admin"
 KYC_TYPENAME = "kyc"
+LAUNCHPAD_TYPENAME = "launchpad"
 
 
 async def _attach_index(
@@ -132,5 +133,23 @@ async def attach_index_kyc(
         index_name_prefix="kyc",
         template="kyc_template",
         template_key="kyc_contract",
+        first_level=first_level,
+    )
+
+
+async def attach_index_launchpad(
+    ctx: DipDupContext,
+    address: str,
+    first_level: int = 0,
+) -> bool:
+    return await _attach_index(
+        ctx=ctx,
+        address=address,
+        contract_type=models.ContractType.LAUNCHPAD,
+        typename=LAUNCHPAD_TYPENAME,
+        name_prefix="launchpad",
+        index_name_prefix="launchpad",
+        template="launchpad_template",
+        template_key="launchpad_contract",
         first_level=first_level,
     )

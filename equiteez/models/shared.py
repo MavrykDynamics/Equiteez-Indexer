@@ -11,6 +11,7 @@ class ContractType(IntEnum):
     ORDERBOOK = 1
     SUPER_ADMIN = 2
     KYC = 3
+    LAUNCHPAD = 4
 
 
 class TokenType(IntEnum):

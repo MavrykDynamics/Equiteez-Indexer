@@ -19,6 +19,11 @@ contracts:
     code_hash: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6
     typename: orderbook
 
+  launchpad_watcher:
+    kind: tezos
+    code_hash: KT1XtPTo49asVZGxMMqqehhuqHtnXLzjT2qu
+    typename: launchpad
+
   quote_token:
     kind: tezos
     address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
