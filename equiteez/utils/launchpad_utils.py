@@ -184,7 +184,7 @@ async def upsert_sale_option(
         for k, v in defaults.items():
             setattr(sale_option, k, v)
         await sale_option.save()
-        
+
     seen_tier_names: set[str] = set()
     for tier_name, tier_record in record.allowedMembershipTiers.items():
         seen_tier_names.add(tier_name)
@@ -221,7 +221,7 @@ async def upsert_sale_option(
         payment, _ = await models.LaunchpadSaleOptionPayment.get_or_create(
             sale_option=sale_option, name=payment_name
         )
-  
+
         await payment.fetch_related("token")
         current_addr = payment.token.address if payment.token else None
         if token_addr != current_addr:
