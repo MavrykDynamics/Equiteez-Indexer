@@ -55,6 +55,20 @@ indexes:
       - type: origination
         originated_contract: kyc_watcher
 
+  launchpad_origination_watcher:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - launchpad_watcher
+    types:
+    - origination
+    handlers:
+    - callback: launchpad.origination
+      pattern:
+      - type: origination
+        originated_contract: launchpad_watcher
+
   quote_token_transfers:
     template: token_transfers_template
     values:
@@ -474,3 +488,69 @@ templates:
       pattern:
       - destination: <kyc_contract>
         entrypoint: unfreezeMember
+
+  launchpad_template:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - <launchpad_contract>
+    types:
+    - transaction
+    handlers:
+    - callback: launchpad.set_super_admin
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: setSuperAdmin
+    - callback: launchpad.claim_super_admin
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: claimSuperAdmin
+    - callback: launchpad.set_membership_kyc_address
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: setMembershipKycAddress
+    - callback: launchpad.set_treasury
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: setTreasury
+    - callback: launchpad.update_metadata
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: updateMetadata
+    - callback: launchpad.pause
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: pause
+    - callback: launchpad.set_purchase_record
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: setPurchaseRecord
+    - callback: launchpad.create_token_launch
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: createTokenLaunch
+    - callback: launchpad.update_token_launch
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: updateTokenLaunch
+    - callback: launchpad.set_sale_option
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: setSaleOption
+    - callback: launchpad.set_launch_status
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: setLaunchStatus
+    - callback: launchpad.distribute_tokens
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: distributeTokens
+    - callback: launchpad.purchase
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: purchase
+    - callback: launchpad.set_lambda
+      pattern:
+      - destination: <launchpad_contract>
+        entrypoint: setLambda
