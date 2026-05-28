@@ -384,6 +384,9 @@ class LaunchpadPurchaseEvent(Model):
         # Source is included because purchase (USER) and setPurchaseRecord
         # (ADMIN) can theoretically collide on (op_hash, launch, user, option, 0)
         # if both fire in the same operation (paranoid but cheap).
+        # Timestamp is included because the table is a Timescale hypertable
+        # partitioned by timestamp — every unique constraint must contain the
+        # partition column. Safe: timestamp is deterministic per operation_hash.
         unique_together = (
             (
                 "operation_hash",
@@ -392,6 +395,7 @@ class LaunchpadPurchaseEvent(Model):
                 "sale_option",
                 "batch_index",
                 "source",
+                "timestamp",
             ),
         )
         indexes = [

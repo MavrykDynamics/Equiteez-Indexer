@@ -556,6 +556,9 @@ hooks:
   update_allowlist_status:
     callback: update_allowlist_status
     atomic: False
+  refresh_launchpad_stats:
+    callback: refresh_launchpad_stats
+    atomic: False
 
 jobs:
   refresh_tokens:
@@ -564,3 +567,6 @@ jobs:
   update_allowlist_status:
     hook: update_allowlist_status
     interval: 300
+  refresh_launchpad_stats:
+    hook: refresh_launchpad_stats
+    interval: 60
