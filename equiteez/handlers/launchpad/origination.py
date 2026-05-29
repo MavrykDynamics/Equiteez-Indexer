@@ -10,7 +10,6 @@ from equiteez.utils.contract_allowlist import (
     allowlist_contains,
     fetch_allowlist,
 )
-from equiteez.utils.dynamic_index import attach_index_launchpad
 from equiteez.utils.launchpad_utils import (
     upsert_launch_from_record,
     upsert_sale_option,
@@ -30,8 +29,6 @@ async def origination(
 
     first_level = launchpad_origination.data.level
     storage = launchpad_origination.storage
-
-    await attach_index_launchpad(ctx, address, first_level=first_level)
 
     kyc, _ = await models.Kyc.get_or_create(address=storage.membershipKycAddress)
     await kyc.save()

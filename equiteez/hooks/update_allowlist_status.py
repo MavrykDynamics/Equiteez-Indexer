@@ -6,6 +6,7 @@ from equiteez import models
 from equiteez.utils.contract_allowlist import (
     BASE_TOKENS,
     KYC,
+    LAUNCHPADS,
     ORDERBOOKS,
     SUPER_ADMINS,
     allowlist_contains,
@@ -53,6 +54,13 @@ async def update_allowlist_status(
         if kyc.in_allowlist != new_status:
             kyc.in_allowlist = new_status
             await kyc.save()
+            updated += 1
+
+    for launchpad in await models.Launchpad.all():
+        new_status = allowlist_contains(allowlist, LAUNCHPADS, launchpad.address)
+        if launchpad.in_allowlist != new_status:
+            launchpad.in_allowlist = new_status
+            await launchpad.save()
             updated += 1
 
     logger.info("update_allowlist_status: done, %d row(s) updated", updated)
