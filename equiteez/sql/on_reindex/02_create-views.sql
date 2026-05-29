@@ -236,8 +236,7 @@ SELECT
 FROM dodo_mav_candles_1m;
 
 -- Launchpad time-series wrappers. Hasura tracks these (not the continuous
--- aggregates directly) — wraps the bucket column as a stable `timestamp`
--- name and matches the dodo_mav_candles_* convention.
+-- aggregates directly) — wraps the bucket column as a stable `timestamp`.
 CREATE OR REPLACE VIEW launchpad_purchase_stats_1h_view AS
 SELECT bucket AS timestamp, launch_id, purchase_count, unique_buyers, total_amount, avg_amount
 FROM launchpad_purchase_stats_1h;
