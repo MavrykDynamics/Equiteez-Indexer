@@ -42,12 +42,6 @@ BEGIN
 END $$;
 
 -- Convert launchpad_purchase_event to a hypertable for continuous aggregates.
--- Timescale requires the partition column (timestamp) to be part of any unique
--- constraint and the primary key. We extend the existing replay-dedup unique
--- constraint with timestamp — safe because timestamp is deterministic per
--- operation_hash (same block, same timestamp on replay).
--- Also handles the migration for batch_index column + initial dedup constraint
--- if the table predates Phase 1 #2 (DB was built before those were added).
 DO $$
 DECLARE
     is_hypertable boolean;
