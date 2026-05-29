@@ -7,7 +7,6 @@ from equiteez.utils.contract_allowlist import (
     allowlist_contains,
     fetch_allowlist,
 )
-from equiteez.utils.dynamic_index import attach_index_super_admin
 from equiteez.utils.utils import get_contract_metadata
 
 
@@ -20,10 +19,6 @@ async def origination(
 
     if not address:
         return
-
-    await attach_index_super_admin(
-        ctx, address, first_level=super_admin_origination.data.level
-    )
 
     signatory_ledger = super_admin_origination.storage.signatoryLedger
     signatory_size = super_admin_origination.storage.signatorySize

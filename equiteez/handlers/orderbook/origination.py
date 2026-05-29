@@ -8,7 +8,6 @@ from equiteez.utils.contract_allowlist import (
     allowlist_contains,
     fetch_allowlist,
 )
-from equiteez.utils.dynamic_index import attach_index_orderbook
 from equiteez.utils.utils import get_contract_metadata, register_token
 
 
@@ -21,10 +20,6 @@ async def origination(
 
     if not address:
         return
-
-    await attach_index_orderbook(
-        ctx, address, first_level=orderbook_origination.data.level
-    )
 
     super_admin = orderbook_origination.storage.superAdmin
     new_super_admin = orderbook_origination.storage.newSuperAdmin
