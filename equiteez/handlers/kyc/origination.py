@@ -7,7 +7,6 @@ from equiteez.utils.contract_allowlist import (
     allowlist_contains,
     fetch_allowlist,
 )
-from equiteez.utils.dynamic_index import attach_index_kyc
 from equiteez.utils.utils import get_contract_metadata
 from dateutil import parser
 
@@ -21,8 +20,6 @@ async def origination(
 
     if not address:
         return
-
-    await attach_index_kyc(ctx, address, first_level=kyc_origination.data.level)
 
     super_admin = kyc_origination.storage.superAdmin
     new_super_admin = kyc_origination.storage.newSuperAdmin

@@ -1,19 +1,38 @@
 indexes:
-  token_origination_watcher:
-   kind: tezos.operations
-   datasources:
-   - mvkt_atlasnet
-   contracts:
-   - token_watcher
-   types:
-   - origination
-   handlers:
-   - callback: tokens.origination
-     pattern:
-     - type: origination
-       originated_contract: token_watcher
+  token_index:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - token_watcher
+    types:
+    - origination
+    - transaction
+    handlers:
+    - callback: tokens.origination
+      pattern:
+      - type: origination
+        originated_contract: token_watcher
+    - callback: transfers.on_transfer
+      pattern:
+      - destination: token_watcher
+        entrypoint: transfer
 
-  orderbook_origination_watcher:
+  quote_token_index:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - quote_token
+    types:
+    - transaction
+    handlers:
+    - callback: transfers.on_transfer
+      pattern:
+      - destination: quote_token
+        entrypoint: transfer
+
+  orderbook_index:
     kind: tezos.operations
     datasources:
     - mvkt_atlasnet
@@ -21,13 +40,74 @@ indexes:
     - orderbook_watcher
     types:
     - origination
+    - transaction
     handlers:
     - callback: orderbook.origination
       pattern:
       - type: origination
         originated_contract: orderbook_watcher
+    - callback: orderbook.set_lambda
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: setLambda
+    - callback: orderbook.set_currency
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: setCurrency
+    - callback: orderbook.set_super_admin
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: setSuperAdmin
+    - callback: orderbook.set_kyc_address
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: setKycAddress
+    - callback: orderbook.claim_super_admin
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: claimSuperAdmin
+    - callback: orderbook.update_metadata
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: updateMetadata
+    - callback: orderbook.update_config
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: updateConfig
+    - callback: orderbook.toggle_pause_entrypoint
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: togglePauseEntrypoint
+    - callback: orderbook.transfer_fees
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: transferFees
+    - callback: orderbook.clear_expired_orders
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: clearExpiredOrders
+    - callback: orderbook.match_orders
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: matchOrders
+    - callback: orderbook.place_buy_order
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: placeBuyOrder
+    - callback: orderbook.place_sell_order
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: placeSellOrder
+    - callback: orderbook.cancel_orders
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: cancelOrders
+    - callback: orderbook.process_refund
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: processRefund
 
-  super_admin_origination_watcher:
+  super_admin_index:
     kind: tezos.operations
     datasources:
     - mvkt_atlasnet
@@ -35,13 +115,74 @@ indexes:
     - super_admin_watcher
     types:
     - origination
+    - transaction
     handlers:
     - callback: super_admin.origination
       pattern:
       - type: origination
         originated_contract: super_admin_watcher
+    - callback: super_admin.set_lambda
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: setLambda
+    - callback: super_admin.set_super_admin
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: setSuperAdmin
+    - callback: super_admin.claim_super_admin
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: claimSuperAdmin
+    - callback: super_admin.update_metadata
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: updateMetadata
+    - callback: super_admin.set_general_admin
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: setGeneralAdmin
+    - callback: super_admin.remove_general_admin
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: removeGeneralAdmin
+    - callback: super_admin.set_contract_admin
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: setContractAdmin
+    - callback: super_admin.remove_contract_admin
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: removeContractAdmin
+    - callback: super_admin.update_config
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: updateConfig
+    - callback: super_admin.add_signatory
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: addSignatory
+    - callback: super_admin.remove_signatory
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: removeSignatory
+    - callback: super_admin.set_token_kyc_address
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: setTokenKycAddress
+    - callback: super_admin.kill_token
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: killToken
+    - callback: super_admin.flush_action
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: flushAction
+    - callback: super_admin.sign_action
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: signAction
 
-  kyc_origination_watcher:
+  kyc_index:
     kind: tezos.operations
     datasources:
     - mvkt_atlasnet
@@ -49,16 +190,72 @@ indexes:
     - kyc_watcher
     types:
     - origination
+    - transaction
     handlers:
     - callback: kyc.origination
       pattern:
       - type: origination
         originated_contract: kyc_watcher
-
-  quote_token_transfers:
-    template: token_transfers_template
-    values:
-      token_contract: quote_token
+    - callback: kyc.update_metadata
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: updateMetadata
+    - callback: kyc.set_super_admin
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setSuperAdmin
+    - callback: kyc.claim_super_admin
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: claimSuperAdmin
+    - callback: kyc.set_lambda
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setLambda
+    - callback: kyc.toggle_pause_entrypoint
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: togglePauseEntrypoint
+    - callback: kyc.set_country_transfer_rule
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setCountryTransferRule
+    - callback: kyc.set_kyc_registrar
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setKycRegistrar
+    - callback: kyc.pause_kyc_registrar
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: pauseKycRegistrar
+    - callback: kyc.set_valid_input
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setValidInput
+    - callback: kyc.set_whitelist
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setWhitelist
+    - callback: kyc.set_blacklist
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setBlacklist
+    - callback: kyc.set_member
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setMember
+    - callback: kyc.set_registrar_admin
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setRegistrarAdmin
+    - callback: kyc.freeze_member
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: freezeMember
+    - callback: kyc.unfreeze_member
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: unfreezeMember
 
   launchpad_index:
     kind: tezos.operations
@@ -315,231 +512,6 @@ indexes:
   #     pattern:
   #     - destination: dodo_mav
   #       entrypoint: depositBaseToken
-
-templates:
-  token_transfers_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - <token_contract>
-    types:
-    - transaction
-    handlers:
-    - callback: transfers.on_transfer
-      pattern:
-      - destination: <token_contract>
-        entrypoint: transfer
-  orderbook_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - <orderbook_contract>
-    types:
-    - transaction
-    handlers:
-    - callback: orderbook.set_lambda
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: setLambda
-    - callback: orderbook.set_currency
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: setCurrency
-    - callback: orderbook.set_super_admin
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: setSuperAdmin
-    - callback: orderbook.set_kyc_address
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: setKycAddress
-    - callback: orderbook.claim_super_admin
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: claimSuperAdmin
-    - callback: orderbook.update_metadata
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: updateMetadata
-    - callback: orderbook.update_config
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: updateConfig
-    - callback: orderbook.toggle_pause_entrypoint
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: togglePauseEntrypoint
-    - callback: orderbook.transfer_fees
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: transferFees
-    - callback: orderbook.clear_expired_orders
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: clearExpiredOrders
-    - callback: orderbook.match_orders
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: matchOrders
-    - callback: orderbook.place_buy_order
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: placeBuyOrder
-    - callback: orderbook.place_sell_order
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: placeSellOrder
-    - callback: orderbook.cancel_orders
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: cancelOrders
-    - callback: orderbook.process_refund
-      pattern:
-      - destination: <orderbook_contract>
-        entrypoint: processRefund
-
-  super_admin_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - <super_admin_contract>
-    types:
-    - transaction
-    handlers:
-    - callback: super_admin.set_lambda
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: setLambda
-    - callback: super_admin.set_super_admin
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: setSuperAdmin
-    - callback: super_admin.claim_super_admin
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: claimSuperAdmin
-    - callback: super_admin.update_metadata
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: updateMetadata
-    - callback: super_admin.set_general_admin
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: setGeneralAdmin
-    - callback: super_admin.remove_general_admin
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: removeGeneralAdmin
-    - callback: super_admin.set_contract_admin
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: setContractAdmin
-    - callback: super_admin.remove_contract_admin
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: removeContractAdmin
-    - callback: super_admin.update_config
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: updateConfig
-    - callback: super_admin.add_signatory
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: addSignatory
-    - callback: super_admin.remove_signatory
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: removeSignatory
-    - callback: super_admin.set_token_kyc_address
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: setTokenKycAddress
-    - callback: super_admin.kill_token
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: killToken
-    - callback: super_admin.flush_action
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: flushAction
-    - callback: super_admin.sign_action
-      pattern:
-      - destination: <super_admin_contract>
-        entrypoint: signAction
-
-  kyc_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
-    contracts:
-    - <kyc_contract>
-    types:
-    - transaction
-    handlers:
-    - callback: kyc.update_metadata
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: updateMetadata
-    - callback: kyc.set_super_admin
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setSuperAdmin
-    - callback: kyc.claim_super_admin
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: claimSuperAdmin
-    - callback: kyc.set_lambda
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setLambda
-    - callback: kyc.toggle_pause_entrypoint
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: togglePauseEntrypoint
-    - callback: kyc.set_country_transfer_rule
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setCountryTransferRule
-    - callback: kyc.set_kyc_registrar
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setKycRegistrar
-    - callback: kyc.pause_kyc_registrar
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: pauseKycRegistrar
-    - callback: kyc.set_valid_input
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setValidInput
-    - callback: kyc.set_whitelist
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setWhitelist
-    - callback: kyc.set_blacklist
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setBlacklist
-    - callback: kyc.set_member
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setMember
-    - callback: kyc.set_registrar_admin
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: setRegistrarAdmin
-    - callback: kyc.freeze_member
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: freezeMember
-    - callback: kyc.unfreeze_member
-      pattern:
-      - destination: <kyc_contract>
-        entrypoint: unfreezeMember
-
 
 hooks:
   refresh_tokens:

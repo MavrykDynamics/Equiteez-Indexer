@@ -10,7 +10,6 @@ from equiteez.utils.contract_allowlist import (
     allowlist_contains,
     fetch_allowlist,
 )
-from equiteez.utils.dynamic_index import attach_index_base_token
 from equiteez.utils.utils import register_token
 
 logger = logging.getLogger(__name__)
@@ -26,7 +25,6 @@ async def origination(
     if not address:
         return
 
-    await attach_index_base_token(ctx, address, first_level=first_level)
     await register_token(ctx, address)
 
     allowlist = await fetch_allowlist()
