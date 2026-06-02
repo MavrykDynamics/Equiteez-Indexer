@@ -14,3 +14,9 @@ pdoc = "^15.0.4"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.lint]
+# F403 (`from X import *`): intentional in equiteez/models/__init__.py — Tortoise
+# requires all model classes to be importable at module load time.
+# F405 (undefined name from star import): follows from F403.
+extend-ignore = ["F403", "F405"]
