@@ -159,9 +159,7 @@ async def create_super_admin_action(handler):
             "operation_hash": operation_hash,
         }
         if action_record.executedDateTime:
-            defaults["executed_datetime"] = parser.parse(
-                action_record.executedDateTime
-            )
+            defaults["executed_datetime"] = parser.parse(action_record.executedDateTime)
 
         action, _ = await models.SuperAdminSignatoryAction.get_or_create(
             super_admin=super_admin,

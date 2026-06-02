@@ -257,6 +257,77 @@ indexes:
       - destination: kyc_watcher
         entrypoint: unfreezeMember
 
+  launchpad_index:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    contracts:
+    - launchpad_watcher
+    types:
+    - origination
+    - transaction
+    handlers:
+    - callback: launchpad.origination
+      pattern:
+      - type: origination
+        originated_contract: launchpad_watcher
+    - callback: launchpad.set_super_admin
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setSuperAdmin
+    - callback: launchpad.claim_super_admin
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: claimSuperAdmin
+    - callback: launchpad.set_membership_kyc_address
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setMembershipKycAddress
+    - callback: launchpad.set_treasury
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setTreasury
+    - callback: launchpad.update_metadata
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateMetadata
+    - callback: launchpad.pause
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: pause
+    - callback: launchpad.set_purchase_record
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setPurchaseRecord
+    - callback: launchpad.create_token_launch
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: createTokenLaunch
+    - callback: launchpad.update_token_launch
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateTokenLaunch
+    - callback: launchpad.set_sale_option
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setSaleOption
+    - callback: launchpad.set_launch_status
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setLaunchStatus
+    - callback: launchpad.distribute_tokens
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: distributeTokens
+    - callback: launchpad.purchase
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: purchase
+    - callback: launchpad.set_lambda
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setLambda
+
   # dodo_mav: (enable contract in dipdup.contracts.yml when uncommenting)
   #   kind: tezos.operations
   #   datasources:

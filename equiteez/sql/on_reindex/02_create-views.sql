@@ -224,7 +224,7 @@ SELECT
 FROM dodo_mav_candles_1w;
 
 CREATE OR REPLACE VIEW dodo_mav_candles_1m_view AS
-SELECT 
+SELECT
     timestamp,
     dodo_mav_address,
     open,
@@ -234,3 +234,6 @@ SELECT
     volume,
     trades
 FROM dodo_mav_candles_1m;
+
+-- Launchpad time-series wrappers live in 07_create-launchpad-views.sql
+-- because they depend on continuous aggregates created in 06_create-launchpad-rollups.sql.
