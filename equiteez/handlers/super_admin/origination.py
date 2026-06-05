@@ -2,6 +2,11 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
 from equiteez import models as models
 from equiteez.types.super_admin.tezos_storage import SuperAdminStorage
+from equiteez.utils.contract_allowlist import (
+    SUPER_ADMINS,
+    allowlist_contains,
+    fetch_allowlist,
+)
 from equiteez.utils.utils import get_contract_metadata
 
 
@@ -11,6 +16,10 @@ async def origination(
 ) -> None:
     # Fetch operation info
     address = super_admin_origination.data.originated_contract_address
+
+    if not address:
+        return
+
     signatory_ledger = super_admin_origination.storage.signatoryLedger
     signatory_size = super_admin_origination.storage.signatorySize
     action_counter = super_admin_origination.storage.actionCounter
@@ -21,6 +30,8 @@ async def origination(
         super_admin_origination.storage.config.actionExpiryInSeconds
     )
 
+    allowlist = await fetch_allowlist()
+
     # Prepare the super admin
     super_admin = models.SuperAdmin(
         address=address,
@@ -28,6 +39,7 @@ async def origination(
         action_counter=action_counter,
         threshold=threshold,
         action_expiry_in_seconds=action_expiry_in_seconds,
+        in_allowlist=allowlist_contains(allowlist, SUPER_ADMINS, address),
     )
 
     # Get contract metadata

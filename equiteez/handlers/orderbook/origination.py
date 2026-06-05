@@ -1,9 +1,14 @@
+from dateutil import parser
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
 from equiteez import models as models
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
+from equiteez.utils.contract_allowlist import (
+    ORDERBOOKS,
+    allowlist_contains,
+    fetch_allowlist,
+)
 from equiteez.utils.utils import get_contract_metadata, register_token
-from dateutil import parser
 
 
 async def origination(
@@ -12,6 +17,10 @@ async def origination(
 ) -> None:
     # Fetch operation info
     address = orderbook_origination.data.originated_contract_address
+
+    if not address:
+        return
+
     super_admin = orderbook_origination.storage.superAdmin
     new_super_admin = orderbook_origination.storage.newSuperAdmin
     rwa_token_address = orderbook_origination.storage.rwaTokenAddress
@@ -71,6 +80,9 @@ async def origination(
 
     # Get contract metadata
     orderbook.metadata = await get_contract_metadata(ctx=ctx, address=address)
+
+    allowlist = await fetch_allowlist()
+    orderbook.in_allowlist = allowlist_contains(allowlist, ORDERBOOKS, address)
 
     # Save the orderbook
     await orderbook.save()

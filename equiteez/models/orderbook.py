@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda, EntrypointStatus
+from equiteez.models.shared import ContractBase, ContractLambda, EntrypointStatus
 
 ###
 # Orderbook Enums
@@ -17,19 +17,13 @@ class OrderType(IntEnum):
 ###
 
 
-class Orderbook(Model):
+class Orderbook(ContractBase):
     """
     Orderbook contract configuration and state.
     This table stores the configuration and current state of orderbook contracts
     for RWA trading. Orderbooks manage buy and sell orders,
     track prices, fees, and order statistics for specific RWA tokens.
     """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Orderbook contract address
-    address = fields.CharField(max_length=36, index=True)
 
     # Current super admin address
     super_admin = fields.CharField(max_length=36, index=True, null=True)
@@ -154,6 +148,8 @@ class OrderbookCurrency(Model):
     # Name of the currency
     currency_name = fields.TextField(index=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_currency"
         indexes = [
@@ -210,6 +206,8 @@ class OrderbookRwaOrder(Model):
         "models.Token", related_name="orderbook_rwa_orders"
     )
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_rwa_order"
         indexes = [
@@ -238,6 +236,8 @@ class OrderbookRwaOrderBuyPrice(Model):
     # Buy price level
     price = fields.BigIntField(default=0)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_rwa_order_buy_price"
         indexes = [
@@ -265,6 +265,8 @@ class OrderbookRwaOrderSellPrice(Model):
 
     # Sell price level
     price = fields.BigIntField(default=0)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "orderbook_rwa_order_sell_price"
@@ -302,6 +304,8 @@ class OrderbookRwaOrderBuyOrder(Model, OrderbookRwaOrderPrice):
         "models.OrderbookRwaOrder", related_name="orderbook_rwa_order_buy_orders"
     )
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "orderbook_rwa_order_buy_order"
         indexes = [
@@ -320,6 +324,8 @@ class OrderbookRwaOrderSellOrder(Model, OrderbookRwaOrderPrice):
     rwa_order = fields.ForeignKeyField(
         "models.OrderbookRwaOrder", related_name="orderbook_rwa_order_sell_orders"
     )
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "orderbook_rwa_order_sell_order"
@@ -344,6 +350,9 @@ class OrderbookOrder(Model):
 
     # Unique order identifier
     order_id = fields.BigIntField(default=0, index=True)
+
+    # Mavryk operation hash of the tx that last created/updated this row (place_* / etc.)
+    operation_hash = fields.CharField(max_length=64, null=True, index=True)
 
     # Type of order (BUY/SELL)
     order_type = fields.IntEnumField(enum_type=OrderType, index=True)
@@ -397,6 +406,8 @@ class OrderbookOrder(Model):
 
     # Order completion timestamp
     ended_at = fields.DatetimeField(null=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "orderbook_order"

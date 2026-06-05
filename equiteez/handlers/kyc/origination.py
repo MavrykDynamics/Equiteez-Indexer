@@ -2,6 +2,11 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
 from equiteez import models as models
 from equiteez.types.kyc.tezos_storage import KycStorage
+from equiteez.utils.contract_allowlist import (
+    KYC,
+    allowlist_contains,
+    fetch_allowlist,
+)
 from equiteez.utils.utils import get_contract_metadata
 from dateutil import parser
 
@@ -12,6 +17,10 @@ async def origination(
 ) -> None:
     # Fetch operation info
     address = kyc_origination.data.originated_contract_address
+
+    if not address:
+        return
+
     super_admin = kyc_origination.storage.superAdmin
     new_super_admin = kyc_origination.storage.newSuperAdmin
     whitelist_ledger = kyc_origination.storage.whitelistLedger
@@ -29,6 +38,9 @@ async def origination(
 
     # Get contract metadata
     kyc.metadata = await get_contract_metadata(ctx=ctx, address=address)
+
+    allowlist = await fetch_allowlist()
+    kyc.in_allowlist = allowlist_contains(allowlist, KYC, address)
 
     # Save the orderbook
     await kyc.save()

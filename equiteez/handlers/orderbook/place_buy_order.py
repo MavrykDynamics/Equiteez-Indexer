@@ -90,6 +90,7 @@ async def place_buy_order(
             orderbook=orderbook,
             currency=currency,
             order_id=buy_order_id,
+            operation_hash=place_buy_order.data.hash,
             order_type=order_type,
             initiator=user,
             rwa_token_amount=rwa_token_amount,

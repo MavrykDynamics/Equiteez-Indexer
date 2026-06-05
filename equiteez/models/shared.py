@@ -6,16 +6,18 @@ from enum import IntEnum
 ###
 
 
+class ContractType(IntEnum):
+    BASE_TOKEN = 0
+    ORDERBOOK = 1
+    SUPER_ADMIN = 2
+    KYC = 3
+    LAUNCHPAD = 4
+
+
 class TokenType(IntEnum):
     FA12 = 0
     FA2 = 1
     MAV = 2
-
-
-class TransferType(IntEnum):
-    TRANSFER = 0
-    MINT = 1
-    BURN = 2
 
 
 ###
@@ -23,19 +25,28 @@ class TransferType(IntEnum):
 ###
 
 
-class Token(Model):
+class ContractBase(Model):
+    """
+    Common fields for on-chain contract rows (orderbook, KYC, super admin, base token).
+    DipDup tracks deployed contracts in dipdup_contract; allowlist membership is denormalized here.
+    """
+
+    id = fields.IntField(primary_key=True)
+    address = fields.CharField(max_length=36, index=True)
+    in_allowlist = fields.BooleanField(default=False, index=True)
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
+    class Meta:
+        abstract = True
+
+
+class Token(ContractBase):
     """
     Stores information about all tokens tracked by the indexer.
     This table contains metadata and configuration for all tokens in Equiteez,
     including FA1.2, FA2, and Mavryk-specific tokens. Each token is identified by its
     contract address and token ID (for FA2 tokens with multiple token types).
     """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Mavryk contract address of the token
-    address = fields.CharField(max_length=36, index=True)
 
     # Token ID (for FA2 tokens with multiple token types)
     token_id = fields.SmallIntField(default=0)
@@ -92,6 +103,8 @@ class EntrypointStatus:
     # Whether the entrypoint is currently paused
     paused = fields.BooleanField(default=False)
 
+    updated_at = fields.DatetimeField(auto_now=True)
+
 
 class EquiteezUser(Model):
     """
@@ -107,45 +120,16 @@ class EquiteezUser(Model):
     # Public key hash of the user (Mavryk address)
     address = fields.CharField(max_length=36, index=True, unique=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "equiteez_user"
 
 
-class EquiteezUserBalance(Model):
-    """
-    Tracks token balances for each user.
-    This table maintains the current balance of each token for every user in
-    Equiteez. Balances are stored in the smallest unit (e.g., micromav for MVRK)
-    and are updated whenever transfers occur.
-    """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Reference to the user
-    user = fields.ForeignKeyField("models.EquiteezUser", related_name="balances")
-
-    # Reference to the token
-    token = fields.ForeignKeyField(
-        "models.Token", related_name="equiteez_user_balances"
-    )
-
-    # Current token balance (in smallest unit)
-    balance = fields.BigIntField(default=0)
-
-    class Meta:
-        table = "equiteez_user_balance"
-        indexes = [
-            ("user_id", "token_id"),
-        ]
-
-
 class EquiteezUserTokenTransfer(Model):
     """
-    Tracks all token transfers between users.
-    This table maintains a complete audit trail of all token transfers in Equiteez,
-    including transfers between users, minting operations, and burning operations.
-    Each transfer is recorded with its timestamp, blockchain level, and amount.
+    Tracks plain FA2 `transfer` movements between users (or between a user
+    and a contract when initiated directly by the user).
     """
 
     # Primary key identifier
@@ -162,9 +146,7 @@ class EquiteezUserTokenTransfer(Model):
     )
 
     # Token being transferred
-    token = fields.ForeignKeyField(
-        "models.Token", related_name="equiteez_user_token_transfers"
-    )
+    token = fields.ForeignKeyField("models.Token", related_name="user_token_transfers")
 
     # Transfer timestamp
     timestamp = fields.DatetimeField(index=True)
@@ -172,11 +154,12 @@ class EquiteezUserTokenTransfer(Model):
     # Mavryk blockchain level
     level = fields.BigIntField(index=True)
 
-    # Type of transfer (TRANSFER/MINT/BURN)
-    transfer_type = fields.IntEnumField(enum_type=TransferType, index=True)
+    # Mavryk operation hash
+    operation_hash = fields.CharField(max_length=64, index=True, null=True)
 
-    # Transfer amount (in smallest unit)
-    amount = fields.BigIntField()
+    # Transfer amount (in smallest unit). numeric(76,0) to fit raw on-chain
+    # amounts of high-decimal tokens that overflow int64.
+    amount = fields.DecimalField(max_digits=76, decimal_places=0)
 
     class Meta:
         table = "equiteez_user_token_transfer"

@@ -114,6 +114,7 @@ async def persist_lambda(contract_class, lambda_contract_class, set_lambda):
 async def create_super_admin_action(handler):
     # Fetch operations info
     address = handler.data.target_address
+    operation_hash = handler.data.hash
     signatory_action_ledger = handler.storage.signatoryActionLedger
     action_counter = handler.storage.actionCounter
 
@@ -137,35 +138,40 @@ async def create_super_admin_action(handler):
         executed_level = action_record.executedLevel
         expiration_datetime = parser.parse(action_record.expirationDateTime)
 
-        # Get initiator
+        # Get initiator (lazy-create if origination wasn't replayed)
         user, _ = await models.EquiteezUser.get_or_create(address=initiator_address)
         await user.save()
-        initiator = await models.SuperAdminSignatory.get(
+        initiator, _ = await models.SuperAdminSignatory.get_or_create(
             super_admin=super_admin, user=user
         )
 
         # Create action
-        action = models.SuperAdminSignatoryAction(
-            super_admin=super_admin,
-            initiator=initiator,
-            action_id=action_id,
-            action_type=action_type,
-            executed=executed,
-            status=status,
-            signers_count=signers_count,
-            start_datetime=start_datetime,
-            start_level=start_level,
-            executed_level=executed_level,
-            expiration_datetime=expiration_datetime,
-        )
+        defaults = {
+            "initiator": initiator,
+            "action_type": action_type,
+            "executed": executed,
+            "status": status,
+            "signers_count": signers_count,
+            "start_datetime": start_datetime,
+            "start_level": start_level,
+            "executed_level": executed_level,
+            "expiration_datetime": expiration_datetime,
+            "operation_hash": operation_hash,
+        }
         if action_record.executedDateTime:
-            action.executed_datetime = parser.parse(action_record.executedDateTime)
-        await action.save()
+            defaults["executed_datetime"] = parser.parse(action_record.executedDateTime)
+
+        action, _ = await models.SuperAdminSignatoryAction.get_or_create(
+            super_admin=super_admin,
+            action_id=action_id,
+            defaults=defaults,
+        )
 
         # Create data records
         for data_name in data_map:
             bytes = data_map[data_name]
-            action_data = models.SuperAdminSignatoryActionData(
-                action=action, name=data_name, bytes=bytes
+            await models.SuperAdminSignatoryActionData.get_or_create(
+                action=action,
+                name=data_name,
+                defaults={"bytes": bytes},
             )
-            await action_data.save()

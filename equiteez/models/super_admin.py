@@ -1,6 +1,6 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
-from equiteez.models.shared import ContractLambda
+from equiteez.models.shared import ContractBase, ContractLambda
 
 ###
 # SuperAdmin Enums
@@ -18,7 +18,7 @@ class ActionStatus(IntEnum):
 ###
 
 
-class SuperAdmin(Model):
+class SuperAdmin(ContractBase):
     """
     Super admin contract configuration and state.
     This table stores the configuration and current state of super admin contracts,
@@ -26,12 +26,6 @@ class SuperAdmin(Model):
     can perform operations like updating contracts, minting/burning tokens, and
     pausing/unpausing contracts across the platform.
     """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Super admin contract address
-    address = fields.CharField(max_length=36, index=True)
 
     # Contract metadata
     metadata = fields.JSONField(null=True)
@@ -92,6 +86,8 @@ class SuperAdminSignatory(Model):
     # Whether signatory is active
     is_active = fields.BooleanField(default=True)
 
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "super_admin_signatory"
 
@@ -115,6 +111,8 @@ class SuperAdminGeneralAdmin(Model):
     user = fields.ForeignKeyField(
         "models.EquiteezUser", related_name="super_admin_general_admins"
     )
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "super_admin_general_admin"
@@ -142,6 +140,8 @@ class SuperAdminContractAdmin(Model):
 
     # Contract address this admin manages
     contract_address = fields.CharField(max_length=36, index=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "super_admin_contract_admin"
@@ -200,6 +200,11 @@ class SuperAdminSignatoryAction(Model):
     # Action expiration timestamp
     expiration_datetime = fields.DatetimeField(null=True)
 
+    # Mavryk operation hash that initiated the action
+    operation_hash = fields.CharField(max_length=64, null=True, index=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
     class Meta:
         table = "super_admin_signatory_action"
 
@@ -224,6 +229,8 @@ class SuperAdminSignatoryActionData(Model):
 
     # Serialized action data
     bytes = fields.TextField()
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
         table = "super_admin_signatory_action_data"

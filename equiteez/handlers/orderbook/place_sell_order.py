@@ -42,7 +42,10 @@ async def place_sell_order(
 
         for sell_price_counter in sell_price_map:
             sell_price = sell_price_map[sell_price_counter]
-            sell_price_record, _ = await models.OrderbookRwaOrderSellPrice.get_or_create(
+            (
+                sell_price_record,
+                _,
+            ) = await models.OrderbookRwaOrderSellPrice.get_or_create(
                 rwa_order=rwa_order, counter=sell_price_counter
             )
             sell_price_record.price = sell_price
@@ -51,7 +54,10 @@ async def place_sell_order(
         for sell_price in sell_order_map:
             sell_order_ids = sell_order_map[sell_price]
             sell_order_ids_int = [int(x) for x in sell_order_ids]
-            sell_order_record, _ = await models.OrderbookRwaOrderSellOrder.get_or_create(
+            (
+                sell_order_record,
+                _,
+            ) = await models.OrderbookRwaOrderSellOrder.get_or_create(
                 rwa_order=rwa_order, price=sell_price
             )
             sell_order_record.order_ids = sell_order_ids_int
@@ -68,7 +74,9 @@ async def place_sell_order(
         fulfilled_amount = sell_order_record.fulfilledAmount
         unfulfilled_amount = sell_order_record.unfulfilledAmount
         total_paid_out = sell_order_record.totalOrderFulfilled.nat_0
-        total_usd_value_of_rwa_token_amount = sell_order_record.totalOrderFulfilled.nat_1
+        total_usd_value_of_rwa_token_amount = (
+            sell_order_record.totalOrderFulfilled.nat_1
+        )
         is_fulfilled = sell_order_record.booleans.bool_0
         is_canceled = sell_order_record.booleans.bool_1
         is_expired = sell_order_record.booleans.bool_2
@@ -90,6 +98,7 @@ async def place_sell_order(
             orderbook=orderbook,
             currency=currency,
             order_id=sell_order_id,
+            operation_hash=place_sell_order.data.hash,
             order_type=order_type,
             initiator=user,
             rwa_token_amount=rwa_token_amount,
