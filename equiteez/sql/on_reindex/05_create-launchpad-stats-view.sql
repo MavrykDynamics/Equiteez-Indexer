@@ -40,7 +40,7 @@ SELECT
                 AND t.address IS NOT NULL
             GROUP BY t.address
          ) per_token),
-        '{}'::jsonb
+        '{{}}'::jsonb
     ) AS total_raised_by_token
 FROM launchpad_launch l;
 
