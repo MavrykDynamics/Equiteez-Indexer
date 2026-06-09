@@ -526,6 +526,9 @@ hooks:
   refresh_rwa_volume:
     callback: refresh_rwa_volume
     atomic: False
+  refresh_rwa_hold_time:
+    callback: refresh_rwa_hold_time
+    atomic: False
 
 jobs:
   refresh_tokens:
@@ -540,3 +543,6 @@ jobs:
   refresh_rwa_volume:
     hook: refresh_rwa_volume
     interval: 300
+  refresh_rwa_hold_time:
+    hook: refresh_rwa_hold_time
+    interval: 3600
