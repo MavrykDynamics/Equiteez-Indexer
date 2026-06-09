@@ -523,6 +523,9 @@ hooks:
   refresh_launchpad_stats:
     callback: refresh_launchpad_stats
     atomic: False
+  refresh_rwa_volume:
+    callback: refresh_rwa_volume
+    atomic: False
 
 jobs:
   refresh_tokens:
@@ -534,3 +537,6 @@ jobs:
   refresh_launchpad_stats:
     hook: refresh_launchpad_stats
     interval: 60
+  refresh_rwa_volume:
+    hook: refresh_rwa_volume
+    interval: 300
