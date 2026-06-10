@@ -10,7 +10,7 @@ from equiteez.models.launchpad import (
     TokenDistributionType,
     TokenIssuanceType,
 )
-from equiteez.utils.utils import register_token
+from equiteez.utils.utils import NATIVE_MAV_ADDRESS, register_token
 
 
 _LAUNCH_STATUS_MAP = {
@@ -54,6 +54,8 @@ def payment_token_address(currency) -> Optional[str]:
         return currency.fa12
     if hasattr(currency, "fa2") and currency.fa2 is not None:
         return currency.fa2.tokenContractAddress
+    if hasattr(currency, "mav") and currency.mav is not None:
+        return NATIVE_MAV_ADDRESS
     return None
 
 
