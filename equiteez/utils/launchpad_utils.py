@@ -10,7 +10,7 @@ from equiteez.models.launchpad import (
     TokenDistributionType,
     TokenIssuanceType,
 )
-from equiteez.utils.utils import register_token
+from equiteez.utils.utils import NATIVE_MAV_ADDRESS, register_token
 
 
 _LAUNCH_STATUS_MAP = {
@@ -53,17 +53,13 @@ def parse_ts(value: Optional[str]) -> Optional[datetime]:
     return parser.parse(value)
 
 
-# Pseudo-address used for the native coin so Mav payments resolve to a Token
-# row; get_token_standard() recognises it and assigns TokenType.MAV.
-NATIVE_MAV_ADDRESS = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
-
-
 def payment_token_address(currency) -> Optional[str]:
     if hasattr(currency, "fa12") and currency.fa12:
         return currency.fa12
     if hasattr(currency, "fa2") and currency.fa2 is not None:
         return currency.fa2.tokenContractAddress
-    # tokenType has a third variant: native Mav (an empty record on-chain)
+    # tokenType has a third variant: native Mav (an empty record on-chain);
+    # resolves to the NATIVE_MAV_ADDRESS pseudo-token so payments keep a Token link
     if hasattr(currency, "mav") and currency.mav is not None:
         return NATIVE_MAV_ADDRESS
     return None

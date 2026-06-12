@@ -3,12 +3,15 @@ from equiteez import models as models
 from dateutil import parser
 
 
+NATIVE_MAV_ADDRESS = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
+
+
 # Get token contract standard
 async def get_token_standard(ctx, address):
     standard = None
 
     # MVRK case
-    if address == "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d":
+    if address == NATIVE_MAV_ADDRESS:
         standard = TokenType.MAV
     elif address[0:3] == "KT1" and len(address) == 36:
         contract_summary = None
