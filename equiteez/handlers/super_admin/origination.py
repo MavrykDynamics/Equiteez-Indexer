@@ -23,8 +23,8 @@ async def origination(
     signatory_ledger = super_admin_origination.storage.signatoryLedger
     signatory_size = super_admin_origination.storage.signatorySize
     action_counter = super_admin_origination.storage.actionCounter
-    general_admin_ledger = super_admin_origination.storage.generalAdminLedger
-    contract_admin_ledger = super_admin_origination.storage.contractAdminLedger
+    user_role_ledger = super_admin_origination.storage.userRoleLedger
+    baker = super_admin_origination.storage.baker
     threshold = super_admin_origination.storage.config.threshold
     action_expiry_in_seconds = (
         super_admin_origination.storage.config.actionExpiryInSeconds
@@ -39,6 +39,7 @@ async def origination(
         action_counter=action_counter,
         threshold=threshold,
         action_expiry_in_seconds=action_expiry_in_seconds,
+        baker=baker,
         in_allowlist=allowlist_contains(allowlist, SUPER_ADMINS, address),
     )
 
@@ -55,27 +56,20 @@ async def origination(
         signatory = models.SuperAdminSignatory(super_admin=super_admin, user=user)
         await signatory.save()
 
-    # Save the general admins
-    for general_admin_address in general_admin_ledger:
-        user, _ = await models.EquiteezUser.get_or_create(address=general_admin_address)
-        await user.save()
-        general_admin, _ = await models.SuperAdminGeneralAdmin.get_or_create(
-            super_admin=super_admin, user=user
-        )
-        await general_admin.save()
-
-    # Save the contract admins
-    for contract_admin_record in contract_admin_ledger:
+    # Save the user roles
+    for user_role_record in user_role_ledger:
         # Fetch params
-        contract_admin_address = contract_admin_record.key.address_0
-        contract_address = contract_admin_record.key.address_1
+        role_user_address = user_role_record.key.address_0
+        role = user_role_record.key.string
+        contract_address = user_role_record.key.address_1
 
-        # Save contract admin
-        user, _ = await models.EquiteezUser.get_or_create(
-            address=contract_admin_address
-        )
+        # Save user role
+        user, _ = await models.EquiteezUser.get_or_create(address=role_user_address)
         await user.save()
-        contract_admin, _ = await models.SuperAdminContractAdmin.get_or_create(
-            super_admin=super_admin, user=user, contract_address=contract_address
+        user_role, _ = await models.SuperAdminUserRole.get_or_create(
+            super_admin=super_admin,
+            user=user,
+            role=role,
+            contract_address=contract_address,
         )
-        await contract_admin.save()
+        await user_role.save()

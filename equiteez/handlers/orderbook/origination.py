@@ -24,7 +24,8 @@ async def origination(
     super_admin = orderbook_origination.storage.superAdmin
     new_super_admin = orderbook_origination.storage.newSuperAdmin
     rwa_token_address = orderbook_origination.storage.rwaTokenAddress
-    kyc_address = orderbook_origination.storage.kycAddress
+    kyc_address = orderbook_origination.storage.membershipKycAddress
+    tick_size = orderbook_origination.storage.config.tickSize
     min_expiry_time = orderbook_origination.storage.config.minExpiryTime
     min_time_before_closing_order = (
         orderbook_origination.storage.config.minTimeBeforeClosingOrder
@@ -58,6 +59,7 @@ async def origination(
     orderbook.super_admin = super_admin
     orderbook.new_super_admin = new_super_admin
     orderbook.kyc = kyc
+    orderbook.tick_size = tick_size
     orderbook.min_expiry_time = min_expiry_time
     orderbook.min_time_before_closing_order = min_time_before_closing_order
     orderbook.min_buy_order_amount = min_buy_order_amount
@@ -68,8 +70,14 @@ async def origination(
     orderbook.sell_order_fee = sell_order_fee
     orderbook.highest_buy_price_order_id = highest_buy_price_order_id
     orderbook.highest_buy_price = highest_buy_price
+    orderbook.highest_buy_price_market_order_exists = (
+        orderbook_origination.storage.highestBuyPrice.marketOrderExists
+    )
     orderbook.lowest_sell_price_order_id = lowest_sell_price_order_id
     orderbook.lowest_sell_price = lowest_sell_price
+    orderbook.lowest_sell_price_market_order_exists = (
+        orderbook_origination.storage.lowestSellPrice.marketOrderExists
+    )
     orderbook.last_matched_price = last_matched_price
     orderbook.last_matched_price_timestamp = last_matched_price_timestamp
     orderbook.buy_order_counter = buy_order_counter
@@ -96,12 +104,11 @@ async def origination(
             orderbook=orderbook, currency_name=currency_name
         )
         await currency.save()
-        orderbook_fee = models.OrderbookFee(
-            orderbook=orderbook,
-            currency=currency,
-            fee_amount=fee_amount,
-            paid_fee=paid_fee,
+        orderbook_fee, _ = await models.OrderbookFee.get_or_create(
+            orderbook=orderbook, currency=currency
         )
+        orderbook_fee.fee_amount = fee_amount
+        orderbook_fee.paid_fee = paid_fee
         await orderbook_fee.save()
 
     # Prepare the currency ledger

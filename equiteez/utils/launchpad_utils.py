@@ -20,27 +20,31 @@ _LAUNCH_STATUS_MAP = {
     "CLOSED": LaunchStatus.CLOSED,
 }
 
+# The contract stores these uppercase: _verifyValidTokenIssuanceType accepts
+# only "MINT" / "TRANSFER" and _verifyValidTokenDistributionType only
+# "AUTO" / "MANUAL" (launchpadHelpers.ligo). Lookups are case-insensitive
+# for safety.
 _ISSUANCE_MAP = {
-    "mint": TokenIssuanceType.MINT,
-    "transfer": TokenIssuanceType.TRANSFER,
+    "MINT": TokenIssuanceType.MINT,
+    "TRANSFER": TokenIssuanceType.TRANSFER,
 }
 
 _DISTRIBUTION_MAP = {
-    "auto": TokenDistributionType.AUTO,
-    "manual": TokenDistributionType.MANUAL,
+    "AUTO": TokenDistributionType.AUTO,
+    "MANUAL": TokenDistributionType.MANUAL,
 }
 
 
 def parse_launch_status(value: str) -> LaunchStatus:
-    return _LAUNCH_STATUS_MAP.get(value, LaunchStatus.ACTIVE)
+    return _LAUNCH_STATUS_MAP.get(value.upper(), LaunchStatus.ACTIVE)
 
 
 def parse_issuance_type(value: str) -> TokenIssuanceType:
-    return _ISSUANCE_MAP.get(value, TokenIssuanceType.TRANSFER)
+    return _ISSUANCE_MAP.get(value.upper(), TokenIssuanceType.TRANSFER)
 
 
 def parse_distribution_type(value: str) -> TokenDistributionType:
-    return _DISTRIBUTION_MAP.get(value, TokenDistributionType.AUTO)
+    return _DISTRIBUTION_MAP.get(value.upper(), TokenDistributionType.AUTO)
 
 
 def parse_ts(value: Optional[str]) -> Optional[datetime]:
@@ -49,11 +53,19 @@ def parse_ts(value: Optional[str]) -> Optional[datetime]:
     return parser.parse(value)
 
 
+# Pseudo-address used for the native coin so Mav payments resolve to a Token
+# row; get_token_standard() recognises it and assigns TokenType.MAV.
+NATIVE_MAV_ADDRESS = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
+
+
 def payment_token_address(currency) -> Optional[str]:
     if hasattr(currency, "fa12") and currency.fa12:
         return currency.fa12
     if hasattr(currency, "fa2") and currency.fa2 is not None:
         return currency.fa2.tokenContractAddress
+    # tokenType has a third variant: native Mav (an empty record on-chain)
+    if hasattr(currency, "mav") and currency.mav is not None:
+        return NATIVE_MAV_ADDRESS
     return None
 
 

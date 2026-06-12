@@ -36,11 +36,15 @@ advanced:
     schema_modified: ignore
 
 datasources:
-  metadata_atlasnet:
+  # NOTE: env var names changed during the basenet migration —
+  # update deployment env: METADATA_BASENET_URL, MVKT_BASENET_URL
+  # network slug stays 'oxfordnet' — the basenet metadata service
+  # (https://metadata.basenet.mavryk.network) labels its data with the legacy slug
+  metadata_basenet:
     kind: tzip_metadata
-    url: ${METADATA_ATLASNET_URL:-changeme}
+    url: ${METADATA_BASENET_URL:-changeme}
     network: oxfordnet
-  mvkt_atlasnet:
+  mvkt_basenet:
     kind: tezos.tzkt
-    url: ${MVKT_ATLASNET_URL:-changeme}
+    url: ${MVKT_BASENET_URL:-changeme}
     merge_subscriptions: true

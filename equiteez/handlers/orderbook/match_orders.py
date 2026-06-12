@@ -24,8 +24,14 @@ async def match_orders(
     orderbook = await models.Orderbook.get(address=address)
     orderbook.highest_buy_price = highest_buy_price.price
     orderbook.highest_buy_price_order_id = highest_buy_price.orderId
+    orderbook.highest_buy_price_market_order_exists = (
+        highest_buy_price.marketOrderExists
+    )
     orderbook.lowest_sell_price = lowest_sell_price.price
     orderbook.lowest_sell_price_order_id = lowest_sell_price.orderId
+    orderbook.lowest_sell_price_market_order_exists = (
+        lowest_sell_price.marketOrderExists
+    )
     orderbook.last_matched_price = last_matched_price.price
     orderbook.last_matched_price_timestamp = (
         parser.parse(last_matched_price.lastMatchedTimestamp)
@@ -43,12 +49,11 @@ async def match_orders(
             orderbook=orderbook, currency_name=currency_name
         )
         await currency.save()
-        orderbook_fee = models.OrderbookFee(
-            orderbook=orderbook,
-            currency=currency,
-            fee_amount=fee_amount,
-            paid_fee=paid_fee,
+        orderbook_fee, _ = await models.OrderbookFee.get_or_create(
+            orderbook=orderbook, currency=currency
         )
+        orderbook_fee.fee_amount = fee_amount
+        orderbook_fee.paid_fee = paid_fee
         await orderbook_fee.save()
 
     # Update order

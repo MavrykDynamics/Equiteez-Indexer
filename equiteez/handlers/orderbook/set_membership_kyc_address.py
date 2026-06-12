@@ -1,19 +1,21 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 from equiteez import models as models
-from equiteez.types.orderbook.tezos_parameters.set_kyc_address import (
-    SetKycAddressParameter,
+from equiteez.types.orderbook.tezos_parameters.set_membership_kyc_address import (
+    SetMembershipKycAddressParameter,
 )
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
 
 
-async def set_kyc_address(
+async def set_membership_kyc_address(
     ctx: HandlerContext,
-    set_kyc_address: TezosTransaction[SetKycAddressParameter, OrderbookStorage],
+    set_membership_kyc_address: TezosTransaction[
+        SetMembershipKycAddressParameter, OrderbookStorage
+    ],
 ) -> None:
     # Fetch operations info
-    address = set_kyc_address.data.target_address
-    kyc_address = set_kyc_address.storage.kycAddress
+    address = set_membership_kyc_address.data.target_address
+    kyc_address = set_membership_kyc_address.storage.membershipKycAddress
 
     # Get orderbook
     orderbook = await models.Orderbook.get(address=address)

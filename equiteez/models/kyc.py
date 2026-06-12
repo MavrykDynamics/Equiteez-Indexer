@@ -35,6 +35,12 @@ class Kyc(ContractBase):
     # Contract metadata
     metadata = fields.JSONField(null=True)
 
+    # Whether KYC verification is enabled on the contract
+    enable_kyc = fields.BooleanField(default=True)
+
+    # Whether the membership program is enabled on the contract
+    enable_membership = fields.BooleanField(default=True)
+
     class Meta:
         table = "kyc"
 
@@ -169,8 +175,8 @@ class KycRegistrar(Model):
     # Registrar creation timestamp
     created_at = fields.DatetimeField(null=True)
 
-    # Whether set_member entrypoint is paused
-    set_member_is_paused = fields.BooleanField(default=False)
+    # Whether set_member_kyc entrypoint is paused
+    set_member_kyc_is_paused = fields.BooleanField(default=False)
 
     # Whether freeze_member entrypoint is paused
     freeze_member_is_paused = fields.BooleanField(default=False)
@@ -258,6 +264,9 @@ class KycMember(Model):
     # Type of investor (enterprise, accredited, institution)
     investor_type = fields.TextField(index=True, null=True)
 
+    # Membership tier assigned to the member (e.g., "none", "tierA")
+    membership_tier = fields.TextField(index=True, null=True)
+
     # KYC verification expiry date
     expire_at = fields.DatetimeField(null=True)
 
@@ -272,4 +281,36 @@ class KycMember(Model):
             ("user_id",),
             ("kyc_id", "user_id"),
             ("expire_at", "frozen"),
+        ]
+
+
+class KycMembershipTierDiscount(Model):
+    """
+    Stores per-tier discounts of the membership program.
+    Mirrors the on-chain `membershipTierLedger : big_map(pair(string, string), nat)`
+    keyed by (membership tier name, discount name). Each row stores the discount
+    value granted to members of a given tier for a named discount.
+    """
+
+    # Primary key identifier
+    id = fields.IntField(primary_key=True)
+
+    # Reference to KYC contract
+    kyc = fields.ForeignKeyField("models.Kyc", related_name="membership_tier_discounts")
+
+    # Membership tier name (e.g., "tierA")
+    membership_tier = fields.TextField(index=True)
+
+    # Discount name (e.g., "exitFee")
+    discount_name = fields.TextField(index=True)
+
+    # Discount value
+    discount_value = fields.BigIntField(default=0)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
+    class Meta:
+        table = "kyc_membership_tier_discount"
+        indexes = [
+            ("kyc_id", "membership_tier", "discount_name"),
         ]

@@ -15,6 +15,7 @@ class PlaceSellOrderParameterItem(BaseModel):
     pricePerRwaToken: str
     currency: str
     orderExpiry: str | None = None
+    isMarketOrder: bool
 
 
 class PlaceSellOrderParameter(RootModel[List[PlaceSellOrderParameterItem]]):

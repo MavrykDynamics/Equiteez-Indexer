@@ -11,5 +11,5 @@ class SetTokenKycAddressParameter(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    kycAddress: str
+    membershipKycAddress: str
     contractAddressList: List[str]

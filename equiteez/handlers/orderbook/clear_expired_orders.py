@@ -25,8 +25,14 @@ async def clear_expired_orders(
     orderbook = await models.Orderbook.get(address=address)
     orderbook.highest_buy_price = highest_buy_price.price
     orderbook.highest_buy_price_order_id = highest_buy_price.orderId
+    orderbook.highest_buy_price_market_order_exists = (
+        highest_buy_price.marketOrderExists
+    )
     orderbook.lowest_sell_price = lowest_sell_price.price
     orderbook.lowest_sell_price_order_id = lowest_sell_price.orderId
+    orderbook.lowest_sell_price_market_order_exists = (
+        lowest_sell_price.marketOrderExists
+    )
     await orderbook.save()
 
     # Update records

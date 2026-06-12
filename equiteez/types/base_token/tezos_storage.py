@@ -87,11 +87,12 @@ class BaseTokenStorage(BaseModel):
     )
     superAdmin: str
     newSuperAdmin: str | None = None
-    kycAddress: str
+    membershipKycAddress: str
     isPaused: bool
     metadata: Dict[str, str]
     token_metadata: Dict[str, TokenMetadata]
     total_supply: Dict[str, str]
+    token_ids: List[str]
     userChunkLedger: Dict[str, UserChunkLedger]
     snapshotLedger: List[SnapshotLedgerItem]
     ledger: List[LedgerItem]

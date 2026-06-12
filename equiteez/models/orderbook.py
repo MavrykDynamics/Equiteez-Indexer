@@ -42,6 +42,9 @@ class Orderbook(ContractBase):
     # Contract metadata
     metadata = fields.JSONField(null=True)
 
+    # Minimum price increment for orders (tick size)
+    tick_size = fields.BigIntField(default=0)
+
     # Minimum order expiry time (seconds)
     min_expiry_time = fields.BigIntField(default=0)
 
@@ -72,11 +75,17 @@ class Orderbook(ContractBase):
     # Highest buy price
     highest_buy_price = fields.BigIntField(default=0)
 
+    # Whether a market buy order rests at the protected price
+    highest_buy_price_market_order_exists = fields.BooleanField(default=False)
+
     # ID of lowest sell price order
     lowest_sell_price_order_id = fields.BigIntField(default=0)
 
     # Lowest sell price
     lowest_sell_price = fields.BigIntField(default=0)
+
+    # Whether a market sell order rests at the protected price
+    lowest_sell_price_market_order_exists = fields.BooleanField(default=False)
 
     # Last matched order price
     last_matched_price = fields.BigIntField(default=0)
@@ -397,6 +406,9 @@ class OrderbookOrder(Model):
 
     # Amount refunded
     refunded_amount = fields.BigIntField(default=0)
+
+    # Whether order was placed as a market order
+    is_market_order = fields.BooleanField(default=False)
 
     # Order expiry timestamp
     order_expiry = fields.DatetimeField(null=True, index=True)

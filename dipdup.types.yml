@@ -2,7 +2,7 @@ indexes:
   token_index:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     contracts:
     - token_watcher
     types:
@@ -21,7 +21,7 @@ indexes:
   quote_token_index:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     contracts:
     - quote_token
     types:
@@ -35,7 +35,7 @@ indexes:
   orderbook_index:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     contracts:
     - orderbook_watcher
     types:
@@ -58,10 +58,10 @@ indexes:
       pattern:
       - destination: orderbook_watcher
         entrypoint: setSuperAdmin
-    - callback: orderbook.set_kyc_address
+    - callback: orderbook.set_membership_kyc_address
       pattern:
       - destination: orderbook_watcher
-        entrypoint: setKycAddress
+        entrypoint: setMembershipKycAddress
     - callback: orderbook.claim_super_admin
       pattern:
       - destination: orderbook_watcher
@@ -74,10 +74,10 @@ indexes:
       pattern:
       - destination: orderbook_watcher
         entrypoint: updateConfig
-    - callback: orderbook.toggle_pause_entrypoint
+    - callback: orderbook.pause
       pattern:
       - destination: orderbook_watcher
-        entrypoint: togglePauseEntrypoint
+        entrypoint: pause
     - callback: orderbook.transfer_fees
       pattern:
       - destination: orderbook_watcher
@@ -110,7 +110,7 @@ indexes:
   super_admin_index:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     contracts:
     - super_admin_watcher
     types:
@@ -137,34 +137,30 @@ indexes:
       pattern:
       - destination: super_admin_watcher
         entrypoint: updateMetadata
-    - callback: super_admin.set_general_admin
+    - callback: super_admin.set_user_roles
       pattern:
       - destination: super_admin_watcher
-        entrypoint: setGeneralAdmin
-    - callback: super_admin.remove_general_admin
+        entrypoint: setUserRoles
+    - callback: super_admin.set_proxy_lambda
       pattern:
       - destination: super_admin_watcher
-        entrypoint: removeGeneralAdmin
-    - callback: super_admin.set_contract_admin
+        entrypoint: setProxyLambda
+    - callback: super_admin.set_baker
       pattern:
       - destination: super_admin_watcher
-        entrypoint: setContractAdmin
-    - callback: super_admin.remove_contract_admin
+        entrypoint: setBaker
+    - callback: super_admin.pause
       pattern:
       - destination: super_admin_watcher
-        entrypoint: removeContractAdmin
+        entrypoint: pause
     - callback: super_admin.update_config
       pattern:
       - destination: super_admin_watcher
         entrypoint: updateConfig
-    - callback: super_admin.add_signatory
+    - callback: super_admin.set_signatory
       pattern:
       - destination: super_admin_watcher
-        entrypoint: addSignatory
-    - callback: super_admin.remove_signatory
-      pattern:
-      - destination: super_admin_watcher
-        entrypoint: removeSignatory
+        entrypoint: setSignatory
     - callback: super_admin.set_token_kyc_address
       pattern:
       - destination: super_admin_watcher
@@ -181,11 +177,15 @@ indexes:
       pattern:
       - destination: super_admin_watcher
         entrypoint: signAction
+    - callback: super_admin.transfer
+      pattern:
+      - destination: super_admin_watcher
+        entrypoint: transfer
 
   kyc_index:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     contracts:
     - kyc_watcher
     types:
@@ -212,10 +212,10 @@ indexes:
       pattern:
       - destination: kyc_watcher
         entrypoint: setLambda
-    - callback: kyc.toggle_pause_entrypoint
+    - callback: kyc.pause
       pattern:
       - destination: kyc_watcher
-        entrypoint: togglePauseEntrypoint
+        entrypoint: pause
     - callback: kyc.set_country_transfer_rule
       pattern:
       - destination: kyc_watcher
@@ -256,11 +256,27 @@ indexes:
       pattern:
       - destination: kyc_watcher
         entrypoint: unfreezeMember
+    - callback: kyc.set_enable_kyc
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setEnableKyc
+    - callback: kyc.set_enable_membership
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setEnableMembership
+    - callback: kyc.set_member_kyc
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setMemberKyc
+    - callback: kyc.set_membership_tier_discount
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setMembershipTierDiscount
 
   launchpad_index:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     contracts:
     - launchpad_watcher
     types:
@@ -307,10 +323,14 @@ indexes:
       pattern:
       - destination: launchpad_watcher
         entrypoint: updateTokenLaunch
-    - callback: launchpad.set_sale_option
+    - callback: launchpad.create_new_sale_option
       pattern:
       - destination: launchpad_watcher
-        entrypoint: setSaleOption
+        entrypoint: createNewSaleOption
+    - callback: launchpad.update_sale_option
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateSaleOption
     - callback: launchpad.set_launch_status
       pattern:
       - destination: launchpad_watcher
@@ -331,7 +351,7 @@ indexes:
   # dodo_mav: (enable contract in dipdup.contracts.yml when uncommenting)
   #   kind: tezos.operations
   #   datasources:
-  #   - mvkt_atlasnet
+  #   - mvkt_basenet
   #   contracts:
   #   - dodo_mav
   #   types:
@@ -435,7 +455,7 @@ indexes:
   # marketplace:
   #   kind: tezos.operations
   #   datasources:
-  #   - mvkt_atlasnet
+  #   - mvkt_basenet
   #   contracts:
   #   - marketplace
   #   types:
