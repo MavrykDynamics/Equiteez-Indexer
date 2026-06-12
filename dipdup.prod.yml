@@ -36,10 +36,6 @@ advanced:
     schema_modified: ignore
 
 datasources:
-  # NOTE: env var names changed during the basenet migration —
-  # update deployment env: METADATA_BASENET_URL, MVKT_BASENET_URL
-  # network slug stays 'oxfordnet' — the basenet metadata service
-  # (https://metadata.basenet.mavryk.network) labels its data with the legacy slug
   metadata_basenet:
     kind: tzip_metadata
     url: ${METADATA_BASENET_URL:-changeme}
