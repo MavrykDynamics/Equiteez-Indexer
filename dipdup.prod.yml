@@ -36,11 +36,11 @@ advanced:
     schema_modified: ignore
 
 datasources:
-  metadata_atlasnet:
+  metadata_basenet:
     kind: tzip_metadata
-    url: ${METADATA_ATLASNET_URL:-changeme}
+    url: ${METADATA_BASENET_URL:-changeme}
     network: oxfordnet
-  mvkt_atlasnet:
+  mvkt_basenet:
     kind: tezos.tzkt
-    url: ${MVKT_ATLASNET_URL:-changeme}
+    url: ${MVKT_BASENET_URL:-changeme}
     merge_subscriptions: true

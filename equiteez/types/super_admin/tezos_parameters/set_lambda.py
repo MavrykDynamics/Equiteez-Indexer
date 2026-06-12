@@ -11,3 +11,4 @@ class SetLambdaParameter(BaseModel):
     )
     name: str
     func_bytes: str
+    address: str

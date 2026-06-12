@@ -1,21 +1,17 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 from equiteez import models as models
-from equiteez.types.orderbook.tezos_parameters.toggle_pause_entrypoint import (
-    TogglePauseEntrypointParameter,
-)
+from equiteez.types.orderbook.tezos_parameters.pause import PauseParameter
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
 
 
-async def toggle_pause_entrypoint(
+async def pause(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TezosTransaction[
-        TogglePauseEntrypointParameter, OrderbookStorage
-    ],
+    pause: TezosTransaction[PauseParameter, OrderbookStorage],
 ) -> None:
     # Fetch operations info
-    address = toggle_pause_entrypoint.data.target_address
-    pause_ledger = toggle_pause_entrypoint.storage.pauseLedger
+    address = pause.data.target_address
+    pause_ledger = pause.storage.pauseLedger
 
     # Get orderbook
     orderbook = await models.Orderbook.get(address=address)

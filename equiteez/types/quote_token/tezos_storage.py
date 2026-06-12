@@ -38,9 +38,7 @@ class QuoteTokenStorage(BaseModel):
     )
     admin: str
     metadata: Dict[str, str]
-    governanceAddress: str
-    whitelistContracts: Dict[str, Dict[str, Any]]
     token_metadata: Dict[str, TokenMetadata]
-    totalSupply: str
+    total_supply: str
     ledger: Dict[str, str]
     operators: List[Operator]

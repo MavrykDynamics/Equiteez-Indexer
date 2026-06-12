@@ -11,14 +11,14 @@ async def unfreeze_member(
 ) -> None:
     # Fetch operation info
     address = unfreeze_member.data.target_address
-    member_ledger = unfreeze_member.storage.memberLedger
+    member_kyc_ledger = unfreeze_member.storage.memberKycLedger
 
     # Get kyc
     kyc = await models.Kyc.get(address=address)
 
     # Update record
-    for member_address in member_ledger:
-        member_record = member_ledger[member_address]
+    for member_address in member_kyc_ledger:
+        member_record = member_kyc_ledger[member_address]
         frozen = member_record.frozen
         user, _ = await models.EquiteezUser.get_or_create(address=member_address)
         await user.save()

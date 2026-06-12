@@ -16,7 +16,7 @@ async def get_token_standard(ctx, address):
     elif address[0:3] == "KT1" and len(address) == 36:
         contract_summary = None
         try:
-            datasource = ctx.get_tezos_tzkt_datasource(name="mvkt_atlasnet")
+            datasource = ctx.get_tezos_tzkt_datasource(name="mvkt_basenet")
             contract_summary = await datasource.get_contract_summary(address=address)
         except BaseException:
             ...
@@ -34,7 +34,7 @@ async def get_token_standard(ctx, address):
 
 # Get contract metadata
 async def get_contract_metadata(ctx, address):
-    metadata_datasource_name = "metadata_atlasnet"
+    metadata_datasource_name = "metadata_basenet"
     metadata_datasource = None
     contract_metadata = None
 
@@ -54,7 +54,7 @@ async def get_contract_metadata(ctx, address):
 
 # Get contract token metadata
 async def get_contract_token_metadata(ctx, address, token_id="0"):
-    metadata_datasource_name = "metadata_atlasnet"
+    metadata_datasource_name = "metadata_basenet"
     token_metadata = None
 
     try:
@@ -133,8 +133,14 @@ async def create_super_admin_action(handler):
         initiator_address = action_record.initiator
         action_type = action_record.actionType
         executed = action_record.executed
-        status = models.ActionStatus.PENDING
+        if action_record.status == "EXECUTED":
+            status = models.ActionStatus.EXECUTED
+        elif action_record.status == "FLUSHED":
+            status = models.ActionStatus.FLUSHED
+        else:
+            status = models.ActionStatus.PENDING
         signers_count = action_record.signersCount
+        signers = action_record.signers
         data_map = action_record.dataMap
         start_datetime = parser.parse(action_record.startDateTime)
         start_level = action_record.startLevel
@@ -169,6 +175,21 @@ async def create_super_admin_action(handler):
             action_id=action_id,
             defaults=defaults,
         )
+
+        # Create signature records from the action signers
+        for signer_address in signers:
+            signer_user, _ = await models.EquiteezUser.get_or_create(
+                address=signer_address
+            )
+            await signer_user.save()
+            signatory, _ = await models.SuperAdminSignatory.get_or_create(
+                super_admin=super_admin, user=signer_user
+            )
+            await models.SuperAdminSignature.get_or_create(
+                super_admin=super_admin,
+                signatory=signatory,
+                action=action,
+            )
 
         # Create data records
         for data_name in data_map:

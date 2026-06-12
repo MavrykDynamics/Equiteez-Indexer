@@ -1,32 +1,33 @@
 contracts:
+  # basenet deployment (2026-06-11)
   super_admin_watcher:
     kind: tezos
-    code_hash: KT1JkmXcgKQ3oNpLhjDD4WgvgMfyccUZwsws
+    code_hash: KT1BH2pSeeohYBkXuAg1dmC22RTPTdzHTCc1
     typename: super_admin
 
   kyc_watcher:
     kind: tezos
-    code_hash: KT1TYqkzAYKDrCmPo7Be1vZtC7kdUoNfKyZa
+    code_hash: KT1KifBfH5ubLXFq2rVvBaHrj2W7P83vQYib
     typename: kyc
 
   token_watcher:
     kind: tezos
-    code_hash: KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj
+    code_hash: KT1XLUiaPpivxi2e4U1wEctQ7DKDkdz9GQgK
     typename: base_token
 
   orderbook_watcher:
     kind: tezos
-    code_hash: KT1V9tp3WkRHBRk6q1NH57V3N8nrjU3Hf4U6
+    code_hash: KT1NpcbbZL7gKqwgff6DguHLGWtREsX9oD6y
     typename: orderbook
 
   launchpad_watcher:
     kind: tezos
-    code_hash: KT1XtPTo49asVZGxMMqqehhuqHtnXLzjT2qu
+    code_hash: KT1TWy1xxjWaAhtQg1S2bF7V7AQRfe2eAwhE
     typename: launchpad
 
   quote_token:
     kind: tezos
-    address: KT1D7ZQBhwxkMgZThqctYtMXigFvJRZL4eSy
+    address: KT19bKTs9qsoBrspRNwsHn46YarEWuj3Vjc6
     typename: quote_token
 
   # dodo_mav:

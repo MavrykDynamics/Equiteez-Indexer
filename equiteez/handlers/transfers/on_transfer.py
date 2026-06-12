@@ -8,7 +8,7 @@ from equiteez import models as models
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
 from equiteez.types.base_token.tezos_storage import BaseTokenStorage
 from equiteez.types.quote_token.tezos_storage import QuoteTokenStorage
-from equiteez.utils.utils import register_token
+from equiteez.utils.utils import get_contract_token_metadata, register_token
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +62,11 @@ async def on_transfer(
             if not (from_address and to_address):
                 continue
 
+            # The contract skips zero-amount txs (no ledger change),
+            # so they are not token movements.
+            if amount == 0:
+                continue
+
             if not _is_user_to_user(from_address, to_address):
                 continue
 
@@ -85,8 +90,18 @@ async def on_transfer(
                     token_id=token_id,
                 )
                 token.metadata = token.metadata or base_token.metadata
-                token.token_metadata = token.token_metadata or base_token.token_metadata
+                if not token.token_metadata:
+                    if token_id == 0:
+                        token.token_metadata = base_token.token_metadata
+                    else:
+                        # The contract is multi-asset; fetch metadata for this
+                        # token_id instead of inheriting token 0's metadata.
+                        token.token_metadata = await get_contract_token_metadata(
+                            ctx=ctx, address=contract_address, token_id=str(token_id)
+                        )
                 token.token_standard = token.token_standard or base_token.token_standard
+                # Allowlist membership is per contract address; inherit it.
+                token.in_allowlist = token.in_allowlist or base_token.in_allowlist
                 await token.save()
 
             sender, _ = await models.EquiteezUser.get_or_create(address=from_address)

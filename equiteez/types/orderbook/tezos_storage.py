@@ -11,6 +11,7 @@ class Config(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
+    tickSize: str
     minExpiryTime: str
     minTimeBeforeClosingOrder: str
     minBuyOrderAmount: str
@@ -90,6 +91,7 @@ class BuyOrderLedger(BaseModel):
     refundedAmount: str
     orderExpiry: str | None = None
     orderTimestamps: OrderTimestamps
+    isMarketOrder: bool
 
 
 class SellOrderLedger(BaseModel):
@@ -108,6 +110,7 @@ class SellOrderLedger(BaseModel):
     refundedAmount: str
     orderExpiry: str | None = None
     orderTimestamps: OrderTimestamps
+    isMarketOrder: bool
 
 
 class HighestBuyPrice(BaseModel):
@@ -116,6 +119,7 @@ class HighestBuyPrice(BaseModel):
     )
     orderId: str
     price: str
+    marketOrderExists: bool
 
 
 class LowestSellPrice(BaseModel):
@@ -124,6 +128,7 @@ class LowestSellPrice(BaseModel):
     )
     orderId: str
     price: str
+    marketOrderExists: bool
 
 
 class LastMatchedPrice(BaseModel):
@@ -142,7 +147,7 @@ class OrderbookStorage(BaseModel):
     newSuperAdmin: str | None = None
     rwaTokenAddress: str
     rwaTokenDecimals: str
-    kycAddress: str
+    membershipKycAddress: str
     metadata: Dict[str, str]
     config: Config
     pauseLedger: Dict[str, bool]

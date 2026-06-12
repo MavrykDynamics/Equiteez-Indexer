@@ -46,8 +46,7 @@ ALTER TABLE kyc_member                   ADD COLUMN IF NOT EXISTS updated_at    
 ALTER TABLE super_admin                          ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE super_admin_lambda                   ADD COLUMN IF NOT EXISTS last_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE super_admin_signatory                ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW();
-ALTER TABLE super_admin_general_admin            ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW();
-ALTER TABLE super_admin_contract_admin           ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW();
+ALTER TABLE super_admin_user_role                ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE super_admin_signatory_action         ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW();
 ALTER TABLE super_admin_signatory_action_data    ADD COLUMN IF NOT EXISTS updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
@@ -76,8 +75,7 @@ CREATE INDEX IF NOT EXISTS idx_kyc_member_updated_at_id                ON kyc_me
 CREATE INDEX IF NOT EXISTS idx_super_admin_updated_at_id                       ON super_admin                       (updated_at      ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_super_admin_lambda_last_updated_at_id           ON super_admin_lambda                (last_updated_at ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_super_admin_signatory_updated_at_id             ON super_admin_signatory             (updated_at      ASC, id ASC);
-CREATE INDEX IF NOT EXISTS idx_super_admin_general_admin_updated_at_id         ON super_admin_general_admin         (updated_at      ASC, id ASC);
-CREATE INDEX IF NOT EXISTS idx_super_admin_contract_admin_updated_at_id        ON super_admin_contract_admin        (updated_at      ASC, id ASC);
+CREATE INDEX IF NOT EXISTS idx_super_admin_user_role_updated_at_id             ON super_admin_user_role             (updated_at      ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_super_admin_signatory_action_updated_at_id      ON super_admin_signatory_action      (updated_at      ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_super_admin_signatory_action_data_updated_at_id ON super_admin_signatory_action_data (updated_at      ASC, id ASC);
 

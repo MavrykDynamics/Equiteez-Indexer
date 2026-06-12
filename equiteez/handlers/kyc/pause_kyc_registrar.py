@@ -23,7 +23,11 @@ async def pause_kyc_registrar(
         kyc_registrar = kyc_registrars[registrar_address]
         user, _ = await models.EquiteezUser.get_or_create(address=registrar_address)
         await user.save()
-        set_member_paused = kyc_registrar.setMemberIsPaused
+        set_member_kyc_paused = kyc_registrar.setMemberKycIsPaused
+        freeze_member_paused = kyc_registrar.freezeMemberIsPaused
+        unfreeze_member_paused = kyc_registrar.unfreezeMemberIsPaused
         registrar, _ = await models.KycRegistrar.get_or_create(kyc=kyc, user=user)
-        registrar.set_member_paused = set_member_paused
+        registrar.set_member_kyc_is_paused = set_member_kyc_paused
+        registrar.freeze_member_is_paused = freeze_member_paused
+        registrar.unfreeze_member_is_paused = unfreeze_member_paused
         await registrar.save()

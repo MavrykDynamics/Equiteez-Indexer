@@ -42,6 +42,9 @@ class SuperAdmin(ContractBase):
     # Action expiry time in seconds
     action_expiry_in_seconds = fields.BigIntField(default=0)
 
+    # Baker delegate address
+    baker = fields.CharField(max_length=36, null=True)
+
     class Meta:
         table = "super_admin"
 
@@ -92,59 +95,35 @@ class SuperAdminSignatory(Model):
         table = "super_admin_signatory"
 
 
-class SuperAdminGeneralAdmin(Model):
+class SuperAdminUserRole(Model):
     """
-    Represents general administrators in the super admin system.
-    This table stores information about general administrators who have
-    administrative privileges Equiteez.
-    """
-
-    # Primary key identifier
-    id = fields.IntField(primary_key=True)
-
-    # Reference to super admin contract
-    super_admin = fields.ForeignKeyField(
-        "models.SuperAdmin", related_name="general_admins"
-    )
-
-    # General admin user
-    user = fields.ForeignKeyField(
-        "models.EquiteezUser", related_name="super_admin_general_admins"
-    )
-
-    updated_at = fields.DatetimeField(auto_now=True, index=True)
-
-    class Meta:
-        table = "super_admin_general_admin"
-
-
-class SuperAdminContractAdmin(Model):
-    """
-    Represents contract-specific administrators.
-    This table stores information about administrators who have
-    administrative privileges for specific contracts in the system.
+    Represents user roles in the super admin system.
+    This table mirrors the on-chain userRoleLedger, which replaced the
+    previous general admin and contract admin ledgers. Each record grants
+    a named role (e.g. GENERAL_ADMIN) to a user, scoped to a contract.
     """
 
     # Primary key identifier
     id = fields.IntField(primary_key=True)
 
     # Reference to super admin contract
-    super_admin = fields.ForeignKeyField(
-        "models.SuperAdmin", related_name="contract_admins"
-    )
+    super_admin = fields.ForeignKeyField("models.SuperAdmin", related_name="user_roles")
 
-    # Contract admin user
+    # User holding the role
     user = fields.ForeignKeyField(
-        "models.EquiteezUser", related_name="super_admin_contract_admins"
+        "models.EquiteezUser", related_name="super_admin_user_roles"
     )
 
-    # Contract address this admin manages
+    # Role name (e.g. GENERAL_ADMIN)
+    role = fields.CharField(max_length=64, index=True)
+
+    # Contract address the role is scoped to
     contract_address = fields.CharField(max_length=36, index=True)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
-        table = "super_admin_contract_admin"
+        table = "super_admin_user_role"
 
 
 class SuperAdminSignatoryAction(Model):

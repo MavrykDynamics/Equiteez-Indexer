@@ -12,7 +12,7 @@ class UpdateConfigParameterItem(BaseModel):
         extra="forbid",
     )
     configName: str
-    newValue: str
+    configNewValue: str
 
 
 class UpdateConfigParameter(RootModel[List[UpdateConfigParameterItem]]):
