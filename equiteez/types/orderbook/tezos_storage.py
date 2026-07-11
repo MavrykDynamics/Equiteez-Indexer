@@ -20,6 +20,8 @@ class Config(BaseModel):
     minSellOrderValue: str
     buyOrderFee: str
     sellOrderFee: str
+    permitDefaultExpiryDuration: str
+    permitMaxExpiryDuration: str
 
 
 class FeeLedger(BaseModel):
@@ -113,6 +115,30 @@ class SellOrderLedger(BaseModel):
     isMarketOrder: bool
 
 
+class Key(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address: str
+    bytes: str
+
+
+class PermitsLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key
+    value: str
+
+
+class PermitsExpiryLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key
+    value: str
+
+
 class HighestBuyPrice(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -156,6 +182,10 @@ class OrderbookStorage(BaseModel):
     rwaOrderLedger: Dict[str, RwaOrderLedger]
     buyOrderLedger: Dict[str, BuyOrderLedger]
     sellOrderLedger: Dict[str, SellOrderLedger]
+    permitsLedger: List[PermitsLedgerItem]
+    permitsCounterLedger: Dict[str, str]
+    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
+    userPermitsExpiryLedger: Dict[str, str]
     highestBuyPrice: HighestBuyPrice
     lowestSellPrice: LowestSellPrice
     lastMatchedPrice: LastMatchedPrice
