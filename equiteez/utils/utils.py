@@ -16,7 +16,7 @@ async def get_token_standard(ctx, address):
     elif address[0:3] == "KT1" and len(address) == 36:
         contract_summary = None
         try:
-            datasource = ctx.get_tezos_tzkt_datasource(name="mvkt_basenet")
+            datasource = ctx.get_tezos_tzkt_datasource(name="mvkt")
             contract_summary = await datasource.get_contract_summary(address=address)
         except BaseException:
             ...
@@ -34,7 +34,7 @@ async def get_token_standard(ctx, address):
 
 # Get contract metadata
 async def get_contract_metadata(ctx, address):
-    metadata_datasource_name = "metadata_basenet"
+    metadata_datasource_name = "metadata"
     metadata_datasource = None
     contract_metadata = None
 
@@ -54,7 +54,7 @@ async def get_contract_metadata(ctx, address):
 
 # Get contract token metadata
 async def get_contract_token_metadata(ctx, address, token_id="0"):
-    metadata_datasource_name = "metadata_basenet"
+    metadata_datasource_name = "metadata"
     token_metadata = None
 
     try:

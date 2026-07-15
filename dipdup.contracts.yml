@@ -17,7 +17,7 @@ contracts:
 
   orderbook_watcher:
     kind: tezos
-    code_hash: KT1Xeov87Hd7X2yanNyVB95Vax8RmaunsBdt
+    code_hash: KT1Xku8NHSXradgodirQXxHLoVn4oESFPjes
     typename: orderbook
 
   launchpad_watcher:

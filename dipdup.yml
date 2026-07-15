@@ -2,7 +2,7 @@ indexes:
   token_index:
     kind: tezos.operations
     datasources:
-    - mvkt_basenet
+    - mvkt
     contracts:
     - token_watcher
     types:
@@ -21,7 +21,7 @@ indexes:
   quote_token_index:
     kind: tezos.operations
     datasources:
-    - mvkt_basenet
+    - mvkt
     contracts:
     - quote_token
     types:
@@ -35,7 +35,7 @@ indexes:
   orderbook_index:
     kind: tezos.operations
     datasources:
-    - mvkt_basenet
+    - mvkt
     contracts:
     - orderbook_watcher
     types:
@@ -110,7 +110,7 @@ indexes:
   super_admin_index:
     kind: tezos.operations
     datasources:
-    - mvkt_basenet
+    - mvkt
     contracts:
     - super_admin_watcher
     types:
@@ -185,7 +185,7 @@ indexes:
   kyc_index:
     kind: tezos.operations
     datasources:
-    - mvkt_basenet
+    - mvkt
     contracts:
     - kyc_watcher
     types:
@@ -276,7 +276,7 @@ indexes:
   launchpad_index:
     kind: tezos.operations
     datasources:
-    - mvkt_basenet
+    - mvkt
     contracts:
     - launchpad_watcher
     types:
@@ -351,7 +351,7 @@ indexes:
   # marketplace:
   #   kind: tezos.operations
   #   datasources:
-  #   - mvkt_basenet
+  #   - mvkt
   #   contracts:
   #   - marketplace
   #   types:
@@ -437,7 +437,7 @@ indexes:
   # dodo_mav: (requires `dodo_mav` in dipdup.contracts.yml)
   #   kind: tezos.operations
   #   datasources:
-  #   - mvkt_basenet
+  #   - mvkt
   #   contracts:
   #   - dodo_mav
   #   types:
