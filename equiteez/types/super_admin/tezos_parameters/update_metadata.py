@@ -11,3 +11,4 @@ class UpdateMetadataParameter(BaseModel):
     )
     metadataKey: str
     metadataHash: str
+    address: str

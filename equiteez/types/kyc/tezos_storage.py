@@ -7,6 +7,22 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict
 
 
+class Key(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    string_0: str
+    string_1: str
+
+
+class MembershipTierLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key
+    value: str
+
+
 class KycRegistrarLedger(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -15,7 +31,7 @@ class KycRegistrarLedger(BaseModel):
     kycAdmins: List[str]
     membersVerified: str
     createdAt: str
-    setMemberIsPaused: bool
+    setMemberKycIsPaused: bool
     freezeMemberIsPaused: bool
     unfreezeMemberIsPaused: bool
 
@@ -30,7 +46,7 @@ class CountryTransferRuleLedger(BaseModel):
     receivingFrozen: bool
 
 
-class MemberLedger(BaseModel):
+class MemberKycLedger(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -50,10 +66,14 @@ class KycStorage(BaseModel):
     newSuperAdmin: str | None = None
     metadata: Dict[str, str]
     pauseLedger: Dict[str, bool]
+    membershipTierLedger: List[MembershipTierLedgerItem]
+    memberLedger: Dict[str, str]
     whitelistLedger: Dict[str, Dict[str, Any]]
     blacklistLedger: Dict[str, Dict[str, Any]]
     validInputLedger: Dict[str, List[str]]
     kycRegistrarLedger: Dict[str, KycRegistrarLedger]
     countryTransferRuleLedger: Dict[str, CountryTransferRuleLedger]
-    memberLedger: Dict[str, MemberLedger]
+    memberKycLedger: Dict[str, MemberKycLedger]
+    enableKyc: bool
+    enableMembership: bool
     lambdaLedger: Dict[str, str]

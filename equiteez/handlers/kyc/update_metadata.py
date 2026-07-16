@@ -18,3 +18,4 @@ async def update_metadata(
 
     # Update record
     kyc.metadata = await get_contract_metadata(ctx=ctx, address=address)
+    await kyc.save()

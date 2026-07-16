@@ -31,7 +31,7 @@ async def set_valid_input(
             )
             regions.valid_inputs = valid_input_list
             await regions.save()
-        if category == "investor_type":
+        if category == "investorType":
             investor_types, _ = await models.KycValidInput.get_or_create(
                 kyc=kyc, category=models.ValidInputCategory.INVESTOR_TYPE
             )

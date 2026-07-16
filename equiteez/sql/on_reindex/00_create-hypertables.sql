@@ -1,5 +1,14 @@
+-- `dipdup schema wipe` cannot drop these three tables (TimescaleDB blocks
+-- the cascade through continuous aggregates with dependent plain views)
+-- and silently leaves them behind WITH their rows. Clear them before
+-- hypertable conversion / cagg creation so stale data never gets
+-- migrated into chunks or materialized. No-op on a clean database.
+-- (Their FK constraints, also lost during the wipe, are restored in
+-- 08_restore-foreign-keys.sql.)
+TRUNCATE TABLE dodo_mav, dodo_mav_history_data, launchpad_purchase_event CASCADE;
+
 -- Create hypertable for equiteez_user_token_transfer
-DO $$ 
+DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'equiteez_user_token_transfer_pkey') THEN
         ALTER TABLE equiteez_user_token_transfer DROP CONSTRAINT equiteez_user_token_transfer_pkey;

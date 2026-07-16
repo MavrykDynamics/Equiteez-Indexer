@@ -20,3 +20,4 @@ async def update_metadata(
 
     # Update record
     orderbook.metadata = await get_contract_metadata(ctx=ctx, address=address)
+    await orderbook.save()

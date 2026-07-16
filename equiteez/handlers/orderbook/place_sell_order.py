@@ -23,6 +23,9 @@ async def place_sell_order(
     orderbook = await models.Orderbook.get(address=address)
     orderbook.lowest_sell_price = lowest_sell_price.price
     orderbook.lowest_sell_price_order_id = lowest_sell_price.orderId
+    orderbook.lowest_sell_price_market_order_exists = (
+        lowest_sell_price.marketOrderExists
+    )
     orderbook.sell_order_counter = sell_order_counter
     await orderbook.save()
 
@@ -82,6 +85,7 @@ async def place_sell_order(
         is_expired = sell_order_record.booleans.bool_2
         is_refunded = sell_order_record.isRefunded
         refunded_amount = sell_order_record.refundedAmount
+        is_market_order = sell_order_record.isMarketOrder
 
         # Get currency
         currency, _ = await models.OrderbookCurrency.get_or_create(
@@ -112,6 +116,7 @@ async def place_sell_order(
             is_expired=is_expired,
             is_refunded=is_refunded,
             refunded_amount=refunded_amount,
+            is_market_order=is_market_order,
             created_at=parser.parse(sell_order_record.orderTimestamps.timestamp_0),
         )
         if sell_order_record.orderExpiry:

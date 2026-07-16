@@ -27,10 +27,9 @@ async def transfer_fees(
             orderbook=orderbook, currency_name=currency_name
         )
         await currency.save()
-        orderbook_fee = models.OrderbookFee(
-            orderbook=orderbook,
-            currency=currency,
-            fee_amount=fee_amount,
-            paid_fee=paid_fee,
+        orderbook_fee, _ = await models.OrderbookFee.get_or_create(
+            orderbook=orderbook, currency=currency
         )
+        orderbook_fee.fee_amount = fee_amount
+        orderbook_fee.paid_fee = paid_fee
         await orderbook_fee.save()

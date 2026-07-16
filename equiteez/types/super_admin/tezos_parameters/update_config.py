@@ -2,12 +2,22 @@
 
 from __future__ import annotations
 
+from typing import List
+
 from pydantic import BaseModel, ConfigDict
+
+
+class ListItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    configName: str
+    configNewValue: str
 
 
 class UpdateConfigParameter(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    configNewValue: str
-    configAction: str
+    list: List[ListItem]
+    address: str

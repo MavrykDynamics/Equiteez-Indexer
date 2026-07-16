@@ -7,20 +7,12 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict
 
 
-class Key(BaseModel):
+class Config(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    address: str
-    nat: str
-
-
-class SignatureLedgerItem(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    key: Key
-    value: Dict[str, Any]
+    threshold: str
+    actionExpiryInSeconds: str
 
 
 class SignatoryActionLedger(BaseModel):
@@ -32,6 +24,7 @@ class SignatoryActionLedger(BaseModel):
     executed: bool
     status: str
     signersCount: str
+    signers: List[str]
     dataMap: Dict[str, str]
     startDateTime: str
     startLevel: str
@@ -40,41 +33,33 @@ class SignatoryActionLedger(BaseModel):
     expirationDateTime: str
 
 
-class Key1(BaseModel):
+class Key(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     address_0: str
+    string: str
     address_1: str
 
 
-class ContractAdminLedgerItem(BaseModel):
+class UserRoleLedgerItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    key: Key1
+    key: Key
     value: Dict[str, Any]
-
-
-class Config(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    threshold: str
-    actionExpiryInSeconds: str
 
 
 class SuperAdminStorage(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
+    metadata: Dict[str, str]
+    baker: str | None = None
+    config: Config
     signatoryLedger: Dict[str, Dict[str, Any]]
     signatorySize: str
-    signatureLedger: List[SignatureLedgerItem]
     signatoryActionLedger: Dict[str, SignatoryActionLedger]
     actionCounter: str
-    generalAdminLedger: Dict[str, Dict[str, Any]]
-    contractAdminLedger: List[ContractAdminLedgerItem]
-    metadata: Dict[str, str]
-    config: Config
+    userRoleLedger: List[UserRoleLedgerItem]
     lambdaLedger: Dict[str, str]

@@ -23,18 +23,24 @@ async def origination(
 
     super_admin = kyc_origination.storage.superAdmin
     new_super_admin = kyc_origination.storage.newSuperAdmin
+    enable_kyc = kyc_origination.storage.enableKyc
+    enable_membership = kyc_origination.storage.enableMembership
     whitelist_ledger = kyc_origination.storage.whitelistLedger
     blacklist_ledger = kyc_origination.storage.blacklistLedger
     valid_inputs = kyc_origination.storage.validInputLedger
     kyc_registrars = kyc_origination.storage.kycRegistrarLedger
     country_transfer_rule_ledger = kyc_origination.storage.countryTransferRuleLedger
+    membership_tier_ledger = kyc_origination.storage.membershipTierLedger
     member_ledger = kyc_origination.storage.memberLedger
+    member_kyc_ledger = kyc_origination.storage.memberKycLedger
     pause_ledger = kyc_origination.storage.pauseLedger
 
     # Prepare the kyc
     kyc, _ = await models.Kyc.get_or_create(address=address)
     kyc.super_admin = super_admin
     kyc.new_super_admin = new_super_admin
+    kyc.enable_kyc = enable_kyc
+    kyc.enable_membership = enable_membership
 
     # Get contract metadata
     kyc.metadata = await get_contract_metadata(ctx=ctx, address=address)
@@ -74,7 +80,7 @@ async def origination(
             )
             regions.valid_inputs = valid_input_list
             await regions.save()
-        if category == "investor_type":
+        if category == "investorType":
             investor_types, _ = await models.KycValidInput.get_or_create(
                 kyc=kyc, category=models.ValidInputCategory.INVESTOR_TYPE
             )
@@ -88,7 +94,7 @@ async def origination(
         name = kyc_registrar.name
         members_verified = kyc_registrar.membersVerified
         created_at = parser.parse(kyc_registrar.createdAt)
-        set_member_paused = kyc_registrar.setMemberIsPaused
+        set_member_kyc_paused = kyc_registrar.setMemberKycIsPaused
         freeze_member_paused = kyc_registrar.freezeMemberIsPaused
         unfreeze_member_paused = kyc_registrar.unfreezeMemberIsPaused
         user, _ = await models.EquiteezUser.get_or_create(address=registrar_address)
@@ -96,11 +102,11 @@ async def origination(
         registrar, _ = await models.KycRegistrar.get_or_create(kyc=kyc, user=user)
         registrar.kyc_admins = kyc_admins
         registrar.name = name
-        registrar.members_verified = members_verified
+        registrar.member_verified = int(members_verified)
         registrar.created_at = created_at
-        registrar.set_member_paused = set_member_paused
-        registrar.freeze_member_paused = freeze_member_paused
-        registrar.unfreeze_member_paused = unfreeze_member_paused
+        registrar.set_member_kyc_is_paused = set_member_kyc_paused
+        registrar.freeze_member_is_paused = freeze_member_paused
+        registrar.unfreeze_member_is_paused = unfreeze_member_paused
         await registrar.save()
 
     # Prepare the country transfer rules ledger
@@ -119,9 +125,28 @@ async def origination(
         country_transfer_rule.receiving_frozen = receiving_frozen
         await country_transfer_rule.save()
 
+    # Prepare the membership tier ledger
+    for tier_item in membership_tier_ledger:
+        discount, _ = await models.KycMembershipTierDiscount.get_or_create(
+            kyc=kyc,
+            membership_tier=tier_item.key.string_0,
+            discount_name=tier_item.key.string_1,
+        )
+        discount.discount_value = int(tier_item.value)
+        await discount.save()
+
     # Prepare the member ledger
     for member_address in member_ledger:
-        member_record = member_ledger[member_address]
+        membership_tier = member_ledger[member_address]
+        user, _ = await models.EquiteezUser.get_or_create(address=member_address)
+        await user.save()
+        member, _ = await models.KycMember.get_or_create(kyc=kyc, user=user)
+        member.membership_tier = membership_tier
+        await member.save()
+
+    # Prepare the member kyc ledger
+    for member_address in member_kyc_ledger:
+        member_record = member_kyc_ledger[member_address]
         country = member_record.country
         region = member_record.region
         investor_type = member_record.investorType

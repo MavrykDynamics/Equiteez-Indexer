@@ -11,6 +11,7 @@ class Config(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
+    tickSize: str
     minExpiryTime: str
     minTimeBeforeClosingOrder: str
     minBuyOrderAmount: str
@@ -19,6 +20,8 @@ class Config(BaseModel):
     minSellOrderValue: str
     buyOrderFee: str
     sellOrderFee: str
+    permitDefaultExpiryDuration: str
+    permitMaxExpiryDuration: str
 
 
 class FeeLedger(BaseModel):
@@ -90,6 +93,7 @@ class BuyOrderLedger(BaseModel):
     refundedAmount: str
     orderExpiry: str | None = None
     orderTimestamps: OrderTimestamps
+    isMarketOrder: bool
 
 
 class SellOrderLedger(BaseModel):
@@ -108,6 +112,31 @@ class SellOrderLedger(BaseModel):
     refundedAmount: str
     orderExpiry: str | None = None
     orderTimestamps: OrderTimestamps
+    isMarketOrder: bool
+
+
+class Key(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address: str
+    bytes: str
+
+
+class PermitsLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key
+    value: str
+
+
+class PermitsExpiryLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key
+    value: str
 
 
 class HighestBuyPrice(BaseModel):
@@ -116,6 +145,7 @@ class HighestBuyPrice(BaseModel):
     )
     orderId: str
     price: str
+    marketOrderExists: bool
 
 
 class LowestSellPrice(BaseModel):
@@ -124,6 +154,7 @@ class LowestSellPrice(BaseModel):
     )
     orderId: str
     price: str
+    marketOrderExists: bool
 
 
 class LastMatchedPrice(BaseModel):
@@ -142,7 +173,7 @@ class OrderbookStorage(BaseModel):
     newSuperAdmin: str | None = None
     rwaTokenAddress: str
     rwaTokenDecimals: str
-    kycAddress: str
+    membershipKycAddress: str
     metadata: Dict[str, str]
     config: Config
     pauseLedger: Dict[str, bool]
@@ -151,6 +182,10 @@ class OrderbookStorage(BaseModel):
     rwaOrderLedger: Dict[str, RwaOrderLedger]
     buyOrderLedger: Dict[str, BuyOrderLedger]
     sellOrderLedger: Dict[str, SellOrderLedger]
+    permitsLedger: List[PermitsLedgerItem]
+    permitsCounterLedger: Dict[str, str]
+    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
+    userPermitsExpiryLedger: Dict[str, str]
     highestBuyPrice: HighestBuyPrice
     lowestSellPrice: LowestSellPrice
     lastMatchedPrice: LastMatchedPrice

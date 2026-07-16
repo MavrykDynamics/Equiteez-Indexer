@@ -13,6 +13,7 @@ async def update_config(
 ) -> None:
     # Fetch operations info
     address = update_config.data.target_address
+    tick_size = update_config.storage.config.tickSize
     min_expiry_time = update_config.storage.config.minExpiryTime
     min_time_before_closing_order = (
         update_config.storage.config.minTimeBeforeClosingOrder
@@ -28,6 +29,7 @@ async def update_config(
     orderbook = await models.Orderbook.get(address=address)
 
     # Update record
+    orderbook.tick_size = tick_size
     orderbook.min_expiry_time = min_expiry_time
     orderbook.min_time_before_closing_order = min_time_before_closing_order
     orderbook.min_buy_order_amount = min_buy_order_amount

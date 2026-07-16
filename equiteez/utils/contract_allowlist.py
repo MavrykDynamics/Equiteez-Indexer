@@ -21,13 +21,17 @@ def allowlist_url() -> str:
         raise RuntimeError(
             "CONTRACT_ALLOWLIST_URL env var is not set. "
             "Provide the URL for this network's allowlist JSON "
-            "(e.g. https://test.eqtz-admin.equiteez.com/equiteez-contract-allowlist-atlasnet.json)."
+            "(e.g. https://test.eqtz-admin.equiteez.com/equiteez-contract-allowlist-basenet.json)."
         )
     return url
 
 
 async def fetch_allowlist() -> Optional[Dict[str, Set[str]]]:
-    url = allowlist_url()
+    try:
+        url = allowlist_url()
+    except RuntimeError as exc:
+        logger.warning("Allowlist refresh skipped: %s", exc)
+        return None
     timeout = aiohttp.ClientTimeout(total=10)
     try:
         async with aiohttp.ClientSession(timeout=timeout) as session:
