@@ -32,6 +32,20 @@ indexes:
       - destination: quote_token
         entrypoint: transfer
 
+  quote_token_v2_index:
+    kind: tezos.operations
+    datasources:
+    - mvkt
+    contracts:
+    - quote_token_v2
+    types:
+    - transaction
+    handlers:
+    - callback: transfers.on_transfer
+      pattern:
+      - destination: quote_token_v2
+        entrypoint: transfer
+
   orderbook_index:
     kind: tezos.operations
     datasources:

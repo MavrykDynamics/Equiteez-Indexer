@@ -25,9 +25,16 @@ contracts:
     code_hash: KT1TWy1xxjWaAhtQg1S2bF7V7AQRfe2eAwhE
     typename: launchpad
 
+  # mock USDT — still the launchpad's purchase currency
   quote_token:
     kind: tezos
     address: KT19bKTs9qsoBrspRNwsHn46YarEWuj3Vjc6
+    typename: quote_token
+
+  # Tether USD — the currency the redeployed orderbooks quote against
+  quote_token_v2:
+    kind: tezos
+    address: KT1VAymHKvx9oreDRqN22rf2huuYiV5ofe34
     typename: quote_token
 
   # dodo_mav:
