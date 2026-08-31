@@ -5,6 +5,24 @@ ALTER TABLE orderbook_order
 CREATE INDEX IF NOT EXISTS idx_orderbook_order_operation_hash
     ON orderbook_order (operation_hash);
 
+DELETE FROM orderbook_order a
+    USING orderbook_order b
+    WHERE a.orderbook_id = b.orderbook_id
+      AND a.order_type   = b.order_type
+      AND a.order_id     = b.order_id
+      AND a.id > b.id;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conrelid = 'orderbook_order'::regclass AND contype = 'u'
+    ) THEN
+        CREATE UNIQUE INDEX IF NOT EXISTS uq_orderbook_order_identity
+            ON orderbook_order (orderbook_id, order_type, order_id);
+    END IF;
+END $$;
+
 -- operation_hash: Mavryk operation hash on user-token transfers
 ALTER TABLE equiteez_user_token_transfer
     ADD COLUMN IF NOT EXISTS operation_hash VARCHAR(64) NULL;
