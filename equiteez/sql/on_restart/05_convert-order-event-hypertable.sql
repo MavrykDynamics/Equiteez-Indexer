@@ -1,3 +1,6 @@
+-- Lives in on_restart on purpose: dipdup creates a missing table on every start
+-- but fires on_reindex only for a fresh schema, so on the no-wipe path this is the
+-- only hook that can convert it. No cagg depends on it, so converting late is safe.
 DO $$
 DECLARE
     is_hypertable boolean;

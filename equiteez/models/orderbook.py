@@ -460,6 +460,12 @@ class OrderbookOrderEvent(Model):
         "models.EquiteezUser", related_name="orderbook_order_events"
     )
 
+    # Denormalized from the order: currency_delta is in this currency's units,
+    # so sums over it must group by this column
+    currency = fields.ForeignKeyField(
+        "models.OrderbookCurrency", related_name="order_events"
+    )
+
     order_type = fields.IntEnumField(enum_type=OrderType)
 
     event_type = fields.IntEnumField(enum_type=OrderEventType)
@@ -479,8 +485,8 @@ class OrderbookOrderEvent(Model):
     # Sender counter of the transaction within the operation group
     counter = fields.BigIntField(default=0)
 
-    # Internal-operation nonce (0 for top-level transactions)
-    batch_index = fields.IntField(default=0)
+    # Internal-operation nonce, -1 for a top-level transaction
+    batch_index = fields.IntField(default=-1)
 
     # Position of this event among those the same transaction produced for the
     # same order: 0 for the operation's own event, 1 for a terminal transition

@@ -5,21 +5,39 @@ ALTER TABLE orderbook_order
 CREATE INDEX IF NOT EXISTS idx_orderbook_order_operation_hash
     ON orderbook_order (operation_hash);
 
-DELETE FROM orderbook_order a
-    USING orderbook_order b
-    WHERE a.orderbook_id = b.orderbook_id
-      AND a.order_type   = b.order_type
-      AND a.order_id     = b.order_id
-      AND a.id > b.id;
-
+-- unique_together from Meta never reaches an existing table (it sits inside
+-- CREATE TABLE IF NOT EXISTS); the guard matches either form by definition.
 DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint
-        WHERE conrelid = 'orderbook_order'::regclass AND contype = 'u'
+        SELECT 1 FROM pg_indexes
+        WHERE tablename = 'orderbook_order'
+          AND indexdef ILIKE 'CREATE UNIQUE INDEX%(orderbook_id, order_type, order_id)%'
     ) THEN
-        CREATE UNIQUE INDEX IF NOT EXISTS uq_orderbook_order_identity
+        -- Duplicates from the old blind-INSERT placement handlers; keep the earliest
+        DELETE FROM orderbook_order a
+            USING orderbook_order b
+            WHERE a.orderbook_id = b.orderbook_id
+              AND a.order_type   = b.order_type
+              AND a.order_id     = b.order_id
+              AND a.id > b.id;
+
+        CREATE UNIQUE INDEX uq_orderbook_order_identity
             ON orderbook_order (orderbook_id, order_type, order_id);
+    END IF;
+END $$;
+
+-- Removed from Meta (a prefix of the unique index above); Tortoise never drops
+-- indexes on an existing table, so do it here.
+DO $$
+DECLARE
+    stale text;
+BEGIN
+    SELECT indexname INTO stale FROM pg_indexes
+    WHERE tablename = 'orderbook_order'
+      AND indexdef ILIKE 'CREATE INDEX%(orderbook_id, order_type)';
+    IF stale IS NOT NULL THEN
+        EXECUTE format('DROP INDEX %I', stale);
     END IF;
 END $$;
 

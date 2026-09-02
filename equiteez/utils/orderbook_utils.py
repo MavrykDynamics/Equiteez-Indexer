@@ -1,16 +1,55 @@
+from collections.abc import Iterable, Mapping
+from datetime import UTC, datetime
+
 from dateutil import parser
+from dipdup.context import HandlerContext
+from dipdup.models.tezos import TezosOperationData
 
 from equiteez import models as models
+from equiteez.types.orderbook.tezos_storage import BuyOrderLedger, SellOrderLedger
+
+OrderLedger = BuyOrderLedger | SellOrderLedger
+
+
+def _utc(value: datetime | None) -> datetime | None:
+    """Aware UTC for comparison; a naive value is UTC in this indexer."""
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
+def _order_state(order: "models.OrderbookOrder") -> tuple[object, ...]:
+    """Every column this module writes; unchanged means a no-op write-back."""
+    return (
+        order.rwa_token_amount,
+        order.price_per_rwa_token,
+        order.fulfilled_amount,
+        order.unfulfilled_amount,
+        order.total_paid_out,
+        order.total_usd_value_of_rwa_token_amount,
+        order.is_fulfilled,
+        order.is_canceled,
+        order.is_expired,
+        order.is_refunded,
+        order.refunded_amount,
+        order.is_market_order,
+        _utc(order.created_at),
+        _utc(order.order_expiry),
+        _utc(order.ended_at),
+        order.operation_hash,
+    )
 
 
 async def record_order_event(
-    ctx,
+    ctx: HandlerContext,
     orderbook: "models.Orderbook",
     order_id: int,
     order_type: "models.OrderType",
-    record,
+    record: OrderLedger,
     intent: "models.OrderEventType",
-    data,
+    data: TezosOperationData,
 ) -> "models.OrderbookOrder":
     """
     Upsert an OrderbookOrder row from its post-operation ledger record and
@@ -39,9 +78,11 @@ async def record_order_event(
             currency=currency,
             initiator=user,
         )
+        pre_state = None
         pre_fulfilled = pre_paid_out = pre_refunded = 0
         pre_flags = (False, False, False, False)
     else:
+        pre_state = _order_state(order)
         pre_fulfilled = order.fulfilled_amount
         pre_paid_out = order.total_paid_out
         pre_refunded = order.refunded_amount
@@ -88,9 +129,9 @@ async def record_order_event(
     fill_delta = order.fulfilled_amount - pre_fulfilled
     spent_delta = order.total_paid_out - pre_paid_out
     refunded_delta = order.refunded_amount - pre_refunded
-    flags_changed = pre_flags != (is_fulfilled, is_canceled, is_expired, is_refunded)
 
-    if not (created or fill_delta or spent_delta or refunded_delta or flags_changed):
+    # No-op write-back (cancelOrders on a closed order): nothing to store or emit
+    if not created and _order_state(order) == pre_state:
         return order
 
     await order.save()
@@ -144,13 +185,15 @@ async def record_order_event(
         await models.OrderbookOrderEvent.get_or_create(
             operation_hash=data.hash,
             counter=data.counter,
-            batch_index=data.nonce or 0,
+            # -1 for top-level, so it cannot collide with an internal op of nonce 0
+            batch_index=data.nonce if data.nonce is not None else -1,
             order=order,
             event_seq=seq,
             timestamp=data.timestamp,
             defaults={
                 "orderbook": orderbook,
                 "initiator_id": order.initiator_id,
+                "currency_id": order.currency_id,
                 "order_type": order_type,
                 "event_type": evt,
                 "rwa_delta": rwa,
@@ -167,11 +210,11 @@ async def record_order_event(
 
 
 async def record_order_events(
-    ctx,
+    ctx: HandlerContext,
     orderbook: "models.Orderbook",
-    ledgers,
+    ledgers: Iterable[tuple["models.OrderType", Mapping[str, OrderLedger]]],
     intent: "models.OrderEventType",
-    data,
+    data: TezosOperationData,
 ) -> None:
     for order_type, ledger in ledgers:
         for order_id in ledger:

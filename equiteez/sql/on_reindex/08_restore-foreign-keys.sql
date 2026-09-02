@@ -26,6 +26,7 @@ BEGIN
             ('orderbook_order_event',        'orderbook_order_event_orderbook_id_fkey',        'orderbook_id',      'orderbook'),
             ('orderbook_order_event',        'orderbook_order_event_order_id_fkey',            'order_id',          'orderbook_order'),
             ('orderbook_order_event',        'orderbook_order_event_initiator_id_fkey',        'initiator_id',      'equiteez_user'),
+            ('orderbook_order_event',        'orderbook_order_event_currency_id_fkey',         'currency_id',       'orderbook_currency'),
             ('equiteez_user_token_transfer', 'equiteez_user_token_transfer_token_id_fkey',     'token_id',          'token'),
             ('equiteez_user_token_transfer', 'equiteez_user_token_transfer_from_user_id_fkey', 'from_user_id',      'equiteez_user'),
             ('equiteez_user_token_transfer', 'equiteez_user_token_transfer_to_user_id_fkey',   'to_user_id',        'equiteez_user')
