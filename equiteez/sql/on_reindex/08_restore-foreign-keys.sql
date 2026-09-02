@@ -32,6 +32,15 @@ BEGIN
             ('equiteez_user_token_transfer', 'equiteez_user_token_transfer_to_user_id_fkey',   'to_user_id',        'equiteez_user')
         ) AS t(tbl, conname, col, reftbl)
     LOOP
+        -- A survivor may predate a column an FK needs (currency_id reached
+        -- orderbook_order_event after it first shipped); on_restart/00 adds such a
+        -- column together with its FK right after this hook, so skip, don't fail.
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = fk.tbl AND column_name = fk.col
+        ) THEN
+            CONTINUE;
+        END IF;
         EXECUTE format('ALTER TABLE %I DROP CONSTRAINT IF EXISTS %I', fk.tbl, fk.conname);
         EXECUTE format(
             'ALTER TABLE %I ADD CONSTRAINT %I FOREIGN KEY (%I) REFERENCES %I(id) ON DELETE CASCADE',
