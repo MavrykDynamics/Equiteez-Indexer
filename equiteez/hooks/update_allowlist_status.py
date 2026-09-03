@@ -8,6 +8,7 @@ from equiteez.utils.contract_allowlist import (
     KYC,
     LAUNCHPADS,
     ORDERBOOKS,
+    QUOTE_TOKENS,
     SUPER_ADMINS,
     allowlist_contains,
     fetch_allowlist,
@@ -29,7 +30,9 @@ async def update_allowlist_status(
     updated = 0
 
     for token in await models.Token.all():
-        new_status = allowlist_contains(allowlist, BASE_TOKENS, token.address)
+        new_status = allowlist_contains(
+            allowlist, BASE_TOKENS, token.address
+        ) or allowlist_contains(allowlist, QUOTE_TOKENS, token.address)
         if token.in_allowlist != new_status:
             token.in_allowlist = new_status
             await token.save()
