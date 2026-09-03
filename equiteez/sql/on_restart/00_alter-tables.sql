@@ -5,6 +5,89 @@ ALTER TABLE orderbook_order
 CREATE INDEX IF NOT EXISTS idx_orderbook_order_operation_hash
     ON orderbook_order (operation_hash);
 
+-- unique_together from Meta never reaches an existing table (it sits inside
+-- CREATE TABLE IF NOT EXISTS); the guard matches either form by definition.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_indexes
+        WHERE tablename = 'orderbook_order'
+          AND indexdef ILIKE 'CREATE UNIQUE INDEX%(orderbook_id, order_type, order_id)%'
+    ) THEN
+        -- Duplicates from the old blind-INSERT placement handlers; keep the earliest
+        DELETE FROM orderbook_order a
+            USING orderbook_order b
+            WHERE a.orderbook_id = b.orderbook_id
+              AND a.order_type   = b.order_type
+              AND a.order_id     = b.order_id
+              AND a.id > b.id;
+
+        CREATE UNIQUE INDEX uq_orderbook_order_identity
+            ON orderbook_order (orderbook_id, order_type, order_id);
+    END IF;
+END $$;
+
+-- Removed from Meta (a prefix of the unique index above); Tortoise never drops
+-- indexes on an existing table, so do it here.
+DO $$
+DECLARE
+    stale text;
+BEGIN
+    SELECT indexname INTO stale FROM pg_indexes
+    WHERE tablename = 'orderbook_order'
+      AND indexdef ILIKE 'CREATE INDEX%(orderbook_id, order_type)';
+    IF stale IS NOT NULL THEN
+        EXECUTE format('DROP INDEX %I', stale);
+    END IF;
+END $$;
+
+-- orderbook_order_event first shipped without currency_id and with batch_index 0
+-- for a top-level transaction; the next revision added the column and moved
+-- top-level to -1. Tortoise's safe DDL never alters an existing table, so a
+-- database that ran the first revision keeps the old shape, and as a hypertable
+-- the table even survives `dipdup schema wipe`. A fresh database gets the new
+-- shape from CREATE TABLE and both blocks below are no-ops.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'orderbook_order_event'
+          AND column_name = 'currency_id'
+          AND is_nullable = 'NO'
+    ) THEN
+        -- Unnamed REFERENCES gets the Postgres default name, the same one Tortoise
+        -- produces on a fresh database and 08_restore-foreign-keys.sql expects
+        ALTER TABLE orderbook_order_event
+            ADD COLUMN IF NOT EXISTS currency_id INT
+                REFERENCES orderbook_currency (id) ON DELETE CASCADE;
+
+        UPDATE orderbook_order_event e
+            SET currency_id = o.currency_id
+            FROM orderbook_order o
+            WHERE o.id = e.order_id
+              AND e.currency_id IS NULL;
+
+        ALTER TABLE orderbook_order_event
+            ALTER COLUMN currency_id SET NOT NULL;
+    END IF;
+END $$;
+
+-- Old rows carry batch_index 0 for top-level transactions and would miss the
+-- dedup key on a replay, so the replayed range would be written twice. Every
+-- orderbook transaction seen so far is top-level (600 sampled), so rewriting all
+-- zeros is exact; the old DEFAULT 0 marks a table the rewrite has not reached.
+DO $$
+BEGIN
+    IF (
+        SELECT column_default FROM information_schema.columns
+        WHERE table_name = 'orderbook_order_event'
+          AND column_name = 'batch_index'
+    ) = '0' THEN
+        UPDATE orderbook_order_event SET batch_index = -1 WHERE batch_index = 0;
+        ALTER TABLE orderbook_order_event ALTER COLUMN batch_index SET DEFAULT -1;
+    END IF;
+END $$;
+
 -- operation_hash: Mavryk operation hash on user-token transfers
 ALTER TABLE equiteez_user_token_transfer
     ADD COLUMN IF NOT EXISTS operation_hash VARCHAR(64) NULL;

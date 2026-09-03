@@ -12,6 +12,15 @@ class OrderType(IntEnum):
     SELL = 1
 
 
+class OrderEventType(IntEnum):
+    PLACE = 0
+    FILL = 1
+    CANCEL = 2
+    EXPIRE = 3
+    REFUND = 4
+    SEED = 5
+
+
 ###
 # Orderbook Tables
 ###
@@ -360,7 +369,8 @@ class OrderbookOrder(Model):
     # Unique order identifier
     order_id = fields.BigIntField(default=0, index=True)
 
-    # Mavryk operation hash of the tx that last created/updated this row (place_* / etc.)
+    # Mavryk operation hash of the tx that placed the order — or, for an order
+    # the indexer first met mid-life, of the tx that first revealed it
     operation_hash = fields.CharField(max_length=64, null=True, index=True)
 
     # Type of order (BUY/SELL)
@@ -423,29 +433,83 @@ class OrderbookOrder(Model):
 
     class Meta:
         table = "orderbook_order"
+        unique_together = (("orderbook", "order_type", "order_id"),)
         indexes = [
             ("orderbook_id", "order_id"),
-            ("orderbook_id", "order_type"),
             ("orderbook_id", "initiator"),
             ("orderbook_id", "is_fulfilled", "is_canceled", "is_expired"),
             ("created_at", "order_expiry"),
         ]
 
 
-# class OrderbookHistoryData(Model):
-#     id                                      = fields.BigIntField(pk=True)
-#     orderbook                               = fields.ForeignKeyField('models.Orderbook', related_name='history_data')
-#     order                                   = fields.ForeignKeyField('models.OrderbookOrder', related_name='history_data')
-#     trader                                  = fields.ForeignKeyField('models.EquiteezUser', related_name='orderbook_history_data')
-#     timestamp                               = fields.DatetimeField()
-#     level                                   = fields.BigIntField()
-#     token_price                             = fields.FloatField(default=0.0)
-#     token_price_usd                         = fields.FloatField(null=True)
-#     token0_qty                              = fields.FloatField(default=0.0)
-#     token1_qty                              = fields.FloatField(default=0.0)
-#     token0_pool                             = fields.BigIntField(default=0)
-#     token1_pool                             = fields.BigIntField(default=0)
-#     lqt_total                               = fields.BigIntField(default=0)
+class OrderbookOrderEvent(Model):
+    """
+    Append-only history of individual order lifecycle events. The order
+    ledger only stores current aggregates (fulfilled/unfulfilled/refunded
+    are overwritten on every partial fill), so this table is the only
+    source for fill trajectories and escrow-at-time-T reconstruction.
+    """
 
-#     class Meta:
-#         table = 'orderbook_history_data'
+    id = fields.IntField(primary_key=True)
+
+    orderbook = fields.ForeignKeyField("models.Orderbook", related_name="order_events")
+
+    order = fields.ForeignKeyField("models.OrderbookOrder", related_name="events")
+
+    initiator = fields.ForeignKeyField(
+        "models.EquiteezUser", related_name="orderbook_order_events"
+    )
+
+    # Denormalized from the order: currency_delta is in this currency's units,
+    # so sums over it must group by this column
+    currency = fields.ForeignKeyField(
+        "models.OrderbookCurrency", related_name="order_events"
+    )
+
+    order_type = fields.IntEnumField(enum_type=OrderType)
+
+    event_type = fields.IntEnumField(enum_type=OrderEventType)
+
+    rwa_delta = fields.BigIntField(default=0)
+    currency_delta = fields.BigIntField(default=0)
+
+    # Fill trajectory (RWA token amounts)
+    fulfilled_before = fields.BigIntField(default=0)
+    fulfilled_after = fields.BigIntField(default=0)
+    unfulfilled_after = fields.BigIntField(default=0)
+
+    refunded_delta = fields.BigIntField(default=0)
+
+    operation_hash = fields.CharField(max_length=64)
+
+    # Sender counter of the transaction within the operation group
+    counter = fields.BigIntField(default=0)
+
+    # Internal-operation nonce, -1 for a top-level transaction
+    batch_index = fields.IntField(default=-1)
+
+    # Position of this event among those the same transaction produced for the
+    # same order: 0 for the operation's own event, 1 for a terminal transition
+    # riding along with it
+    event_seq = fields.IntField(default=0)
+
+    timestamp = fields.DatetimeField()
+    level = fields.BigIntField()
+
+    class Meta:
+        table = "orderbook_order_event"
+        unique_together = (
+            (
+                "operation_hash",
+                "counter",
+                "batch_index",
+                "order",
+                "event_seq",
+                "timestamp",
+            ),
+        )
+        indexes = [
+            ("initiator_id", "timestamp"),
+            ("orderbook_id", "timestamp"),
+            ("order_id", "timestamp", "event_seq"),
+        ]

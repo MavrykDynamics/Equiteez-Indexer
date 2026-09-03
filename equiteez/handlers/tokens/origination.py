@@ -7,6 +7,7 @@ from equiteez import models as models
 from equiteez.types.base_token.tezos_storage import BaseTokenStorage
 from equiteez.utils.contract_allowlist import (
     BASE_TOKENS,
+    QUOTE_TOKENS,
     allowlist_contains,
     fetch_allowlist,
 )
@@ -30,7 +31,9 @@ async def origination(
     allowlist = await fetch_allowlist()
     token = await models.Token.get_or_none(address=address, token_id=0)
     if token:
-        token.in_allowlist = allowlist_contains(allowlist, BASE_TOKENS, address)
+        token.in_allowlist = allowlist_contains(
+            allowlist, BASE_TOKENS, address
+        ) or allowlist_contains(allowlist, QUOTE_TOKENS, address)
         await token.save()
 
     logger.info("Token %s registered at level %d", address, first_level)

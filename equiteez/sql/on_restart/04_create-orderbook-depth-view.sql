@@ -16,12 +16,28 @@ WHERE oo.unfulfilled_amount > 0
   AND oo.is_canceled  = false
   AND oo.is_expired   = false
   AND oo.is_refunded  = false
+  AND oo.is_market_order = false
   AND (oo.order_expiry IS NULL OR oo.order_expiry > now())
 GROUP BY o.id, o.address, o.in_allowlist, oo.order_type, oo.price_per_rwa_token;
+
+-- CREATE INDEX IF NOT EXISTS never rebuilds an existing index: drop the version
+-- predating the is_market_order predicate first.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM pg_indexes
+        WHERE tablename = 'orderbook_order'
+          AND indexname = 'idx_orderbook_order_open_depth'
+          AND indexdef NOT LIKE '%is_market_order%'
+    ) THEN
+        DROP INDEX idx_orderbook_order_open_depth;
+    END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_orderbook_order_open_depth
     ON orderbook_order (orderbook_id, order_type, price_per_rwa_token)
     INCLUDE (unfulfilled_amount)
     WHERE is_fulfilled = false AND is_canceled = false
       AND is_expired  = false AND is_refunded = false
+      AND is_market_order = false
       AND unfulfilled_amount > 0;
