@@ -81,7 +81,9 @@ async def sync_currencies(
     row: orders, events and fees reference it."""
     for currency_name, currency_record in storage.currencyLedger.items():
         token = await register_token(
-            ctx=ctx, address=currency_record.tokenContractAddress
+            ctx=ctx,
+            address=currency_record.tokenContractAddress,
+            token_id=int(currency_record.tokenId),
         )
         currency, _ = await models.OrderbookCurrency.get_or_create(
             orderbook=orderbook, currency_name=currency_name

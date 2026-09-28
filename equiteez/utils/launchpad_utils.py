@@ -143,7 +143,9 @@ async def upsert_launch_from_record(
     name: str,
     record,
 ) -> "models.LaunchpadLaunch":
-    token = await register_token(ctx=ctx, address=record.tokenContractAddress)
+    token = await register_token(
+        ctx=ctx, address=record.tokenContractAddress, token_id=int(record.tokenId)
+    )
 
     defaults = {
         "status": parse_launch_status(record.status),

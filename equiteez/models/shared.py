@@ -60,6 +60,9 @@ class Token(ContractBase):
     # Token standard type (FA12, FA2, MAV)
     token_standard = fields.IntEnumField(enum_type=TokenType, index=True, null=True)
 
+    # Whether the RWA token contract has been killed (terminal: ledger cleared)
+    is_killed = fields.BooleanField(default=False)
+
     class Meta:
         table = "token"
         indexes = [

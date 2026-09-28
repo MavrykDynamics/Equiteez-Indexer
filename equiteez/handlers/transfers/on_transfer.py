@@ -4,11 +4,11 @@ from typing import Optional
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
 
-from equiteez import models as models
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
 from equiteez.types.base_token.tezos_storage import BaseTokenStorage
 from equiteez.types.quote_token.tezos_storage import QuoteTokenStorage
-from equiteez.utils.utils import get_contract_token_metadata, register_token
+from equiteez.types.wusdt.tezos_storage import WusdtStorage
+from equiteez.utils.transfer_utils import record_user_transfers
 
 logger = logging.getLogger(__name__)
 
@@ -31,90 +31,21 @@ def parse_transfer_param(
         return None
 
 
-def _is_user_to_user(from_address: str, to_address: str) -> bool:
-    return not from_address.startswith("KT") and not to_address.startswith("KT")
-
-
 async def on_transfer(
     ctx: HandlerContext,
-    transfer: TezosTransaction[TransferParameter, BaseTokenStorage | QuoteTokenStorage],
+    transfer: TezosTransaction[
+        TransferParameter, BaseTokenStorage | QuoteTokenStorage | WusdtStorage
+    ],
 ) -> None:
+    # Internal transfers are contract flows (orderbook escrow, launchpad
+    # payments and issuance), not user movements
     if transfer.data.nonce is not None:
         return
 
-    level = transfer.data.level
-    timestamp = transfer.data.timestamp
-    contract_address = transfer.data.target_address
-    operation_hash = transfer.data.hash
-
-    transfer_param = parse_transfer_param(transfer, level)
+    transfer_param = parse_transfer_param(transfer, transfer.data.level)
     if not transfer_param:
         return
 
-    for item in transfer_param.root:
-        from_address = item.from_
-
-        for tx in item.txs:
-            to_address = tx.to_
-            token_id = int(tx.token_id)
-            amount = int(tx.amount)
-
-            if not (from_address and to_address):
-                continue
-
-            # The contract skips zero-amount txs (no ledger change),
-            # so they are not token movements.
-            if amount == 0:
-                continue
-
-            if not _is_user_to_user(from_address, to_address):
-                continue
-
-            token = await models.Token.get_or_none(
-                address=contract_address,
-                token_id=token_id,
-            )
-            base_token = None
-            if not token:
-                base_token = await register_token(ctx, contract_address)
-                if not base_token:
-                    logger.error(
-                        "Failed to register token %s at level %d",
-                        contract_address,
-                        level,
-                    )
-                    continue
-
-                token, _ = await models.Token.get_or_create(
-                    address=contract_address,
-                    token_id=token_id,
-                )
-                token.metadata = token.metadata or base_token.metadata
-                if not token.token_metadata:
-                    if token_id == 0:
-                        token.token_metadata = base_token.token_metadata
-                    else:
-                        # The contract is multi-asset; fetch metadata for this
-                        # token_id instead of inheriting token 0's metadata.
-                        token.token_metadata = await get_contract_token_metadata(
-                            ctx=ctx, address=contract_address, token_id=str(token_id)
-                        )
-                token.token_standard = token.token_standard or base_token.token_standard
-                # Allowlist membership is per contract address; inherit it.
-                token.in_allowlist = token.in_allowlist or base_token.in_allowlist
-                await token.save()
-
-            sender, _ = await models.EquiteezUser.get_or_create(address=from_address)
-            receiver, _ = await models.EquiteezUser.get_or_create(address=to_address)
-
-            user_transfer = models.EquiteezUserTokenTransfer(
-                from_user=sender,
-                to_user=receiver,
-                token=token,
-                timestamp=timestamp,
-                level=level,
-                operation_hash=operation_hash,
-                amount=amount,
-            )
-
-            await user_transfer.save()
+    await record_user_transfers(
+        ctx, transfer.data.target_address, transfer_param.root, transfer.data
+    )

@@ -21,11 +21,11 @@ indexes:
       pattern:
       - destination: token_watcher
         entrypoint: kill
-    - callback: tokens.execute_permit
+    - callback: transfers.on_permit
       pattern:
       - destination: token_watcher
         entrypoint: executePermit
-    - callback: tokens.permit_and_execute
+    - callback: transfers.on_permit
       pattern:
       - destination: token_watcher
         entrypoint: permitAndExecute
@@ -48,6 +48,14 @@ indexes:
       pattern:
       - destination: quote_token_wusdt
         entrypoint: transfer
+    - callback: transfers.on_permit
+      pattern:
+      - destination: quote_token_wusdt
+        entrypoint: executePermit
+    - callback: transfers.on_permit
+      pattern:
+      - destination: quote_token_wusdt
+        entrypoint: permitAndExecute
 
   orderbook_index:
     kind: tezos.operations

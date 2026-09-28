@@ -78,14 +78,22 @@ async def get_contract_token_metadata(ctx, address, token_id="0"):
 
 
 # Register token
-async def register_token(ctx, address):
-    token, _ = await models.Token.get_or_create(address=address)
-    if not token.metadata:
-        token.metadata = await get_contract_metadata(ctx=ctx, address=address)
-    if not token.token_metadata:
-        token.token_metadata = await get_contract_token_metadata(
-            ctx=ctx, address=address
+async def register_token(ctx, address, token_id=0, refresh=False):
+    """
+    Get or create the token row and fill its metadata from the metadata
+    service. By default only empty fields are fetched; `refresh` refetches and
+    overwrites them with any non-empty answer (setTokenMetadata can change a
+    token's metadata after it was first indexed).
+    """
+    token, _ = await models.Token.get_or_create(address=address, token_id=token_id)
+    if refresh or not token.metadata:
+        metadata = await get_contract_metadata(ctx=ctx, address=address)
+        token.metadata = metadata or token.metadata
+    if refresh or not token.token_metadata:
+        token_metadata = await get_contract_token_metadata(
+            ctx=ctx, address=address, token_id=str(token_id)
         )
+        token.token_metadata = token_metadata or token.token_metadata
     if not token.token_standard:
         token.token_standard = await get_token_standard(ctx=ctx, address=address)
     await token.save()
