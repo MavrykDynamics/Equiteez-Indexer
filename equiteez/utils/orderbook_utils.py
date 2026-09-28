@@ -78,20 +78,30 @@ async def sync_currencies(
     ctx: HandlerContext, orderbook: "models.Orderbook", storage: OrderbookStorage
 ) -> None:
     """Upsert currencies touched by the operation. Removed currencies keep their
-    row: orders, events and fees reference it."""
+    row: orders, events and fees reference it.
+
+    Runs on every order-flow operation, so it only writes on a change: the
+    token row is registered (metadata fetched) on first sight only, and the
+    refresh_tokens job keeps its metadata current afterwards."""
     for currency_name, currency_record in storage.currencyLedger.items():
-        token = await register_token(
-            ctx=ctx,
-            address=currency_record.tokenContractAddress,
-            token_id=int(currency_record.tokenId),
-        )
-        currency, _ = await models.OrderbookCurrency.get_or_create(
+        address = currency_record.tokenContractAddress
+        token_id = int(currency_record.tokenId)
+        token = await models.Token.get_or_none(address=address, token_id=token_id)
+        if token is None:
+            token = await register_token(ctx=ctx, address=address, token_id=token_id)
+        currency, created = await models.OrderbookCurrency.get_or_create(
             orderbook=orderbook, currency_name=currency_name
         )
-        currency.token = token
-        currency.fa2_token_id = int(currency_record.tokenId)
-        currency.decimals = int(currency_record.decimals)
-        await currency.save()
+        decimals = int(currency_record.decimals)
+        if created or (currency.token_id, currency.fa2_token_id, currency.decimals) != (
+            token.id,
+            token_id,
+            decimals,
+        ):
+            currency.token = token
+            currency.fa2_token_id = token_id
+            currency.decimals = decimals
+            await currency.save()
 
 
 async def sync_fee_ledger(
@@ -100,10 +110,11 @@ async def sync_fee_ledger(
     """Fee ledger keys are the buy currencies plus "rwaToken" (fees taken in the
     traded RWA token)."""
     for currency_name, fee_record in storage.feeLedger.items():
+        is_rwa = currency_name == "rwaToken"
         currency, _ = await models.OrderbookCurrency.get_or_create(
             orderbook=orderbook, currency_name=currency_name
         )
-        if currency_name == "rwaToken" and currency.token_id != orderbook.rwa_token_id:
+        if is_rwa and currency.token_id != orderbook.rwa_token_id:
             currency.token_id = orderbook.rwa_token_id
             await currency.save()
         orderbook_fee, _ = await models.OrderbookFee.get_or_create(
@@ -111,7 +122,7 @@ async def sync_fee_ledger(
         )
         orderbook_fee.fee_amount = int(fee_record.nat_0)
         orderbook_fee.paid_fee = int(fee_record.nat_1)
-        if currency_name == "rwaToken":
+        if is_rwa:
             orderbook_fee.related_token_id = orderbook.rwa_token_id
         await orderbook_fee.save()
 

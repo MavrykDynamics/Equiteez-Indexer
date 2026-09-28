@@ -275,11 +275,14 @@ async def sync_launches(
         launch = await upsert_launch_from_record(ctx, launchpad, launch_name, record)
         for option_name, option_record in record.saleOptions.items():
             await upsert_sale_option(ctx, launch, option_name, option_record)
-        await (
-            models.LaunchpadSaleOption.filter(launch=launch, is_removed=False)
-            .exclude(name__in=list(record.saleOptions))
-            .update(is_removed=True)
-        )
+        # save() rather than a bulk update() so auto_now bumps updated_at and
+        # the removal reaches DualCursor consumers
+        dropped = models.LaunchpadSaleOption.filter(
+            launch=launch, is_removed=False
+        ).exclude(name__in=list(record.saleOptions))
+        for sale_option in await dropped:
+            sale_option.is_removed = True
+            await sale_option.save()
 
 
 async def record_purchase(

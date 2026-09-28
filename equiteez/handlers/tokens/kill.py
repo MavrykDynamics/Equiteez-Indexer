@@ -13,6 +13,8 @@ async def kill(
     # Terminal: the contract clears ledger, supply and operators and rejects
     # every later call. Normally reached through the super admin's killToken
     # action, i.e. as an internal operation
-    await models.Token.filter(address=kill.data.target_address).update(
-        is_killed=kill.storage.isKilled
-    )
+    # save() rather than a bulk update(): the DualCursor consumers page by
+    # updated_at, and only save() runs the auto_now bump
+    for token in await models.Token.filter(address=kill.data.target_address):
+        token.is_killed = kill.storage.isKilled
+        await token.save()

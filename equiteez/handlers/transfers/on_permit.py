@@ -26,6 +26,11 @@ async def on_permit(
     behalf; the batch items name their owner (`from_`), so the signer is not
     needed. Operator updates and expiry settings are not indexed.
     """
+    # Same rule as on_transfer: an internal call is a contract flow (a
+    # launchpad or relayer contract executing the permit), not a user movement
+    if permit.data.nonce is not None:
+        return
+
     for item in permit.parameter.root:
         name, payload = permit_action(item)
         if name == "permitTransfer":
