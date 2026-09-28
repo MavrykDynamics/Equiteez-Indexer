@@ -51,8 +51,18 @@ class Orderbook(ContractBase):
     # Contract metadata
     metadata = fields.JSONField(null=True)
 
-    # Minimum price increment for orders (tick size)
+    # Minimum price increment for orders (config.priceTickSize; the column keeps
+    # its original name because API consumers query it)
     tick_size = fields.BigIntField(default=0)
+
+    # Minimum RWA quantity increment in base units
+    quantity_tick_size = fields.BigIntField(default=0)
+
+    # Maximum active orders per side and price level
+    max_orders_per_price_level = fields.BigIntField(default=0)
+
+    # Decimals of the traded RWA token as stored by the contract
+    rwa_token_decimals = fields.BigIntField(default=0)
 
     # Minimum order expiry time (seconds)
     min_expiry_time = fields.BigIntField(default=0)
@@ -77,6 +87,19 @@ class Orderbook(ContractBase):
 
     # Fee for sell orders
     sell_order_fee = fields.BigIntField(default=0)
+
+    # Fee charged against the remaining escrow when an order is cancelled
+    cancel_order_fee = fields.BigIntField(default=0)
+
+    # Allowed limit-price band around the reference price (4 decimals, 0 disables)
+    lower_bound_buy_order_percent = fields.BigIntField(default=0)
+    upper_bound_buy_order_percent = fields.BigIntField(default=0)
+    lower_bound_sell_order_percent = fields.BigIntField(default=0)
+    upper_bound_sell_order_percent = fields.BigIntField(default=0)
+
+    # Permit expiry settings (seconds)
+    permit_default_expiry_duration = fields.BigIntField(default=0)
+    permit_max_expiry_duration = fields.BigIntField(default=0)
 
     # ID of highest buy price order
     highest_buy_price_order_id = fields.BigIntField(default=0)
@@ -158,13 +181,21 @@ class OrderbookCurrency(Model):
     # Reference to orderbook contract
     orderbook = fields.ForeignKeyField("models.Orderbook", related_name="currencies")
 
-    # Token associated with this currency
+    # Token associated with this currency. Null for "USD", the label the
+    # contract stores on every sell order (sellers are paid in the matched buy
+    # order's currency, so the label never resolves to a token)
     token = fields.ForeignKeyField(
         "models.Token", related_name="orderbook_currencies", null=True
     )
 
     # Name of the currency
     currency_name = fields.TextField(index=True)
+
+    # FA2 token id of the currency token
+    fa2_token_id = fields.BigIntField(default=0)
+
+    # Decimals declared in the currency ledger
+    decimals = fields.IntField(null=True)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
@@ -303,11 +334,17 @@ class OrderbookRwaOrderPrice:
     # Primary key identifier
     id = fields.IntField(primary_key=True)
 
-    # Array of order IDs at this price level
+    # Order IDs resting at this price level, oldest first (FIFO match order)
     order_ids = fields.ArrayField(element_type="INT", null=True)
 
     # Price level
     price = fields.BigIntField(default=0)
+
+    # Counter of the oldest live order in the level's FIFO bucket
+    head_counter = fields.BigIntField(default=0)
+
+    # Counter the next order placed at this level will get
+    next_counter = fields.BigIntField(default=0)
 
 
 class OrderbookRwaOrderBuyOrder(Model, OrderbookRwaOrderPrice):
@@ -478,7 +515,14 @@ class OrderbookOrderEvent(Model):
     fulfilled_after = fields.BigIntField(default=0)
     unfulfilled_after = fields.BigIntField(default=0)
 
+    # Escrow actually returned to the initiator by this event. A sell cancel
+    # blocked by KYC records its refund amount on the order but returns it only
+    # on the later processRefund, which is where this column carries it
     refunded_delta = fields.BigIntField(default=0)
+
+    # Escrow retained by the contract as a fee (cancelOrderFee) by this event,
+    # in currency units for BUY and RWA units for SELL
+    fee_delta = fields.BigIntField(default=0)
 
     operation_hash = fields.CharField(max_length=64)
 
