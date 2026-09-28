@@ -7,18 +7,14 @@ from typing import List
 from pydantic import BaseModel, ConfigDict, RootModel
 
 
-class SetMembershipTierDiscountParameterItem(BaseModel):
+class SetMembershipTierParameterItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     updateType: str
     kycRegistrarAddress: str
     membershipTierName: str
-    discountName: str
-    discountValue: str
 
 
-class SetMembershipTierDiscountParameter(
-    RootModel[List[SetMembershipTierDiscountParameterItem]]
-):
-    root: List[SetMembershipTierDiscountParameterItem]
+class SetMembershipTierParameter(RootModel[List[SetMembershipTierParameterItem]]):
+    root: List[SetMembershipTierParameterItem]

@@ -23,56 +23,7 @@ class TokenMetadata(BaseModel):
     token_info: Dict[str, str]
 
 
-class UserChunkLedger(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    chunkCounter: str
-    snapshotCounter: str
-
-
 class Key(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    nat_0: str
-    address: str
-    nat_1: str
-
-
-class Value(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    nat: str
-    timestamp: str
-
-
-class SnapshotLedgerItem(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    key: Key
-    value: Dict[str, Value]
-
-
-class Key1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    owner: str
-    token_id: str
-
-
-class LedgerItem(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    key: Key1
-    value: str
-
-
-class Key2(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -85,11 +36,11 @@ class Operator(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    key: Key2
+    key: Key
     value: Dict[str, Any]
 
 
-class Key3(BaseModel):
+class Key1(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -97,47 +48,34 @@ class Key3(BaseModel):
     bytes: str
 
 
-class Value1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    registeredAt: str
-    deadline: str
-
-
 class PermitsLedgerItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    key: Key3
-    value: Value1
+    key: Key1
+    value: str
 
 
 class PermitsExpiryLedgerItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    key: Key3
+    key: Key1
     value: str
 
 
-class BaseTokenStorage(BaseModel):
+class WusdtStorage(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     superAdmin: str
     newSuperAdmin: str | None = None
-    membershipKycAddress: str
-    isPaused: bool
-    isKilled: bool
+    minterBridgeSet: List[str]
     metadata: Dict[str, str]
     config: Config
     token_metadata: Dict[str, TokenMetadata]
-    total_supply: Dict[str, str]
-    token_ids: List[str]
-    userChunkLedger: Dict[str, UserChunkLedger]
-    snapshotLedger: List[SnapshotLedgerItem]
-    ledger: List[LedgerItem]
+    total_supply: str
+    ledger: Dict[str, str]
     operators: List[Operator]
     permitsLedger: List[PermitsLedgerItem]
     permitsCounterLedger: Dict[str, str]

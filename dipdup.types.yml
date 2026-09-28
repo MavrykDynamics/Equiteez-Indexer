@@ -17,6 +17,18 @@ indexes:
       pattern:
       - destination: token_watcher
         entrypoint: transfer
+    - callback: tokens.kill
+      pattern:
+      - destination: token_watcher
+        entrypoint: kill
+    - callback: tokens.execute_permit
+      pattern:
+      - destination: token_watcher
+        entrypoint: executePermit
+    - callback: tokens.permit_and_execute
+      pattern:
+      - destination: token_watcher
+        entrypoint: permitAndExecute
 
   quote_token_index:
     kind: tezos.operations
@@ -24,12 +36,17 @@ indexes:
     - mvkt
     contracts:
     - quote_token
+    - quote_token_wusdt
     types:
     - transaction
     handlers:
     - callback: transfers.on_transfer
       pattern:
       - destination: quote_token
+        entrypoint: transfer
+    - callback: transfers.on_transfer
+      pattern:
+      - destination: quote_token_wusdt
         entrypoint: transfer
 
   orderbook_index:
@@ -106,6 +123,14 @@ indexes:
       pattern:
       - destination: orderbook_watcher
         entrypoint: processRefund
+    - callback: orderbook.execute_permit
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: executePermit
+    - callback: orderbook.permit_and_execute
+      pattern:
+      - destination: orderbook_watcher
+        entrypoint: permitAndExecute
 
   super_admin_index:
     kind: tezos.operations
@@ -161,10 +186,10 @@ indexes:
       pattern:
       - destination: super_admin_watcher
         entrypoint: setSignatory
-    - callback: super_admin.set_token_kyc_address
+    - callback: super_admin.set_membership_kyc_address
       pattern:
       - destination: super_admin_watcher
-        entrypoint: setTokenKycAddress
+        entrypoint: setMembershipKycAddress
     - callback: super_admin.kill_token
       pattern:
       - destination: super_admin_watcher
@@ -252,10 +277,6 @@ indexes:
       pattern:
       - destination: kyc_watcher
         entrypoint: freezeMember
-    - callback: kyc.unfreeze_member
-      pattern:
-      - destination: kyc_watcher
-        entrypoint: unfreezeMember
     - callback: kyc.set_enable_kyc
       pattern:
       - destination: kyc_watcher
@@ -268,10 +289,22 @@ indexes:
       pattern:
       - destination: kyc_watcher
         entrypoint: setMemberKyc
+    - callback: kyc.set_membership_tier
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: setMembershipTier
     - callback: kyc.set_membership_tier_discount
       pattern:
       - destination: kyc_watcher
         entrypoint: setMembershipTierDiscount
+    - callback: kyc.execute_permit
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: executePermit
+    - callback: kyc.permit_and_execute
+      pattern:
+      - destination: kyc_watcher
+        entrypoint: permitAndExecute
 
   launchpad_index:
     kind: tezos.operations
@@ -307,6 +340,10 @@ indexes:
       pattern:
       - destination: launchpad_watcher
         entrypoint: updateMetadata
+    - callback: launchpad.update_config
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateConfig
     - callback: launchpad.pause
       pattern:
       - destination: launchpad_watcher
@@ -331,6 +368,10 @@ indexes:
       pattern:
       - destination: launchpad_watcher
         entrypoint: updateSaleOption
+    - callback: launchpad.set_sale_option
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setSaleOption
     - callback: launchpad.set_launch_status
       pattern:
       - destination: launchpad_watcher
@@ -347,6 +388,14 @@ indexes:
       pattern:
       - destination: launchpad_watcher
         entrypoint: setLambda
+    - callback: launchpad.execute_permit
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: executePermit
+    - callback: launchpad.permit_and_execute
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: permitAndExecute
 
   # dodo_mav: (enable contract in dipdup.contracts.yml when uncommenting)
   #   kind: tezos.operations

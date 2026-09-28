@@ -25,34 +25,20 @@ class SetCountryTransferRuleAction(BaseModel):
     addNewCountryTransferRule: List[AddNewCountryTransferRuleItem]
 
 
-class FreezeReceivingItem(BaseModel):
+class UpdateWhitelistCountry(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     country: str
-    freezeBool: bool
+    updateType: str
+    countrySet: List[str]
 
 
 class SetCountryTransferRuleAction1(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    freezeReceiving: List[FreezeReceivingItem]
-
-
-class FreezeSendingItem(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    country: str
-    freezeBool: bool
-
-
-class SetCountryTransferRuleAction2(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    freezeSending: List[FreezeSendingItem]
+    updateWhitelistCountries: List[UpdateWhitelistCountry]
 
 
 class UpdateBlacklistCountry(BaseModel):
@@ -64,27 +50,41 @@ class UpdateBlacklistCountry(BaseModel):
     countrySet: List[str]
 
 
-class SetCountryTransferRuleAction3(BaseModel):
+class SetCountryTransferRuleAction2(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     updateBlacklistCountries: List[UpdateBlacklistCountry]
 
 
-class UpdateWhitelistCountry(BaseModel):
+class FreezeSendingItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     country: str
-    updateType: str
-    countrySet: List[str]
+    freezeBool: bool
+
+
+class SetCountryTransferRuleAction3(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    freezeSending: List[FreezeSendingItem]
+
+
+class FreezeReceivingItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    country: str
+    freezeBool: bool
 
 
 class SetCountryTransferRuleAction4(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    updateWhitelistCountries: List[UpdateWhitelistCountry]
+    freezeReceiving: List[FreezeReceivingItem]
 
 
 class SetCountryTransferRuleParameter(BaseModel):

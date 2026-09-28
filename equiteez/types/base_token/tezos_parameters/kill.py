@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from typing import List
-
 from pydantic import BaseModel, ConfigDict
 
 
-class SetTokenKycAddressParameter(BaseModel):
+class KillParameter(BaseModel):
+    pass
     model_config = ConfigDict(
         extra="forbid",
     )
-    membershipKycAddress: str
-    contractAddressList: List[str]
