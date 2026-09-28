@@ -56,6 +56,10 @@ class Launchpad(ContractBase):
     # Contract metadata
     metadata = fields.JSONField(null=True)
 
+    # Permit expiry settings (seconds)
+    permit_default_expiry_duration = fields.BigIntField(default=0)
+    permit_max_expiry_duration = fields.BigIntField(default=0)
+
     class Meta:
         table = "launchpad"
 
@@ -154,8 +158,11 @@ class LaunchpadLaunch(Model):
     sale_end = fields.DatetimeField(null=True)
     sale_closed = fields.DatetimeField(null=True)
 
-    # Convenience flag: true iff any pause entry covers this launch
+    # Mirrors the contract flag: true only while status is PAUSED
     is_paused = fields.BooleanField(default=False, index=True)
+
+    # Purchases require a current (not frozen, not expired, not blacklisted) KYC
+    enable_kyc = fields.BooleanField(default=False, index=True)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
@@ -191,6 +198,10 @@ class LaunchpadSaleOption(Model):
     max_amount_cap = fields.BigIntField(null=True)
 
     is_paused = fields.BooleanField(default=False)
+
+    # The option is no longer in the launch's saleOptions map (updateTokenLaunch
+    # replaces the whole map). Kept, not deleted: purchase history references it
+    is_removed = fields.BooleanField(default=False, index=True)
 
     # Per-option schedule overrides
     sale_start = fields.DatetimeField(null=True)
