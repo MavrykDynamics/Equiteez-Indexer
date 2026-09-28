@@ -402,6 +402,8 @@ class KycMembershipTierDiscount(Model):
 
     class Meta:
         table = "kyc_membership_tier_discount"
+        # The registrar-scoped index is created in sql/on_restart: declared here
+        # it would reach an existing table before registrar_id does
         indexes = [
-            ("kyc_id", "registrar_id", "membership_tier", "discount_name"),
+            ("kyc_id", "membership_tier", "discount_name"),
         ]

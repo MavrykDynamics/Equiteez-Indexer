@@ -104,17 +104,21 @@ SELECT
         WHEN km.expire_at < NOW() THEN true
         ELSE false
     END AS is_expired,
-    -- Check if member is active
+    -- Check if member is active (the contract's userIsVerified: not frozen,
+    -- not expired, not blacklisted)
     CASE 
         WHEN km.frozen = true THEN false
+        WHEN kb.id IS NOT NULL THEN false
         WHEN km.expire_at IS NULL THEN true
         WHEN km.expire_at < NOW() THEN false
         ELSE true
-    END AS is_active
+    END AS is_active,
+    kb.id IS NOT NULL AS is_blacklisted
 FROM 
     kyc_member km
     JOIN kyc k ON km.kyc_id = k.id
-    JOIN equiteez_user eu ON km.user_id = eu.id;
+    JOIN equiteez_user eu ON km.user_id = eu.id
+    LEFT JOIN kyc_blacklisted kb ON kb.kyc_id = km.kyc_id AND kb.user_id = km.user_id;
 
 CREATE OR REPLACE VIEW token_metadata_view AS
 SELECT 

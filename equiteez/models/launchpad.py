@@ -161,8 +161,10 @@ class LaunchpadLaunch(Model):
     # Mirrors the contract flag: true only while status is PAUSED
     is_paused = fields.BooleanField(default=False, index=True)
 
-    # Purchases require a current (not frozen, not expired, not blacklisted) KYC
-    enable_kyc = fields.BooleanField(default=False, index=True)
+    # Purchases require a current (not frozen, not expired, not blacklisted) KYC.
+    # Indexed in sql/on_restart: an index declared here would reach an existing
+    # table before the column does and abort DipDup's schema DDL
+    enable_kyc = fields.BooleanField(default=False)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
@@ -201,7 +203,8 @@ class LaunchpadSaleOption(Model):
 
     # The option is no longer in the launch's saleOptions map (updateTokenLaunch
     # replaces the whole map). Kept, not deleted: purchase history references it
-    is_removed = fields.BooleanField(default=False, index=True)
+    # (indexed in sql/on_restart, see LaunchpadLaunch.enable_kyc)
+    is_removed = fields.BooleanField(default=False)
 
     # Per-option schedule overrides
     sale_start = fields.DatetimeField(null=True)

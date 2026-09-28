@@ -172,3 +172,77 @@ CREATE INDEX IF NOT EXISTS idx_token_in_allowlist       ON token       (in_allow
 CREATE INDEX IF NOT EXISTS idx_orderbook_in_allowlist   ON orderbook   (in_allowlist);
 CREATE INDEX IF NOT EXISTS idx_kyc_in_allowlist         ON kyc         (in_allowlist);
 CREATE INDEX IF NOT EXISTS idx_super_admin_in_allowlist ON super_admin (in_allowlist);
+
+-- September 2026 contract generation (permits). Tortoise's safe DDL creates the
+-- new tables but never alters existing ones, so a database that starts without
+-- a wipe gets the new columns here; on a fresh database every statement is a
+-- no-op. orderbook_order_event is a hypertable and survives `schema wipe` in its
+-- old shape, so its column must come from here on the wipe path too.
+ALTER TABLE orderbook
+    ADD COLUMN IF NOT EXISTS quantity_tick_size             BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS max_orders_per_price_level     BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS rwa_token_decimals             BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS cancel_order_fee               BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS lower_bound_buy_order_percent  BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS upper_bound_buy_order_percent  BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS lower_bound_sell_order_percent BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS upper_bound_sell_order_percent BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS permit_default_expiry_duration BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS permit_max_expiry_duration     BIGINT NOT NULL DEFAULT 0;
+
+ALTER TABLE orderbook_currency
+    ADD COLUMN IF NOT EXISTS fa2_token_id BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS decimals     INT NULL;
+
+ALTER TABLE orderbook_rwa_order_buy_order
+    ADD COLUMN IF NOT EXISTS head_counter BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS next_counter BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE orderbook_rwa_order_sell_order
+    ADD COLUMN IF NOT EXISTS head_counter BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS next_counter BIGINT NOT NULL DEFAULT 0;
+
+ALTER TABLE orderbook_order_event
+    ADD COLUMN IF NOT EXISTS fee_delta BIGINT NOT NULL DEFAULT 0;
+
+ALTER TABLE token
+    ADD COLUMN IF NOT EXISTS is_killed BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE launchpad
+    ADD COLUMN IF NOT EXISTS permit_default_expiry_duration BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS permit_max_expiry_duration     BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE launchpad_launch
+    ADD COLUMN IF NOT EXISTS enable_kyc BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE launchpad_sale_option
+    ADD COLUMN IF NOT EXISTS is_removed BOOLEAN NOT NULL DEFAULT FALSE;
+-- (indexes for these two columns live here, see below)
+CREATE INDEX IF NOT EXISTS idx_launchpad_launch_enable_kyc   ON launchpad_launch (enable_kyc);
+CREATE INDEX IF NOT EXISTS idx_launchpad_sale_option_removed ON launchpad_sale_option (is_removed);
+
+ALTER TABLE kyc
+    ADD COLUMN IF NOT EXISTS permit_default_expiry_duration BIGINT NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS permit_max_expiry_duration     BIGINT NOT NULL DEFAULT 0;
+
+-- Registrar admins moved to kyc_registrar_admin and unfreezeMember is gone; the
+-- dropped columns are NOT NULL without a database default, so inserts would fail
+ALTER TABLE kyc_registrar
+    ADD COLUMN IF NOT EXISTS set_member_is_paused          BOOLEAN NOT NULL DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS set_registrar_admin_is_paused BOOLEAN NOT NULL DEFAULT FALSE,
+    DROP COLUMN IF EXISTS kyc_admins,
+    DROP COLUMN IF EXISTS unfreeze_member_is_paused;
+
+-- Discounts are scoped by registrar now. Unnamed REFERENCES gets the default FK
+-- name, the one Tortoise produces on a fresh database
+ALTER TABLE kyc_membership_tier_discount
+    ADD COLUMN IF NOT EXISTS registrar_id INT NULL
+        REFERENCES kyc_registrar (id) ON DELETE CASCADE;
+
+-- Indexes on columns added to existing tables live here, not in model Meta:
+-- DipDup runs Tortoise's DDL as one script before on_restart, so an index on a
+-- column this file adds would abort it (and the new tables with it)
+CREATE INDEX IF NOT EXISTS idx_kyc_membership_tier_discount_registrar
+    ON kyc_membership_tier_discount (kyc_id, registrar_id, membership_tier, discount_name);
+
+-- DualCursor indexes for the new KYC tables
+CREATE INDEX IF NOT EXISTS idx_kyc_registrar_admin_updated_at_id ON kyc_registrar_admin (updated_at ASC, id ASC);
+CREATE INDEX IF NOT EXISTS idx_kyc_membership_tier_updated_at_id ON kyc_membership_tier (updated_at ASC, id ASC);
+CREATE INDEX IF NOT EXISTS idx_kyc_membership_updated_at_id      ON kyc_membership      (updated_at ASC, id ASC);
