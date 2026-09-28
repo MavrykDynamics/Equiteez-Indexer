@@ -41,6 +41,10 @@ class Kyc(ContractBase):
     # Whether the membership program is enabled on the contract
     enable_membership = fields.BooleanField(default=True)
 
+    # Permit expiry settings (seconds)
+    permit_default_expiry_duration = fields.BigIntField(default=0)
+    permit_max_expiry_duration = fields.BigIntField(default=0)
+
     class Meta:
         table = "kyc"
 
@@ -150,8 +154,9 @@ class KycRegistrar(Model):
     """
     Represents KYC registrars who can verify users.
     This table stores information about KYC registrars who are authorized to verify
-    users for regulatory compliance. Registrars can set member information, freeze/unfreeze
-    accounts, and manage KYC verification processes.
+    users for regulatory compliance. Registrars (or the admins they delegate to,
+    see KycRegistrarAdmin) assign membership tiers, set member KYC records and
+    freeze accounts.
     """
 
     # Primary key identifier
@@ -166,23 +171,23 @@ class KycRegistrar(Model):
     # Registrar name
     name = fields.TextField(index=True, default="")
 
-    # List of KYC admin addresses
-    kyc_admins = fields.ArrayField(element_type="TEXT", default=[])
-
-    # Count of verified members
+    # Count of verified members (initialised to 0 by the contract, never incremented)
     member_verified = fields.BigIntField(default=0)
 
     # Registrar creation timestamp
     created_at = fields.DatetimeField(null=True)
 
-    # Whether set_member_kyc entrypoint is paused
+    # Whether the registrar's setMember is paused
+    set_member_is_paused = fields.BooleanField(default=False)
+
+    # Whether the registrar's setMemberKyc is paused
     set_member_kyc_is_paused = fields.BooleanField(default=False)
 
-    # Whether freeze_member entrypoint is paused
+    # Whether the registrar's freezeMember is paused
     freeze_member_is_paused = fields.BooleanField(default=False)
 
-    # Whether unfreeze_member entrypoint is paused
-    unfreeze_member_is_paused = fields.BooleanField(default=False)
+    # Whether the registrar's setRegistrarAdmin is paused
+    set_registrar_admin_is_paused = fields.BooleanField(default=False)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
@@ -264,7 +269,9 @@ class KycMember(Model):
     # Type of investor (enterprise, accredited, institution)
     investor_type = fields.TextField(index=True, null=True)
 
-    # Membership tier assigned to the member (e.g., "none", "tierA")
+    # Tier assigned by the registrar that verified the member's KYC (the one
+    # the launchpad and orderbooks price against); all per-registrar
+    # assignments live in KycMembership
     membership_tier = fields.TextField(index=True, null=True)
 
     # KYC verification expiry date
@@ -284,12 +291,91 @@ class KycMember(Model):
         ]
 
 
+class KycRegistrarAdmin(Model):
+    """
+    Admin delegated by a registrar. Mirrors `kycAdminRegistrarLedger :
+    big_map(address, address)` (admin -> registrar); a delegated admin may call
+    setMember, setMemberKyc and freezeMember on the registrar's behalf.
+    """
+
+    id = fields.IntField(primary_key=True)
+
+    kyc = fields.ForeignKeyField("models.Kyc", related_name="registrar_admins")
+
+    registrar = fields.ForeignKeyField("models.KycRegistrar", related_name="admins")
+
+    # Admin user
+    user = fields.ForeignKeyField(
+        "models.EquiteezUser", related_name="kyc_registrar_admins"
+    )
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
+    class Meta:
+        table = "kyc_registrar_admin"
+        unique_together = (("kyc", "user"),)
+
+
+class KycMembershipTier(Model):
+    """
+    Membership tier defined under a registrar. Mirrors `membershipTierLedger :
+    big_map(address, set(string))` (registrar -> tier names).
+    """
+
+    id = fields.IntField(primary_key=True)
+
+    kyc = fields.ForeignKeyField("models.Kyc", related_name="membership_tiers")
+
+    registrar = fields.ForeignKeyField(
+        "models.KycRegistrar", related_name="membership_tiers"
+    )
+
+    # Tier name (e.g. "Starter")
+    name = fields.TextField(index=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
+    class Meta:
+        table = "kyc_membership_tier"
+        unique_together = (("kyc", "registrar", "name"),)
+
+
+class KycMembership(Model):
+    """
+    Tier assigned to a member by a registrar. Mirrors `memberLedger :
+    big_map(pair(address, address), string)` (registrar, member -> tier); a
+    member can hold one tier per registrar.
+    """
+
+    id = fields.IntField(primary_key=True)
+
+    kyc = fields.ForeignKeyField("models.Kyc", related_name="memberships")
+
+    registrar = fields.ForeignKeyField(
+        "models.KycRegistrar", related_name="memberships"
+    )
+
+    user = fields.ForeignKeyField("models.EquiteezUser", related_name="kyc_memberships")
+
+    # Tier name under the registrar
+    tier = fields.TextField(index=True)
+
+    updated_at = fields.DatetimeField(auto_now=True, index=True)
+
+    class Meta:
+        table = "kyc_membership"
+        unique_together = (("kyc", "registrar", "user"),)
+        indexes = [
+            ("kyc_id", "user_id"),
+        ]
+
+
 class KycMembershipTierDiscount(Model):
     """
     Stores per-tier discounts of the membership program.
-    Mirrors the on-chain `membershipTierLedger : big_map(pair(string, string), nat)`
-    keyed by (membership tier name, discount name). Each row stores the discount
-    value granted to members of a given tier for a named discount.
+    Mirrors the on-chain `membershipTierDiscountLedger :
+    big_map(pair(address, string), map(string, nat))` keyed by (registrar,
+    tier name); each row is one named discount (basis points) of that tier.
     """
 
     # Primary key identifier
@@ -297,6 +383,11 @@ class KycMembershipTierDiscount(Model):
 
     # Reference to KYC contract
     kyc = fields.ForeignKeyField("models.Kyc", related_name="membership_tier_discounts")
+
+    # Registrar the tier belongs to
+    registrar = fields.ForeignKeyField(
+        "models.KycRegistrar", related_name="membership_tier_discounts", null=True
+    )
 
     # Membership tier name (e.g., "tierA")
     membership_tier = fields.TextField(index=True)
@@ -312,5 +403,5 @@ class KycMembershipTierDiscount(Model):
     class Meta:
         table = "kyc_membership_tier_discount"
         indexes = [
-            ("kyc_id", "membership_tier", "discount_name"),
+            ("kyc_id", "registrar_id", "membership_tier", "discount_name"),
         ]
