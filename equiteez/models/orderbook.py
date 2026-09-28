@@ -51,8 +51,7 @@ class Orderbook(ContractBase):
     # Contract metadata
     metadata = fields.JSONField(null=True)
 
-    # Minimum price increment for orders (config.priceTickSize; the column keeps
-    # its original name because API consumers query it)
+    # Minimum price increment for orders (contract config priceTickSize)
     tick_size = fields.BigIntField(default=0)
 
     # Minimum RWA quantity increment in base units
@@ -133,6 +132,8 @@ class Orderbook(ContractBase):
 
     class Meta:
         table = "orderbook"
+        # tick_size keeps its pre-permit name (config.tickSize, now
+        # priceTickSize): the Equiteez app queries it
         indexes = [
             ("rwa_token_id",),
         ]
