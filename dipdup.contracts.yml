@@ -25,17 +25,12 @@ contracts:
     code_hash: KT1U6KXwy8vduoq86HBjGp9m2Czc8rZM85MN
     typename: launchpad
 
-  # USDT mock accepted by the launchpad
+  # Bridge wUSDT (Sep-24 bridge): the "USDT" currency of the orderbooks and the
+  # launchpad sale options
   quote_token:
     kind: tezos
-    address: KT19bKTs9qsoBrspRNwsHn46YarEWuj3Vjc6
+    address: KT1Pn5Zpx1bJx5H51btk92pfwvUMCKtp2Q2v
     typename: quote_token
-
-  # wUSDT accepted by the orderbooks (currencyLedger "USDT")
-  quote_token_wusdt:
-    kind: tezos
-    address: KT1J8yjtFGY6fiqjSNLpUjDnX2bj2HsUizAi
-    typename: wusdt
 
   # dodo_mav:
   #   kind: tezos

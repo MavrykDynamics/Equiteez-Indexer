@@ -7,6 +7,14 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict
 
 
+class Config(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permitDefaultExpiryDuration: str
+    permitMaxExpiryDuration: str
+
+
 class TokenMetadata(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -32,13 +40,52 @@ class Operator(BaseModel):
     value: Dict[str, Any]
 
 
+class Key1(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address: str
+    bytes: str
+
+
+class Value(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    registeredAt: str
+    deadline: str
+
+
+class PermitsLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key1
+    value: Value
+
+
+class PermitsExpiryLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key1
+    value: str
+
+
 class QuoteTokenStorage(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    admin: str
+    superAdmin: str
+    newSuperAdmin: str | None = None
+    minterBridgeSet: List[str]
     metadata: Dict[str, str]
+    config: Config
     token_metadata: Dict[str, TokenMetadata]
     total_supply: str
     ledger: Dict[str, str]
     operators: List[Operator]
+    permitsLedger: List[PermitsLedgerItem]
+    permitsCounterLedger: Dict[str, str]
+    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
+    userPermitsExpiryLedger: Dict[str, str]

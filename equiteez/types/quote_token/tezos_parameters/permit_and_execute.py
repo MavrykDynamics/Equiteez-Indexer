@@ -7,22 +7,6 @@ from typing import List
 from pydantic import BaseModel, ConfigDict, RootModel
 
 
-class PermitSetPermitExpiryItem(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    userAddress: str
-    expirySeconds: str
-    permitHash: str | None = None
-
-
-class Action(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    permitSetPermitExpiry: List[PermitSetPermitExpiryItem]
-
-
 class Tx(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -40,7 +24,7 @@ class PermitTransferItem(BaseModel):
     txs: List[Tx]
 
 
-class Action1(BaseModel):
+class Action(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -79,20 +63,38 @@ class PermitUpdateOperators1(BaseModel):
     remove_operator: RemoveOperator
 
 
-class Action2(BaseModel):
+class Action1(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     permitUpdateOperators: List[PermitUpdateOperators | PermitUpdateOperators1]
 
 
-class ExecutePermitParameterItem(BaseModel):
+class PermitSetPermitExpiryItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    signer: str
+    userAddress: str
+    expirySeconds: str
+    permitHash: str | None = None
+
+
+class Action2(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permitSetPermitExpiry: List[PermitSetPermitExpiryItem]
+
+
+class PermitAndExecuteParameterItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    userPublicKey: str
+    userSignature: str
     action: Action | Action1 | Action2
+    deadline: str
 
 
-class ExecutePermitParameter(RootModel[List[ExecutePermitParameterItem]]):
-    root: List[ExecutePermitParameterItem]
+class PermitAndExecuteParameter(RootModel[List[PermitAndExecuteParameterItem]]):
+    root: List[PermitAndExecuteParameterItem]

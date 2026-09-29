@@ -7,7 +7,6 @@ from dipdup.models.tezos import TezosTransaction
 from equiteez.types.base_token.tezos_parameters.transfer import TransferParameter
 from equiteez.types.base_token.tezos_storage import BaseTokenStorage
 from equiteez.types.quote_token.tezos_storage import QuoteTokenStorage
-from equiteez.types.wusdt.tezos_storage import WusdtStorage
 from equiteez.utils.transfer_utils import record_user_transfers
 
 logger = logging.getLogger(__name__)
@@ -33,9 +32,7 @@ def parse_transfer_param(
 
 async def on_transfer(
     ctx: HandlerContext,
-    transfer: TezosTransaction[
-        TransferParameter, BaseTokenStorage | QuoteTokenStorage | WusdtStorage
-    ],
+    transfer: TezosTransaction[TransferParameter, BaseTokenStorage | QuoteTokenStorage],
 ) -> None:
     # Internal transfers are contract flows (orderbook escrow, launchpad
     # payments and issuance), not user movements
