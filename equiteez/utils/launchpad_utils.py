@@ -10,6 +10,8 @@ from equiteez.models.launchpad import (
     TokenDistributionType,
     TokenIssuanceType,
 )
+from equiteez.types.launchpad.tezos_storage import Config, LaunchpadStorage
+from equiteez.utils.permits import permit_action, permit_signer
 from equiteez.utils.utils import NATIVE_MAV_ADDRESS, register_token
 
 
@@ -141,7 +143,9 @@ async def upsert_launch_from_record(
     name: str,
     record,
 ) -> "models.LaunchpadLaunch":
-    token = await register_token(ctx=ctx, address=record.tokenContractAddress)
+    token = await register_token(
+        ctx=ctx, address=record.tokenContractAddress, token_id=int(record.tokenId)
+    )
 
     defaults = {
         "status": parse_launch_status(record.status),
@@ -157,6 +161,7 @@ async def upsert_launch_from_record(
         "sale_end": parse_ts(record.saleEnd),
         "sale_closed": parse_ts(record.saleClosed),
         "is_paused": record.isPaused,
+        "enable_kyc": record.enableKyc,
     }
 
     launch, created = await models.LaunchpadLaunch.get_or_create(
@@ -181,6 +186,7 @@ async def upsert_sale_option(
             int(record.maxAmountCap) if record.maxAmountCap is not None else None
         ),
         "is_paused": record.isPaused,
+        "is_removed": False,
         "sale_start": parse_ts(record.saleStart),
         "sale_end": parse_ts(record.saleEnd),
     }
@@ -248,3 +254,122 @@ async def upsert_sale_option(
     )
 
     return sale_option
+
+
+def apply_launchpad_config(launchpad: "models.Launchpad", config: Config) -> None:
+    launchpad.permit_default_expiry_duration = int(config.permitDefaultExpiryDuration)
+    launchpad.permit_max_expiry_duration = int(config.permitMaxExpiryDuration)
+
+
+async def sync_launches(
+    ctx,
+    launchpad: "models.Launchpad",
+    storage: LaunchpadStorage,
+) -> None:
+    """
+    Mirror every launch the operation wrote. A launch record carries its full
+    saleOptions map, so options missing from it were dropped on-chain
+    (updateTokenLaunch replaces the map wholesale) and get flagged removed.
+    """
+    for launch_name, record in storage.launchLedger.items():
+        launch = await upsert_launch_from_record(ctx, launchpad, launch_name, record)
+        for option_name, option_record in record.saleOptions.items():
+            await upsert_sale_option(ctx, launch, option_name, option_record)
+        # save() rather than a bulk update() so auto_now bumps updated_at and
+        # the removal reaches DualCursor consumers
+        dropped = models.LaunchpadSaleOption.filter(
+            launch=launch, is_removed=False
+        ).exclude(name__in=list(record.saleOptions))
+        for sale_option in await dropped:
+            sale_option.is_removed = True
+            await sale_option.save()
+
+
+async def record_purchase(
+    ctx,
+    launchpad: "models.Launchpad",
+    storage: LaunchpadStorage,
+    purchase,
+    user_address: str,
+    operation_hash: Optional[str],
+    timestamp: datetime,
+    level: int,
+    batch_index: int = 0,
+) -> None:
+    """
+    One on-chain purchase: the direct entrypoint (buyer = sender) or a
+    PermitPurchase action (buyer = permit signer). `purchase` is the
+    purchaseActionType payload.
+    """
+    launch_name = purchase.launchName
+    sale_option_name = purchase.saleOption
+
+    launch_record = storage.launchLedger.get(launch_name)
+    if launch_record is None:
+        ctx.logger.warning("purchase: launch %s not in storage; skipping", launch_name)
+        return
+
+    sale_option_record = launch_record.saleOptions.get(sale_option_name)
+    if sale_option_record is None:
+        ctx.logger.warning(
+            "purchase: sale option %s not in launch %s storage; skipping",
+            sale_option_name,
+            launch_name,
+        )
+        return
+
+    purchase_record = None
+    for item in storage.purchaseLedger:
+        if item.key.string == launch_name and item.key.address == user_address:
+            purchase_record = item.value
+            break
+
+    if purchase_record is None:
+        ctx.logger.warning(
+            "purchase: no ledger entry for (%s, %s); skipping",
+            launch_name,
+            user_address,
+        )
+        return
+
+    await apply_purchase(
+        ctx=ctx,
+        launchpad=launchpad,
+        launch_name=launch_name,
+        user_address=user_address,
+        sale_option_name=sale_option_name,
+        payment_name=purchase.payment,
+        event_amount=int(purchase.amount),
+        operation_hash=operation_hash,
+        timestamp=timestamp,
+        level=level,
+        source=PurchaseSource.USER,
+        launch_record=launch_record,
+        sale_option_record=sale_option_record,
+        purchase_record=purchase_record,
+        batch_index=batch_index,
+    )
+
+
+async def record_permit_batch(ctx, transaction) -> None:
+    """
+    executePermit / permitAndExecute run PermitPurchase through the purchase
+    lambda with the signer as buyer; the storage effects (ledgers, token
+    issuance) are those of a direct purchase by the signer.
+    """
+    launchpad = await models.Launchpad.get(address=transaction.data.target_address)
+    for batch_index, item in enumerate(transaction.parameter.root):
+        name, payload = permit_action(item)
+        if name != "permitPurchase":
+            continue
+        await record_purchase(
+            ctx,
+            launchpad,
+            transaction.storage,
+            payload,
+            user_address=permit_signer(item),
+            operation_hash=transaction.data.hash,
+            timestamp=transaction.data.timestamp,
+            level=transaction.data.level,
+            batch_index=batch_index,
+        )

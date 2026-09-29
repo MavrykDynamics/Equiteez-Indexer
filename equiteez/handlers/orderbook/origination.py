@@ -1,4 +1,3 @@
-from dateutil import parser
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosOrigination
 from equiteez import models as models
@@ -7,6 +6,14 @@ from equiteez.utils.contract_allowlist import (
     ORDERBOOKS,
     allowlist_contains,
     fetch_allowlist,
+)
+from equiteez.utils.orderbook_utils import (
+    apply_orderbook_config,
+    apply_orderbook_market_state,
+    record_order_events,
+    sync_book_maps,
+    sync_currencies,
+    sync_fee_ledger,
 )
 from equiteez.utils.utils import get_contract_metadata, register_token
 
@@ -21,70 +28,22 @@ async def origination(
     if not address:
         return
 
-    super_admin = orderbook_origination.storage.superAdmin
-    new_super_admin = orderbook_origination.storage.newSuperAdmin
-    rwa_token_address = orderbook_origination.storage.rwaTokenAddress
-    kyc_address = orderbook_origination.storage.membershipKycAddress
-    tick_size = orderbook_origination.storage.config.tickSize
-    min_expiry_time = orderbook_origination.storage.config.minExpiryTime
-    min_time_before_closing_order = (
-        orderbook_origination.storage.config.minTimeBeforeClosingOrder
-    )
-    min_buy_order_amount = orderbook_origination.storage.config.minBuyOrderAmount
-    min_buy_order_value = orderbook_origination.storage.config.minBuyOrderValue
-    min_sell_order_amount = orderbook_origination.storage.config.minSellOrderAmount
-    min_sell_order_value = orderbook_origination.storage.config.minSellOrderValue
-    buy_order_fee = orderbook_origination.storage.config.buyOrderFee
-    sell_order_fee = orderbook_origination.storage.config.sellOrderFee
-    highest_buy_price_order_id = orderbook_origination.storage.highestBuyPrice.orderId
-    highest_buy_price = orderbook_origination.storage.highestBuyPrice.price
-    lowest_sell_price_order_id = orderbook_origination.storage.lowestSellPrice.orderId
-    lowest_sell_price = orderbook_origination.storage.lowestSellPrice.price
-    last_matched_price = orderbook_origination.storage.lastMatchedPrice.price
-    last_matched_price_timestamp = parser.parse(
-        orderbook_origination.storage.lastMatchedPrice.lastMatchedTimestamp
-    )
-    buy_order_counter = orderbook_origination.storage.buyOrderCounter
-    sell_order_counter = orderbook_origination.storage.sellOrderCounter
-    fee_ledger = orderbook_origination.storage.feeLedger
-    currency_ledger = orderbook_origination.storage.currencyLedger
-    pause_ledger = orderbook_origination.storage.pauseLedger
+    storage = orderbook_origination.storage
 
     # Get KYC
-    kyc, _ = await models.Kyc.get_or_create(address=kyc_address)
-    await kyc.save()
+    kyc, _ = await models.Kyc.get_or_create(address=storage.membershipKycAddress)
 
     # Prepare the orderbook
     orderbook, _ = await models.Orderbook.get_or_create(address=address)
-    orderbook.super_admin = super_admin
-    orderbook.new_super_admin = new_super_admin
+    orderbook.super_admin = storage.superAdmin
+    orderbook.new_super_admin = storage.newSuperAdmin
     orderbook.kyc = kyc
-    orderbook.tick_size = tick_size
-    orderbook.min_expiry_time = min_expiry_time
-    orderbook.min_time_before_closing_order = min_time_before_closing_order
-    orderbook.min_buy_order_amount = min_buy_order_amount
-    orderbook.min_buy_order_value = min_buy_order_value
-    orderbook.min_sell_order_amount = min_sell_order_amount
-    orderbook.min_sell_order_value = min_sell_order_value
-    orderbook.buy_order_fee = buy_order_fee
-    orderbook.sell_order_fee = sell_order_fee
-    orderbook.highest_buy_price_order_id = highest_buy_price_order_id
-    orderbook.highest_buy_price = highest_buy_price
-    orderbook.highest_buy_price_market_order_exists = (
-        orderbook_origination.storage.highestBuyPrice.marketOrderExists
-    )
-    orderbook.lowest_sell_price_order_id = lowest_sell_price_order_id
-    orderbook.lowest_sell_price = lowest_sell_price
-    orderbook.lowest_sell_price_market_order_exists = (
-        orderbook_origination.storage.lowestSellPrice.marketOrderExists
-    )
-    orderbook.last_matched_price = last_matched_price
-    orderbook.last_matched_price_timestamp = last_matched_price_timestamp
-    orderbook.buy_order_counter = buy_order_counter
-    orderbook.sell_order_counter = sell_order_counter
+    orderbook.rwa_token_decimals = int(storage.rwaTokenDecimals)
+    apply_orderbook_config(orderbook, storage.config)
+    apply_orderbook_market_state(orderbook, storage)
 
     # Get RWA Token
-    orderbook.rwa_token = await register_token(ctx=ctx, address=rwa_token_address)
+    orderbook.rwa_token = await register_token(ctx=ctx, address=storage.rwaTokenAddress)
 
     # Get contract metadata
     orderbook.metadata = await get_contract_metadata(ctx=ctx, address=address)
@@ -95,37 +54,24 @@ async def origination(
     # Save the orderbook
     await orderbook.save()
 
-    # Prepare the fee ledger
-    for currency_name in fee_ledger:
-        fee_record = fee_ledger[currency_name]
-        fee_amount = fee_record.nat_0
-        paid_fee = fee_record.nat_1
-        currency, _ = await models.OrderbookCurrency.get_or_create(
-            orderbook=orderbook, currency_name=currency_name
-        )
-        await currency.save()
-        orderbook_fee, _ = await models.OrderbookFee.get_or_create(
-            orderbook=orderbook, currency=currency
-        )
-        orderbook_fee.fee_amount = fee_amount
-        orderbook_fee.paid_fee = paid_fee
-        await orderbook_fee.save()
-
-    # Prepare the currency ledger
-    for currency_name in currency_ledger:
-        currency_record = currency_ledger[currency_name]
-        token_address = currency_record.tokenContractAddress
-        token = await register_token(ctx=ctx, address=token_address)
-        currency, _ = await models.OrderbookCurrency.get_or_create(
-            orderbook=orderbook, currency_name=currency_name
-        )
-        currency.token = token
-        await currency.save()
+    # Currencies, fees and the (normally empty) book
+    await sync_currencies(ctx, orderbook, storage)
+    await sync_fee_ledger(orderbook, storage)
+    await sync_book_maps(orderbook, storage)
 
     # Save the entrypoints status
-    for entrypoint in pause_ledger:
-        paused = pause_ledger[entrypoint]
-        entrypoint_status = models.OrderbookEntrypointStatus(
-            contract=orderbook, entrypoint=entrypoint, paused=paused
+    for entrypoint, paused in storage.pauseLedger.items():
+        entrypoint_status, _ = await models.OrderbookEntrypointStatus.get_or_create(
+            contract=orderbook, entrypoint=entrypoint
         )
+        entrypoint_status.paused = paused
         await entrypoint_status.save()
+
+    # Orders originated with the contract, if any
+    await record_order_events(
+        ctx,
+        orderbook=orderbook,
+        storage=storage,
+        intent=models.OrderEventType.SEED,
+        data=orderbook_origination.data,
+    )

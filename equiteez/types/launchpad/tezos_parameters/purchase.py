@@ -13,3 +13,4 @@ class PurchaseParameter(BaseModel):
     amount: str
     saleOption: str
     payment: str
+    maxTotalPayment: str
