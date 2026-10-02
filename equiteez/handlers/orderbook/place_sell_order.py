@@ -5,7 +5,7 @@ from equiteez.types.orderbook.tezos_parameters.place_sell_order import (
     PlaceSellOrderParameter,
 )
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
-from dateutil import parser
+from equiteez.utils.orderbook_utils import record_order_events
 
 
 async def place_sell_order(
@@ -37,11 +37,9 @@ async def place_sell_order(
         rwa_order_token, _ = await models.Token.get_or_create(
             address=rwa_order_token_address
         )
-        await rwa_order_token.save()
         rwa_order, _ = await models.OrderbookRwaOrder.get_or_create(
             orderbook=orderbook, rwa_token=rwa_order_token
         )
-        await rwa_order.save()
 
         for sell_price_counter in sell_price_map:
             sell_price = sell_price_map[sell_price_counter]
@@ -66,63 +64,11 @@ async def place_sell_order(
             sell_order_record.order_ids = sell_order_ids_int
             await sell_order_record.save()
 
-    for sell_order_id in sell_order_ledger:
-        # Get sell order parameters
-        sell_order_record = sell_order_ledger[sell_order_id]
-        order_type = models.OrderType.SELL
-        initiator = sell_order_record.initiator
-        rwa_token_amount = sell_order_record.rwaTokenAmount
-        price_per_rwa_token = sell_order_record.pricePerRwaToken
-        currency_name = sell_order_record.currency
-        fulfilled_amount = sell_order_record.fulfilledAmount
-        unfulfilled_amount = sell_order_record.unfulfilledAmount
-        total_paid_out = sell_order_record.totalOrderFulfilled.nat_0
-        total_usd_value_of_rwa_token_amount = (
-            sell_order_record.totalOrderFulfilled.nat_1
-        )
-        is_fulfilled = sell_order_record.booleans.bool_0
-        is_canceled = sell_order_record.booleans.bool_1
-        is_expired = sell_order_record.booleans.bool_2
-        is_refunded = sell_order_record.isRefunded
-        refunded_amount = sell_order_record.refundedAmount
-        is_market_order = sell_order_record.isMarketOrder
-
-        # Get currency
-        currency, _ = await models.OrderbookCurrency.get_or_create(
-            orderbook=orderbook, currency_name=currency_name
-        )
-        await currency.save()
-
-        # Create initiator
-        user, _ = await models.EquiteezUser.get_or_create(address=initiator)
-        await user.save()
-
-        # Save sell order
-        sell_order = models.OrderbookOrder(
-            orderbook=orderbook,
-            currency=currency,
-            order_id=sell_order_id,
-            operation_hash=place_sell_order.data.hash,
-            order_type=order_type,
-            initiator=user,
-            rwa_token_amount=rwa_token_amount,
-            price_per_rwa_token=price_per_rwa_token,
-            fulfilled_amount=fulfilled_amount,
-            unfulfilled_amount=unfulfilled_amount,
-            total_paid_out=total_paid_out,
-            total_usd_value_of_rwa_token_amount=total_usd_value_of_rwa_token_amount,
-            is_fulfilled=is_fulfilled,
-            is_canceled=is_canceled,
-            is_expired=is_expired,
-            is_refunded=is_refunded,
-            refunded_amount=refunded_amount,
-            is_market_order=is_market_order,
-            created_at=parser.parse(sell_order_record.orderTimestamps.timestamp_0),
-        )
-        if sell_order_record.orderExpiry:
-            sell_order.order_expiry = parser.parse(sell_order_record.orderExpiry)
-        if sell_order_record.orderTimestamps.timestamp_1:
-            sell_order.ended_at = parser.parse(
-                sell_order_record.orderTimestamps.timestamp_1
-            )
-        await sell_order.save()
+    # Save placed sell orders
+    await record_order_events(
+        ctx,
+        orderbook=orderbook,
+        ledgers=[(models.OrderType.SELL, sell_order_ledger)],
+        intent=models.OrderEventType.PLACE,
+        data=place_sell_order.data,
+    )

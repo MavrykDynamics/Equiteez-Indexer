@@ -102,6 +102,7 @@ async def on_transfer(
                 token.token_standard = token.token_standard or base_token.token_standard
                 # Allowlist membership is per contract address; inherit it.
                 token.in_allowlist = token.in_allowlist or base_token.in_allowlist
+                token.is_quote_token = token.is_quote_token or base_token.is_quote_token
                 await token.save()
 
             sender, _ = await models.EquiteezUser.get_or_create(address=from_address)

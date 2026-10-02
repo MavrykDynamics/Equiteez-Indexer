@@ -5,6 +5,7 @@ from equiteez.types.orderbook.tezos_parameters.clear_expired_orders import (
     ClearExpiredOrdersParameter,
 )
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
+from equiteez.utils.orderbook_utils import record_order_events
 
 
 async def clear_expired_orders(
@@ -45,11 +46,9 @@ async def clear_expired_orders(
         rwa_order_token, _ = await models.Token.get_or_create(
             address=rwa_order_token_address
         )
-        await rwa_order_token.save()
         rwa_order, _ = await models.OrderbookRwaOrder.get_or_create(
             orderbook=orderbook, rwa_token=rwa_order_token
         )
-        await rwa_order.save()
 
         # Delete past orders and prices
         await (
@@ -107,28 +106,13 @@ async def clear_expired_orders(
             await sell_order_record.save()
 
     # Save buy and sell orders
-    for buy_order_id in buy_order_ledger:
-        # Get buy order parameters
-        buy_order_record = buy_order_ledger[buy_order_id]
-        order_type = models.OrderType.BUY
-        is_expired = buy_order_record.booleans.bool_2
-
-        # Save buy order
-        buy_order = await models.OrderbookOrder.get(
-            orderbook=orderbook, order_id=buy_order_id, order_type=order_type
-        )
-        buy_order.is_expired = is_expired
-        await buy_order.save()
-
-    for sell_order_id in sell_order_ledger:
-        # Get sell order parameters
-        sell_order_record = sell_order_ledger[sell_order_id]
-        order_type = models.OrderType.SELL
-        is_expired = sell_order_record.booleans.bool_2
-
-        # Save sell order
-        sell_order = await models.OrderbookOrder.get(
-            orderbook=orderbook, order_id=sell_order_id, order_type=order_type
-        )
-        sell_order.is_expired = is_expired
-        await sell_order.save()
+    await record_order_events(
+        ctx,
+        orderbook=orderbook,
+        ledgers=[
+            (models.OrderType.BUY, buy_order_ledger),
+            (models.OrderType.SELL, sell_order_ledger),
+        ],
+        intent=models.OrderEventType.EXPIRE,
+        data=clear_expired_orders.data,
+    )
