@@ -46,7 +46,12 @@ class Token(ContractBase):
     This table contains metadata and configuration for all tokens in Equiteez,
     including FA1.2, FA2, and Mavryk-specific tokens. Each token is identified by its
     contract address and token ID (for FA2 tokens with multiple token types).
+    Allowlisted RWA assets can be selected with in_allowlist=true and
+    is_quote_token=false; quote tokens remain available for payment queries.
     """
+
+    # Contract address is present in the allowlist's quote_tokens collection.
+    is_quote_token = fields.BooleanField(default=False)
 
     # Token ID (for FA2 tokens with multiple token types)
     token_id = fields.SmallIntField(default=0)

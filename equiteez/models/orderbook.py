@@ -454,7 +454,16 @@ class OrderbookOrderEvent(Model):
 
     orderbook = fields.ForeignKeyField("models.Orderbook", related_name="order_events")
 
-    order = fields.ForeignKeyField("models.OrderbookOrder", related_name="events")
+    # Internal orderbook_order.id foreign key, not the on-chain order ID.
+    # Resolve the on-chain ID through the order relationship (orderbook_order.order_id).
+    order = fields.ForeignKeyField(
+        "models.OrderbookOrder",
+        related_name="events",
+        description=(
+            "Internal orderbook_order.id foreign key, not the on-chain order ID. "
+            "Resolve the on-chain ID through the order relationship (orderbook_order.order_id)."
+        ),
+    )
 
     initiator = fields.ForeignKeyField(
         "models.EquiteezUser", related_name="orderbook_order_events"

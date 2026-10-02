@@ -11,7 +11,8 @@ DO $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM pg_indexes
-        WHERE tablename = 'orderbook_order'
+        WHERE schemaname = current_schema()
+          AND tablename = 'orderbook_order'
           AND indexdef ILIKE 'CREATE UNIQUE INDEX%(orderbook_id, order_type, order_id)%'
     ) THEN
         -- Duplicates from the old blind-INSERT placement handlers; keep the earliest
@@ -34,10 +35,11 @@ DECLARE
     stale text;
 BEGIN
     SELECT indexname INTO stale FROM pg_indexes
-    WHERE tablename = 'orderbook_order'
+    WHERE schemaname = current_schema()
+      AND tablename = 'orderbook_order'
       AND indexdef ILIKE 'CREATE INDEX%(orderbook_id, order_type)';
     IF stale IS NOT NULL THEN
-        EXECUTE format('DROP INDEX %I', stale);
+        EXECUTE format('DROP INDEX %I.%I', current_schema(), stale);
     END IF;
 END $$;
 
@@ -51,7 +53,8 @@ DO $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns
-        WHERE table_name = 'orderbook_order_event'
+        WHERE table_schema = current_schema()
+          AND table_name = 'orderbook_order_event'
           AND column_name = 'currency_id'
           AND is_nullable = 'NO'
     ) THEN
@@ -80,13 +83,18 @@ DO $$
 BEGIN
     IF (
         SELECT column_default FROM information_schema.columns
-        WHERE table_name = 'orderbook_order_event'
+        WHERE table_schema = current_schema()
+          AND table_name = 'orderbook_order_event'
           AND column_name = 'batch_index'
     ) = '0' THEN
         UPDATE orderbook_order_event SET batch_index = -1 WHERE batch_index = 0;
         ALTER TABLE orderbook_order_event ALTER COLUMN batch_index SET DEFAULT -1;
     END IF;
 END $$;
+
+-- Publish the identifier distinction for existing databases as well as new ones.
+COMMENT ON COLUMN orderbook_order_event.order_id IS
+    'Internal orderbook_order.id foreign key, not the on-chain order ID. Resolve the on-chain ID through the order relationship (orderbook_order.order_id).';
 
 -- operation_hash: Mavryk operation hash on user-token transfers
 ALTER TABLE equiteez_user_token_transfer

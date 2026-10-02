@@ -44,3 +44,9 @@ datasources:
     kind: tezos.tzkt
     url: ${MVKT_URL:-changeme}
     merge_subscriptions: true
+    # Match local catch-up retries without exponential delays.
+    http:
+      retry_count: 30
+      retry_sleep: 2
+      retry_multiplier: 1.0
+      request_timeout: 120

@@ -4,6 +4,7 @@
 DO $$
 DECLARE
     is_hypertable boolean;
+    primary_key_name text;
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'timescaledb') THEN
         RETURN;
@@ -12,12 +13,16 @@ BEGIN
     SELECT EXISTS (
         SELECT 1
         FROM timescaledb_information.hypertables
-        WHERE hypertable_name = 'orderbook_order_event'
+        WHERE hypertable_schema = current_schema()
+          AND hypertable_name = 'orderbook_order_event'
     ) INTO is_hypertable;
 
     IF NOT is_hypertable THEN
-        IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'orderbook_order_event_pkey') THEN
-            ALTER TABLE orderbook_order_event DROP CONSTRAINT orderbook_order_event_pkey;
+        SELECT conname INTO primary_key_name
+        FROM pg_constraint
+        WHERE conrelid = 'orderbook_order_event'::regclass AND contype = 'p';
+        IF primary_key_name IS NOT NULL THEN
+            EXECUTE format('ALTER TABLE orderbook_order_event DROP CONSTRAINT %I', primary_key_name);
         END IF;
 
         ALTER TABLE orderbook_order_event

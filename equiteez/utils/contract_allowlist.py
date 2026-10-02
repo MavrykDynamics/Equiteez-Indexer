@@ -77,3 +77,13 @@ def allowlist_contains(
     if allowlist is None:
         return False
     return address in (allowlist.get(list_key) or set())
+
+
+def token_in_allowlist(
+    allowlist: Optional[Dict[str, Set[str]]],
+    address: str,
+) -> bool:
+    """Return whether a token contract is listed as a base or quote token."""
+    return allowlist_contains(allowlist, BASE_TOKENS, address) or allowlist_contains(
+        allowlist, QUOTE_TOKENS, address
+    )

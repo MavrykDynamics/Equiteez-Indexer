@@ -37,7 +37,8 @@ BEGIN
         -- column together with its FK right after this hook, so skip, don't fail.
         IF NOT EXISTS (
             SELECT 1 FROM information_schema.columns
-            WHERE table_name = fk.tbl AND column_name = fk.col
+            WHERE table_schema = current_schema()
+              AND table_name = fk.tbl AND column_name = fk.col
         ) THEN
             CONTINUE;
         END IF;
