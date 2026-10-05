@@ -3,6 +3,7 @@ from dipdup.models.tezos import TezosTransaction
 from equiteez import models as models
 from equiteez.types.orderbook.tezos_parameters.match_orders import MatchOrdersParameter
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
+from equiteez.utils.orderbook_utils import record_order_events
 from dateutil import parser
 
 
@@ -48,7 +49,6 @@ async def match_orders(
         currency, _ = await models.OrderbookCurrency.get_or_create(
             orderbook=orderbook, currency_name=currency_name
         )
-        await currency.save()
         orderbook_fee, _ = await models.OrderbookFee.get_or_create(
             orderbook=orderbook, currency=currency
         )
@@ -66,11 +66,9 @@ async def match_orders(
         rwa_order_token, _ = await models.Token.get_or_create(
             address=rwa_order_token_address
         )
-        await rwa_order_token.save()
         rwa_order = await models.OrderbookRwaOrder.get(
             orderbook=orderbook, rwa_token=rwa_order_token
         )
-        await rwa_order.save()
 
         # Delete old records
         await (
@@ -128,84 +126,13 @@ async def match_orders(
             await sell_order_record.save()
 
     # Update order ledgers
-    for buy_order_id in buy_order_ledger:
-        # Get buy order parameters
-        buy_order_record = buy_order_ledger[buy_order_id]
-        fulfilled_amount = buy_order_record.fulfilledAmount
-        unfulfilled_amount = buy_order_record.unfulfilledAmount
-        total_paid_out = buy_order_record.totalOrderFulfilled.nat_0
-        total_usd_value_of_rwa_token_amount = buy_order_record.totalOrderFulfilled.nat_1
-        is_fulfilled = buy_order_record.booleans.bool_0
-        is_canceled = buy_order_record.booleans.bool_1
-        is_expired = buy_order_record.booleans.bool_2
-        is_refunded = buy_order_record.isRefunded
-        refunded_amount = buy_order_record.refundedAmount
-
-        # Save buy order
-        buy_order, _ = await models.OrderbookOrder.get_or_create(
-            orderbook=orderbook, order_type=models.OrderType.BUY, order_id=buy_order_id
-        )
-        buy_order.fulfilled_amount = fulfilled_amount
-        buy_order.unfulfilled_amount = unfulfilled_amount
-        buy_order.total_paid_out = total_paid_out
-        buy_order.total_usd_value_of_rwa_token_amount = (
-            total_usd_value_of_rwa_token_amount
-        )
-        buy_order.is_fulfilled = is_fulfilled
-        buy_order.is_canceled = is_canceled
-        buy_order.is_expired = is_expired
-        buy_order.is_refunded = is_refunded
-        buy_order.refunded_amount = refunded_amount
-        buy_order.created_at = parser.parse(
-            buy_order_record.orderTimestamps.timestamp_0
-        )
-        if buy_order_record.orderExpiry:
-            buy_order.order_expiry = parser.parse(buy_order_record.orderExpiry)
-        if buy_order_record.orderTimestamps.timestamp_1:
-            buy_order.ended_at = parser.parse(
-                buy_order_record.orderTimestamps.timestamp_1
-            )
-        await buy_order.save()
-
-    for sell_order_id in sell_order_ledger:
-        # Get sell order parameters
-        sell_order_record = sell_order_ledger[sell_order_id]
-        fulfilled_amount = sell_order_record.fulfilledAmount
-        unfulfilled_amount = sell_order_record.unfulfilledAmount
-        total_paid_out = sell_order_record.totalOrderFulfilled.nat_0
-        total_usd_value_of_rwa_token_amount = (
-            sell_order_record.totalOrderFulfilled.nat_1
-        )
-        is_fulfilled = sell_order_record.booleans.bool_0
-        is_canceled = sell_order_record.booleans.bool_1
-        is_expired = sell_order_record.booleans.bool_2
-        is_refunded = sell_order_record.isRefunded
-        refunded_amount = sell_order_record.refundedAmount
-
-        # Save sell order
-        sell_order, _ = await models.OrderbookOrder.get_or_create(
-            orderbook=orderbook,
-            order_type=models.OrderType.SELL,
-            order_id=sell_order_id,
-        )
-        sell_order.fulfilled_amount = fulfilled_amount
-        sell_order.unfulfilled_amount = unfulfilled_amount
-        sell_order.total_paid_out = total_paid_out
-        sell_order.total_usd_value_of_rwa_token_amount = (
-            total_usd_value_of_rwa_token_amount
-        )
-        sell_order.is_fulfilled = is_fulfilled
-        sell_order.is_canceled = is_canceled
-        sell_order.is_expired = is_expired
-        sell_order.is_refunded = is_refunded
-        sell_order.refunded_amount = refunded_amount
-        sell_order.created_at = parser.parse(
-            sell_order_record.orderTimestamps.timestamp_0
-        )
-        if sell_order_record.orderExpiry:
-            sell_order.order_expiry = parser.parse(sell_order_record.orderExpiry)
-        if sell_order_record.orderTimestamps.timestamp_1:
-            sell_order.ended_at = parser.parse(
-                sell_order_record.orderTimestamps.timestamp_1
-            )
-        await sell_order.save()
+    await record_order_events(
+        ctx,
+        orderbook=orderbook,
+        ledgers=[
+            (models.OrderType.BUY, buy_order_ledger),
+            (models.OrderType.SELL, sell_order_ledger),
+        ],
+        intent=models.OrderEventType.FILL,
+        data=match_orders.data,
+    )

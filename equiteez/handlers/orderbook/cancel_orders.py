@@ -5,7 +5,7 @@ from equiteez.types.orderbook.tezos_parameters.cancel_orders import (
     CancelOrdersParameter,
 )
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
-from dateutil import parser
+from equiteez.utils.orderbook_utils import record_order_events
 
 
 async def cancel_orders(
@@ -45,11 +45,9 @@ async def cancel_orders(
         rwa_order_token, _ = await models.Token.get_or_create(
             address=rwa_order_token_address
         )
-        await rwa_order_token.save()
         rwa_order, _ = await models.OrderbookRwaOrder.get_or_create(
             orderbook=orderbook, rwa_token=rwa_order_token
         )
-        await rwa_order.save()
 
         # Delete past orders and prices
         await (
@@ -107,56 +105,13 @@ async def cancel_orders(
             await sell_order_record.save()
 
     # Update orders
-    for buy_order_id in buy_order_ledger:
-        # Get buy order parameters
-        buy_order_record = buy_order_ledger[buy_order_id]
-        is_fulfilled = buy_order_record.booleans.bool_0
-        is_canceled = buy_order_record.booleans.bool_1
-        is_expired = buy_order_record.booleans.bool_2
-        is_refunded = buy_order_record.isRefunded
-        refunded_amount = buy_order_record.refundedAmount
-
-        # Save buy order
-        buy_order = await models.OrderbookOrder.get(
-            orderbook=orderbook, order_type=models.OrderType.BUY, order_id=buy_order_id
-        )
-        buy_order.is_fulfilled = is_fulfilled
-        buy_order.is_canceled = is_canceled
-        buy_order.is_expired = is_expired
-        buy_order.is_refunded = is_refunded
-        buy_order.refunded_amount = refunded_amount
-        if buy_order_record.orderExpiry:
-            buy_order.order_expiry = parser.parse(buy_order_record.orderExpiry)
-        if buy_order_record.orderTimestamps.timestamp_1:
-            buy_order.ended_at = parser.parse(
-                buy_order_record.orderTimestamps.timestamp_1
-            )
-        await buy_order.save()
-
-    for sell_order_id in sell_order_ledger:
-        # Get buy order parameters
-        sell_order_record = sell_order_ledger[sell_order_id]
-        is_fulfilled = sell_order_record.booleans.bool_0
-        is_canceled = sell_order_record.booleans.bool_1
-        is_expired = sell_order_record.booleans.bool_2
-        is_refunded = sell_order_record.isRefunded
-        refunded_amount = sell_order_record.refundedAmount
-
-        # Save buy order
-        sell_order = await models.OrderbookOrder.get(
-            orderbook=orderbook,
-            order_type=models.OrderType.SELL,
-            order_id=sell_order_id,
-        )
-        sell_order.is_fulfilled = is_fulfilled
-        sell_order.is_canceled = is_canceled
-        sell_order.is_expired = is_expired
-        sell_order.is_refunded = is_refunded
-        sell_order.refunded_amount = refunded_amount
-        if sell_order_record.orderExpiry:
-            sell_order.order_expiry = parser.parse(sell_order_record.orderExpiry)
-        if sell_order_record.orderTimestamps.timestamp_1:
-            sell_order.ended_at = parser.parse(
-                sell_order_record.orderTimestamps.timestamp_1
-            )
-        await sell_order.save()
+    await record_order_events(
+        ctx,
+        orderbook=orderbook,
+        ledgers=[
+            (models.OrderType.BUY, buy_order_ledger),
+            (models.OrderType.SELL, sell_order_ledger),
+        ],
+        intent=models.OrderEventType.CANCEL,
+        data=cancel_orders.data,
+    )
