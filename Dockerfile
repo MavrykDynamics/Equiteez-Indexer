@@ -2,7 +2,7 @@ FROM python:3.12.4-slim
 
 RUN pip install poetry==1.8.4
 RUN apt-get update && \
-    apt-get -y install gcc && \
+    apt-get -y install gcc git && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /indexer

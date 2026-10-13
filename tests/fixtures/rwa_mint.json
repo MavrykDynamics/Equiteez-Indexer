@@ -1,0 +1,78 @@
+{
+  "id": 61999213969408,
+  "level": 6515639,
+  "timestamp": "2026-09-28T15:34:15Z",
+  "block": "BLAfBtcYGGLRCwDT2ZQ7hJ3ecbmj4Mv2oknL72y3Q6fSsvEwdVr",
+  "hash": "ooqPU71kvuRbSR4f7Tw29ZT7jPZpGDADY76RLsY8DQhEWRJuyMQ",
+  "counter": 177743,
+  "sender": {
+    "address": "mv19MAVgCDwzuNMWprbHrUZhznoH8n9NWGWt"
+  },
+  "nonce": null,
+  "target": {
+    "address": "KT1UqpQV34HZ2iGBxHtPKtdriwenu83Zy7mS"
+  },
+  "targetCodeHash": -539915183,
+  "parameter": {
+    "entrypoint": "mint",
+    "value": [
+      {
+        "owner": "mv19MAVgCDwzuNMWprbHrUZhznoH8n9NWGWt",
+        "amount": "144150000000",
+        "token_id": "0"
+      }
+    ]
+  },
+  "status": "applied",
+  "storage": {
+    "config": {
+      "permitMaxExpiryDuration": "259200",
+      "permitDefaultExpiryDuration": "86400"
+    },
+    "ledger": 3756,
+    "isKilled": false,
+    "isPaused": false,
+    "metadata": 3751,
+    "operators": 3757,
+    "token_ids": [
+      "0"
+    ],
+    "superAdmin": "KT1BoViNv2NYU5a4zCUfV87EqYRwuk82V1H1",
+    "total_supply": 3753,
+    "newSuperAdmin": null,
+    "permitsLedger": 3758,
+    "snapshotLedger": 3755,
+    "token_metadata": 3752,
+    "userChunkLedger": 3754,
+    "permitsExpiryLedger": 3760,
+    "membershipKycAddress": "KT1U6z4YZPswGHcw7xAJsGZn4Wb7CZUKN1HL",
+    "permitsCounterLedger": 3759,
+    "userPermitsExpiryLedger": 3761
+  },
+  "diffs": [
+    {
+      "bigmap": 3756,
+      "path": "ledger",
+      "action": "add_key",
+      "content": {
+        "hash": "exprutbqpCpffaTpHfSguo6YFdQLtCmtP6h59uYMJMRv3pdYFsz5m2",
+        "key": {
+          "owner": "mv19MAVgCDwzuNMWprbHrUZhznoH8n9NWGWt",
+          "token_id": "0"
+        },
+        "value": "144150000000"
+      }
+    },
+    {
+      "bigmap": 3753,
+      "path": "total_supply",
+      "action": "add_key",
+      "content": {
+        "hash": "exprtZBwZUeYYYfUs9B9Rg2ywHezVHnCCnmF9WsDQVrs582dSK63dC",
+        "key": "0",
+        "value": "144150000000"
+      }
+    }
+  ],
+  "type": "transaction"
+}

@@ -25,10 +25,11 @@ prometheus:
   update_interval: 5
 
 advanced:
+  decimal_precision: 76
   reindex:
     manual: wipe
     migration: exception
-    rollback: ignore
+    rollback: exception
     config_modified: wipe
     schema_modified: wipe
 

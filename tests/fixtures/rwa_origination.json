@@ -1,0 +1,82 @@
+{
+  "id": 60284690497536,
+  "level": 6338347,
+  "timestamp": "2026-09-18T09:13:29Z",
+  "block": "BKr8K5KYiDjjRBAPakvccyETRmLcRm9DjGMuATtNe2aR31C2ofc",
+  "hash": "op1mMcThhwsz89iZENveDmDnhXVMUKmmCCbfPiKZKXPaKpqUJkT",
+  "counter": 177436,
+  "sender": {
+    "address": "mv19MAVgCDwzuNMWprbHrUZhznoH8n9NWGWt"
+  },
+  "status": "applied",
+  "originatedContract": {
+    "kind": "asset",
+    "address": "KT1UqpQV34HZ2iGBxHtPKtdriwenu83Zy7mS",
+    "typeHash": -1967216962,
+    "codeHash": -539915183,
+    "tzips": [
+      "fa2"
+    ]
+  },
+  "storage": {
+    "config": {
+      "permitMaxExpiryDuration": "259200",
+      "permitDefaultExpiryDuration": "86400"
+    },
+    "ledger": 3756,
+    "isKilled": false,
+    "isPaused": false,
+    "metadata": 3751,
+    "operators": 3757,
+    "token_ids": [],
+    "superAdmin": "KT1BoViNv2NYU5a4zCUfV87EqYRwuk82V1H1",
+    "total_supply": 3753,
+    "newSuperAdmin": null,
+    "permitsLedger": 3758,
+    "snapshotLedger": 3755,
+    "token_metadata": 3752,
+    "userChunkLedger": 3754,
+    "permitsExpiryLedger": 3760,
+    "membershipKycAddress": "KT1U6z4YZPswGHcw7xAJsGZn4Wb7CZUKN1HL",
+    "permitsCounterLedger": 3759,
+    "userPermitsExpiryLedger": 3761
+  },
+  "diffs": [
+    {
+      "bigmap": 3756,
+      "path": "ledger",
+      "action": "allocate"
+    },
+    {
+      "bigmap": 3753,
+      "path": "total_supply",
+      "action": "allocate"
+    },
+    {
+      "bigmap": 3752,
+      "path": "token_metadata",
+      "action": "allocate"
+    },
+    {
+      "bigmap": 3752,
+      "path": "token_metadata",
+      "action": "add_key",
+      "content": {
+        "hash": "exprtZBwZUeYYYfUs9B9Rg2ywHezVHnCCnmF9WsDQVrs582dSK63dC",
+        "key": "0",
+        "value": {
+          "token_id": "0",
+          "token_info": {
+            "icon": "697066733a2f2f516d646b4462364b6e626f464e6b6e75794b37326546644d31714b676574595a6567426f516b636a44596847356b",
+            "name": "4d617273204f6e6520546f6b656e",
+            "symbol": "4d41525331",
+            "decimals": "36",
+            "thumbnailUri": "697066733a2f2f516d646b4462364b6e626f464e6b6e75794b37326546644d31714b676574595a6567426f516b636a44596847356b",
+            "shouldPreferSymbol": "74727565"
+          }
+        }
+      }
+    }
+  ],
+  "type": "origination"
+}

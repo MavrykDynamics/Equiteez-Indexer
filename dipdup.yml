@@ -1,10 +1,11 @@
 indexes:
-  token_index:
+  rwa_index:
     kind: tezos.operations
     datasources:
     - mvkt
     contracts:
     - token_watcher
+    - launchpad_watcher
     types:
     - origination
     - transaction
@@ -28,6 +29,106 @@ indexes:
     - callback: transfers.on_permit
       pattern:
       - destination: token_watcher
+        entrypoint: permitAndExecute
+    - callback: on_rwa_storage
+      pattern:
+      - type: transaction
+        entrypoint: mint
+        alias: operation
+    - callback: on_rwa_storage
+      pattern:
+      - type: transaction
+        entrypoint: burn
+        alias: operation
+    - callback: on_rwa_storage
+      pattern:
+      - type: transaction
+        entrypoint: setTokenMetadata
+        alias: operation
+    - callback: on_rwa_storage
+      pattern:
+      - type: transaction
+        entrypoint: default
+        alias: operation
+    - callback: launchpad.origination
+      pattern:
+      - type: origination
+        originated_contract: launchpad_watcher
+    - callback: launchpad.set_super_admin
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setSuperAdmin
+    - callback: launchpad.claim_super_admin
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: claimSuperAdmin
+    - callback: launchpad.set_membership_kyc_address
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setMembershipKycAddress
+    - callback: launchpad.set_treasury
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setTreasury
+    - callback: launchpad.update_metadata
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateMetadata
+    - callback: launchpad.update_config
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateConfig
+    - callback: launchpad.pause
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: pause
+    - callback: launchpad.set_purchase_record
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setPurchaseRecord
+    - callback: launchpad.create_token_launch
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: createTokenLaunch
+    - callback: launchpad.update_token_launch
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateTokenLaunch
+    - callback: launchpad.create_new_sale_option
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: createNewSaleOption
+    - callback: launchpad.update_sale_option
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: updateSaleOption
+    - callback: launchpad.set_sale_option
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setSaleOption
+    - callback: launchpad.set_launch_status
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setLaunchStatus
+    - callback: launchpad.distribute_tokens
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: distributeTokens
+    - callback: launchpad.purchase
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: purchase
+    - callback: launchpad.set_lambda
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: setLambda
+    - callback: launchpad.execute_permit
+      pattern:
+      - destination: launchpad_watcher
+        entrypoint: executePermit
+    - callback: launchpad.permit_and_execute
+      pattern:
+      - destination: launchpad_watcher
         entrypoint: permitAndExecute
 
   quote_token_index:
@@ -309,96 +410,6 @@ indexes:
       - destination: kyc_watcher
         entrypoint: permitAndExecute
 
-  launchpad_index:
-    kind: tezos.operations
-    datasources:
-    - mvkt
-    contracts:
-    - launchpad_watcher
-    types:
-    - origination
-    - transaction
-    handlers:
-    - callback: launchpad.origination
-      pattern:
-      - type: origination
-        originated_contract: launchpad_watcher
-    - callback: launchpad.set_super_admin
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setSuperAdmin
-    - callback: launchpad.claim_super_admin
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: claimSuperAdmin
-    - callback: launchpad.set_membership_kyc_address
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setMembershipKycAddress
-    - callback: launchpad.set_treasury
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setTreasury
-    - callback: launchpad.update_metadata
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: updateMetadata
-    - callback: launchpad.update_config
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: updateConfig
-    - callback: launchpad.pause
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: pause
-    - callback: launchpad.set_purchase_record
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setPurchaseRecord
-    - callback: launchpad.create_token_launch
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: createTokenLaunch
-    - callback: launchpad.update_token_launch
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: updateTokenLaunch
-    - callback: launchpad.create_new_sale_option
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: createNewSaleOption
-    - callback: launchpad.update_sale_option
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: updateSaleOption
-    - callback: launchpad.set_sale_option
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setSaleOption
-    - callback: launchpad.set_launch_status
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setLaunchStatus
-    - callback: launchpad.distribute_tokens
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: distributeTokens
-    - callback: launchpad.purchase
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: purchase
-    - callback: launchpad.set_lambda
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setLambda
-    - callback: launchpad.execute_permit
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: executePermit
-    - callback: launchpad.permit_and_execute
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: permitAndExecute
 
   # marketplace:
   #   kind: tezos.operations

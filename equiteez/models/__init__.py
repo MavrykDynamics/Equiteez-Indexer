@@ -5,3 +5,8 @@ from equiteez.models.dodo_mav import *
 from equiteez.models.marketplace import *
 from equiteez.models.super_admin import *
 from equiteez.models.launchpad import *
+
+from equiteez.models.rwa_supply import (
+    RwaTokenSupply as RwaTokenSupply,
+    RwaTokenBalance as RwaTokenBalance,
+)

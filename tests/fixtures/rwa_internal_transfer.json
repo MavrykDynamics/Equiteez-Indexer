@@ -1,0 +1,90 @@
+{
+  "type": "transaction",
+  "id": 64449447723008,
+  "level": 6768608,
+  "timestamp": "2026-10-13T07:07:12Z",
+  "block": "BM9dkcrAroRVbaLGaLd7FXfMQhaMtr6stBAcrTxMJPJpsADqvcL",
+  "hash": "ooM1KgQSuUmJSkisNuUTobntnHP2tsN2A8nA9NCF7cP8RdJYAFd",
+  "counter": 42023,
+  "initiator": {
+    "address": "mv1Q8N8X1bPB1m4aSFEsF5efrthv7DxDBRXf"
+  },
+  "sender": {
+    "address": "KT1BjnZec6FGSm3g2ZnDmL7dGfBQTj4yy4yh"
+  },
+  "senderCodeHash": 726669412,
+  "nonce": 1,
+  "target": {
+    "address": "KT1UqpQV34HZ2iGBxHtPKtdriwenu83Zy7mS"
+  },
+  "targetCodeHash": -539915183,
+  "parameter": {
+    "entrypoint": "transfer",
+    "value": [
+      {
+        "txs": [
+          {
+            "to_": "mv1FQCgBtbZf2zZ1AUj2NeBoYboyNq5PibUs",
+            "amount": "1989400",
+            "token_id": "0"
+          }
+        ],
+        "from_": "KT1BjnZec6FGSm3g2ZnDmL7dGfBQTj4yy4yh"
+      }
+    ]
+  },
+  "status": "applied",
+  "storage": {
+    "config": {
+      "permitMaxExpiryDuration": "259200",
+      "permitDefaultExpiryDuration": "86400"
+    },
+    "ledger": 3756,
+    "isKilled": false,
+    "isPaused": false,
+    "metadata": 3751,
+    "operators": 3757,
+    "token_ids": [
+      "0"
+    ],
+    "superAdmin": "KT1BoViNv2NYU5a4zCUfV87EqYRwuk82V1H1",
+    "total_supply": 3753,
+    "newSuperAdmin": null,
+    "permitsLedger": 3758,
+    "snapshotLedger": 3755,
+    "token_metadata": 3752,
+    "userChunkLedger": 3754,
+    "permitsExpiryLedger": 3760,
+    "membershipKycAddress": "KT1U6z4YZPswGHcw7xAJsGZn4Wb7CZUKN1HL",
+    "permitsCounterLedger": 3759,
+    "userPermitsExpiryLedger": 3761
+  },
+  "diffs": [
+    {
+      "bigmap": 3756,
+      "path": "ledger",
+      "action": "update_key",
+      "content": {
+        "hash": "expruweQFTKPPcgf1cxCPTRADd4nUNdVFKscGyWK7J7UhwSb5YgqcA",
+        "key": {
+          "owner": "KT1BjnZec6FGSm3g2ZnDmL7dGfBQTj4yy4yh",
+          "token_id": "0"
+        },
+        "value": "303442000"
+      }
+    },
+    {
+      "bigmap": 3756,
+      "path": "ledger",
+      "action": "update_key",
+      "content": {
+        "hash": "expruAhNKMkaxATpDm4CRbY1Xr6Db9Qs1hEiNUE7GtmR2X7i48aGgx",
+        "key": {
+          "owner": "mv1FQCgBtbZf2zZ1AUj2NeBoYboyNq5PibUs",
+          "token_id": "0"
+        },
+        "value": "486110000"
+      }
+    }
+  ]
+}
