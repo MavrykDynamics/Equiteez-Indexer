@@ -13,7 +13,7 @@ database:
   connection_timeout: 60
 
 hasura:
-  url: http://127.0.0.1:42008
+  url: http://127.0.0.1:42000
   allow_aggregations: false
   admin_secret: hasura12345
   select_limit: 1000
@@ -41,13 +41,12 @@ datasources:
     kind: tezos.tzkt
     url: https://basenet.api.mavryk.network
     # Public TzKT drops connections under the load of a catch-up sync
-    # (ClientPayloadError). Retry harder before giving up.
+    # (ClientPayloadError). Use a constant delay so failures remain bounded.
     http:
       retry_count: 30
       retry_sleep: 2
-      retry_multiplier: 1.5
+      retry_multiplier: 1.0
       request_timeout: 120
-
 
 
 

@@ -4,7 +4,6 @@ from dipdup.context import HookContext
 
 from equiteez import models
 from equiteez.utils.contract_allowlist import (
-    BASE_TOKENS,
     KYC,
     LAUNCHPADS,
     ORDERBOOKS,
@@ -12,6 +11,7 @@ from equiteez.utils.contract_allowlist import (
     SUPER_ADMINS,
     allowlist_contains,
     fetch_allowlist,
+    token_in_allowlist,
 )
 
 logger = logging.getLogger(__name__)
@@ -30,11 +30,11 @@ async def update_allowlist_status(
     updated = 0
 
     for token in await models.Token.all():
-        new_status = allowlist_contains(
-            allowlist, BASE_TOKENS, token.address
-        ) or allowlist_contains(allowlist, QUOTE_TOKENS, token.address)
-        if token.in_allowlist != new_status:
+        new_status = token_in_allowlist(allowlist, token.address)
+        is_quote_token = allowlist_contains(allowlist, QUOTE_TOKENS, token.address)
+        if token.in_allowlist != new_status or token.is_quote_token != is_quote_token:
             token.in_allowlist = new_status
+            token.is_quote_token = is_quote_token
             await token.save()
             updated += 1
 

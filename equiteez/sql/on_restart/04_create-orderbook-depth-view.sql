@@ -26,7 +26,8 @@ DO $$
 BEGIN
     IF EXISTS (
         SELECT 1 FROM pg_indexes
-        WHERE tablename = 'orderbook_order'
+        WHERE schemaname = current_schema()
+          AND tablename = 'orderbook_order'
           AND indexname = 'idx_orderbook_order_open_depth'
           AND indexdef NOT LIKE '%is_market_order%'
     ) THEN
