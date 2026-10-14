@@ -23,11 +23,13 @@ _PUBLIC_KEY_PREFIXES: dict[str, tuple[bytes, int, bytes]] = {
     "sppk": (bytes([3, 254, 226, 86]), 33, bytes([5, 186, 199])),
     # p256: p2pk -> mv3
     "p2pk": (bytes([3, 178, 139, 127]), 33, bytes([5, 186, 201])),
+    # bls12-381: BLpk -> mv4 (Mavryk protocol base58.ml)
+    "BLpk": (bytes([6, 149, 135, 204]), 48, bytes([5, 186, 204])),
 }
 
 
 def address_from_public_key(public_key: str) -> str:
-    """Implicit account address (mv1/mv2/mv3) owning a base58 public key."""
+    """Implicit account address (mv1/mv2/mv3/mv4) owning a base58 public key."""
     try:
         key_prefix, key_length, address_prefix = _PUBLIC_KEY_PREFIXES[public_key[:4]]
     except KeyError as exc:
