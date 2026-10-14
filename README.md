@@ -19,3 +19,18 @@ For an existing database using the local `schema_modified: wipe` policy, run
 `dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.types.yml -c dipdup.yml schema approve`
 before starting this version to retain indexed data. The production configuration
 uses `schema_modified: ignore`, so the restart migration runs in place.
+
+### KYC removals and incremental synchronization
+
+`kyc_registrar_admin`, `kyc_membership_tier`, `kyc_membership`, and
+`kyc_membership_tier_discount` keep removed entries with `is_removed = true`.
+Removal advances `updated_at`; adding the same entry again reuses its ID and
+clears `is_removed`. Queries for current state must filter `is_removed = false`.
+DualCursor consumers must fetch removed rows too, so they can remove those IDs
+from their local state. `kyc_member.membership_tier` ignores removed memberships,
+and `kyc_member_status_view.is_active` is false after the KYC record is removed.
+
+The restart migration adds these flags to existing tables with a default of
+`false`. Reconfigure Hasura to expose the columns before updating consumers.
+Rows hard-deleted by an earlier version cannot be recovered by this migration;
+reindex and rebuild downstream state if historical removals need to be restored.

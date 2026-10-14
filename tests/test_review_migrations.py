@@ -1,4 +1,4 @@
-"""Exercise PR 14 migrations against a disposable TimescaleDB instance.
+"""Exercise review migrations against a disposable TimescaleDB instance.
 
 Run: RUN_MIGRATION_TESTS=1 python tests/test_review_migrations.py
 Requires Docker and the local timescale/timescaledb:2.26.4-pg16 image. The test
@@ -358,9 +358,7 @@ class ReviewMigrationTests(unittest.TestCase):
             "t|t",
         )
 
-    def test_orm_startup_tolerates_token_before_discriminator_migration(self):
-        # DipDup generates safe ORM DDL before on_restart. A new field description
-        # or index would access the missing column before its migration can run.
+    def orm_ddl(self):
         sys.path.insert(0, str(SQL_ROOT.parents[1]))
         from dipdup.database import get_tortoise_config, prepare_models
         from tortoise import Tortoise
@@ -378,7 +376,12 @@ class ReviewMigrationTests(unittest.TestCase):
             finally:
                 await Tortoise.close_connections()
 
-        ddl = asyncio.run(generate_sql())
+        return asyncio.run(generate_sql())
+
+    def test_orm_startup_tolerates_token_before_discriminator_migration(self):
+        # DipDup generates safe ORM DDL before on_restart. A new field description
+        # or index would access the missing column before its migration can run.
+        ddl = self.orm_ddl()
         self.query(ddl)
         self.query("ALTER TABLE token DROP COLUMN is_quote_token;")
         self.query(ddl)
@@ -391,6 +394,96 @@ class ReviewMigrationTests(unittest.TestCase):
         """),
             "NO",
         )
+
+    def test_kyc_tombstones_upgrade_after_safe_orm_ddl_and_preserve_existing_rows(self):
+        ddl = self.orm_ddl()
+        self.query(ddl)
+        tables = (
+            "kyc_registrar_admin",
+            "kyc_membership_tier",
+            "kyc_membership",
+            "kyc_membership_tier_discount",
+        )
+        self.query("""
+            INSERT INTO kyc (id, address) VALUES (1, 'KT1kyc');
+            INSERT INTO equiteez_user (id, address) VALUES (1, 'mv1registrar');
+            INSERT INTO kyc_registrar (id, kyc_id, user_id) VALUES (1, 1, 1);
+            INSERT INTO kyc_registrar_admin (kyc_id, registrar_id, user_id) VALUES (1, 1, 1);
+            INSERT INTO kyc_membership_tier (kyc_id, registrar_id, name) VALUES (1, 1, 'Gold');
+            INSERT INTO kyc_membership (kyc_id, registrar_id, user_id, tier) VALUES (1, 1, 1, 'Gold');
+            INSERT INTO kyc_membership_tier_discount
+                (kyc_id, registrar_id, membership_tier, discount_name)
+                VALUES (1, 1, 'Gold', 'exitFee');
+        """)
+        for table in tables:
+            self.query(f"""
+                UPDATE {table} SET updated_at = '2000-01-01';
+                ALTER TABLE {table} DROP COLUMN is_removed;
+            """)
+        # Existing tables still lack is_removed when DipDup runs its safe DDL.
+        # A field description or ORM index on that column would abort startup.
+        self.query(ddl)
+        for _ in range(2):
+            self.migrate("on_restart/00_alter-tables.sql")
+            for table in tables:
+                self.assertEqual(
+                    self.query(f"""
+                    SELECT id, is_removed, updated_at = '2000-01-01'::timestamptz
+                    FROM {table};
+                """),
+                    "1|f|t",
+                )
+                self.assertEqual(
+                    self.query(f"""
+                    SELECT is_nullable FROM information_schema.columns
+                    WHERE table_schema = current_schema() AND table_name = '{table}'
+                      AND column_name = 'is_removed';
+                """),
+                    "NO",
+                )
+        for table in tables:
+            self.query(f"UPDATE {table} SET is_removed = TRUE;")
+        self.migrate("on_restart/00_alter-tables.sql")
+        for table in tables:
+            self.assertEqual(self.query(f"SELECT is_removed FROM {table};"), "t")
+
+    def test_kyc_status_view_requires_kyc_record_and_preserves_other_checks(self):
+        self.query(self.orm_ddl())
+        self.query("""
+            INSERT INTO kyc (id, address) VALUES (1, 'KT1kyc');
+            INSERT INTO equiteez_user (id, address)
+                SELECT n, 'mv1user' || n FROM generate_series(1, 7) AS n;
+            INSERT INTO kyc_registrar (id, kyc_id, user_id) VALUES (1, 1, 7);
+            INSERT INTO kyc_member (id, kyc_id, user_id, kyc_registrar_id, expire_at, frozen) VALUES
+                (1, 1, 1, NULL, NULL, FALSE),
+                (2, 1, 2, 1, NULL, FALSE),
+                (3, 1, 3, 1, NOW() + INTERVAL '1 day', FALSE),
+                (4, 1, 4, 1, NOW() - INTERVAL '1 day', FALSE),
+                (5, 1, 5, 1, NOW() + INTERVAL '1 day', TRUE),
+                (6, 1, 6, 1, NOW() + INTERVAL '1 day', FALSE);
+            INSERT INTO kyc_blacklisted (kyc_id, user_id) VALUES (1, 6);
+        """)
+        name = "on_restart/07_create-kyc-member-status-view.sql"
+        # Upgrade an existing view with the pre-blacklist column shape.
+        old_view = (
+            (SQL_ROOT / name)
+            .read_text()
+            .replace(
+                "    END AS is_active,\n    kb.id IS NOT NULL AS is_blacklisted",
+                "    END AS is_active",
+            )
+            .replace("        WHEN km.kyc_registrar_id IS NULL THEN false\n", "")
+        )
+        self.query(old_view)
+        for _ in range(2):
+            self.migrate(name)
+            self.assertEqual(
+                self.query("""
+                SELECT kyc_member_id, is_active, is_expired, is_blacklisted
+                FROM kyc_member_status_view ORDER BY kyc_member_id;
+            """),
+                "1|f|f|f\n2|t|f|f\n3|t|f|f\n4|f|t|f\n5|f|f|f\n6|f|f|t",
+            )
 
     def test_fresh_token_discriminator_preserves_allowlist(self):
         self.fixtures(fresh=True)

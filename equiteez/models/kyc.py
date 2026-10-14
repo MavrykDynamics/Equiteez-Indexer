@@ -309,6 +309,9 @@ class KycRegistrarAdmin(Model):
         "models.EquiteezUser", related_name="kyc_registrar_admins"
     )
 
+    # Tombstones let DualCursor consumers observe removals and later revival.
+    is_removed = fields.BooleanField(default=False)
+
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
     class Meta:
@@ -332,6 +335,9 @@ class KycMembershipTier(Model):
 
     # Tier name (e.g. "Starter")
     name = fields.TextField(index=True)
+
+    # Tombstones let DualCursor consumers observe removals and later revival.
+    is_removed = fields.BooleanField(default=False)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
@@ -359,6 +365,9 @@ class KycMembership(Model):
 
     # Tier name under the registrar
     tier = fields.TextField(index=True)
+
+    # Tombstones let DualCursor consumers observe removals and later revival.
+    is_removed = fields.BooleanField(default=False)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 
@@ -397,6 +406,9 @@ class KycMembershipTierDiscount(Model):
 
     # Discount value
     discount_value = fields.BigIntField(default=0)
+
+    # Tombstones let DualCursor consumers observe removals and later revival.
+    is_removed = fields.BooleanField(default=False)
 
     updated_at = fields.DatetimeField(auto_now=True, index=True)
 

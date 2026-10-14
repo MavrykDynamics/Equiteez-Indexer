@@ -21,9 +21,10 @@ SELECT
         WHEN km.expire_at < NOW() THEN true
         ELSE false
     END AS is_expired,
-    -- Check if member is active (the contract's userIsVerified: not frozen,
-    -- not expired, not blacklisted)
+    -- Check if member has KYC data and is active (the contract's userIsVerified:
+    -- not frozen, not expired, not blacklisted)
     CASE 
+        WHEN km.kyc_registrar_id IS NULL THEN false
         WHEN km.frozen = true THEN false
         WHEN kb.id IS NOT NULL THEN false
         WHEN km.expire_at IS NULL THEN true

@@ -68,13 +68,18 @@ async def _sync_registrar_admins(
         admin, _ = await models.KycRegistrarAdmin.get_or_create(
             kyc=kyc, user=await _user(admin_address), defaults={"registrar": registrar}
         )
-        if admin.registrar_id != registrar.id:
+        if admin.is_removed or admin.registrar_id != registrar.id:
             admin.registrar = registrar
+            admin.is_removed = False
             await admin.save()
     for admin_address in removed_bigmap_keys(data, "kycAdminRegistrarLedger"):
         user = await models.EquiteezUser.get_or_none(address=admin_address)
         if user:
-            await models.KycRegistrarAdmin.filter(kyc=kyc, user=user).delete()
+            for admin in await models.KycRegistrarAdmin.filter(
+                kyc=kyc, user=user, is_removed=False
+            ):
+                admin.is_removed = True
+                await admin.save()
 
 
 async def _sync_membership_tiers(
@@ -83,19 +88,26 @@ async def _sync_membership_tiers(
     # registrar -> set(tier): the value is the registrar's full tier set
     for registrar_address, tier_names in storage.membershipTierLedger.items():
         registrar = await _registrar(kyc, registrar_address)
-        await (
-            models.KycMembershipTier.filter(kyc=kyc, registrar=registrar)
-            .exclude(name__in=list(tier_names))
-            .delete()
-        )
+        for tier in await models.KycMembershipTier.filter(
+            kyc=kyc, registrar=registrar, is_removed=False
+        ).exclude(name__in=list(tier_names)):
+            tier.is_removed = True
+            await tier.save()
         for tier_name in tier_names:
-            await models.KycMembershipTier.get_or_create(
+            tier, _ = await models.KycMembershipTier.get_or_create(
                 kyc=kyc, registrar=registrar, name=tier_name
             )
+            if tier.is_removed:
+                tier.is_removed = False
+                await tier.save()
     for registrar_address in removed_bigmap_keys(data, "membershipTierLedger"):
         registrar = await _registrar_or_none(kyc, registrar_address)
         if registrar:
-            await models.KycMembershipTier.filter(kyc=kyc, registrar=registrar).delete()
+            for tier in await models.KycMembershipTier.filter(
+                kyc=kyc, registrar=registrar, is_removed=False
+            ):
+                tier.is_removed = True
+                await tier.save()
 
 
 async def _sync_tier_discounts(
@@ -105,13 +117,11 @@ async def _sync_tier_discounts(
     for item in storage.membershipTierDiscountLedger:
         registrar = await _registrar(kyc, item.key.address)
         tier_name = item.key.string
-        await (
-            models.KycMembershipTierDiscount.filter(
-                kyc=kyc, registrar=registrar, membership_tier=tier_name
-            )
-            .exclude(discount_name__in=list(item.value))
-            .delete()
-        )
+        for discount in await models.KycMembershipTierDiscount.filter(
+            kyc=kyc, registrar=registrar, membership_tier=tier_name, is_removed=False
+        ).exclude(discount_name__in=list(item.value)):
+            discount.is_removed = True
+            await discount.save()
         for discount_name, discount_value in item.value.items():
             discount, _ = await models.KycMembershipTierDiscount.get_or_create(
                 kyc=kyc,
@@ -120,13 +130,19 @@ async def _sync_tier_discounts(
                 discount_name=discount_name,
             )
             discount.discount_value = int(discount_value)
+            discount.is_removed = False
             await discount.save()
     for key in removed_bigmap_keys(data, "membershipTierDiscountLedger"):
         registrar = await _registrar_or_none(kyc, _key_field(key, "address"))
         if registrar:
-            await models.KycMembershipTierDiscount.filter(
-                kyc=kyc, registrar=registrar, membership_tier=_key_field(key, "string")
-            ).delete()
+            for discount in await models.KycMembershipTierDiscount.filter(
+                kyc=kyc,
+                registrar=registrar,
+                membership_tier=_key_field(key, "string"),
+                is_removed=False,
+            ):
+                discount.is_removed = True
+                await discount.save()
 
 
 async def _sync_memberships(
@@ -142,8 +158,9 @@ async def _sync_memberships(
             user=await _user(item.key.address_1),
             defaults={"tier": item.value},
         )
-        if membership.tier != item.value:
+        if membership.is_removed or membership.tier != item.value:
             membership.tier = item.value
+            membership.is_removed = False
             await membership.save()
         touched.add(item.key.address_1)
     for key in removed_bigmap_keys(data, "memberLedger"):
@@ -151,9 +168,11 @@ async def _sync_memberships(
         registrar = await _registrar_or_none(kyc, _key_field(key, "address_0"))
         user = await models.EquiteezUser.get_or_none(address=member_address)
         if registrar and user:
-            await models.KycMembership.filter(
-                kyc=kyc, registrar=registrar, user=user
-            ).delete()
+            for membership in await models.KycMembership.filter(
+                kyc=kyc, registrar=registrar, user=user, is_removed=False
+            ):
+                membership.is_removed = True
+                await membership.save()
         touched.add(member_address)
     return touched
 
@@ -245,6 +264,7 @@ async def _refresh_member_tiers(kyc: "models.Kyc", member_addresses: set[str]) -
                 kyc=kyc,
                 registrar_id=member.kyc_registrar_id,
                 user_id=member.user_id,
+                is_removed=False,
             )
             tier = membership.tier if membership else None
         if member.membership_tier != tier:

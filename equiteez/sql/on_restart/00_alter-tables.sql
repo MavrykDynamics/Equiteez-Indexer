@@ -254,3 +254,15 @@ CREATE INDEX IF NOT EXISTS idx_kyc_membership_tier_discount_registrar
 CREATE INDEX IF NOT EXISTS idx_kyc_registrar_admin_updated_at_id ON kyc_registrar_admin (updated_at ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_kyc_membership_tier_updated_at_id ON kyc_membership_tier (updated_at ASC, id ASC);
 CREATE INDEX IF NOT EXISTS idx_kyc_membership_updated_at_id      ON kyc_membership      (updated_at ASC, id ASC);
+
+-- Keep removed ledger rows visible to DualCursor pollers. Do not index or add
+-- field descriptions in ORM metadata: safe DDL runs before these columns exist
+-- on databases that already contain the membership tables.
+ALTER TABLE kyc_registrar_admin
+    ADD COLUMN IF NOT EXISTS is_removed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE kyc_membership_tier
+    ADD COLUMN IF NOT EXISTS is_removed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE kyc_membership
+    ADD COLUMN IF NOT EXISTS is_removed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE kyc_membership_tier_discount
+    ADD COLUMN IF NOT EXISTS is_removed BOOLEAN NOT NULL DEFAULT FALSE;
