@@ -11,7 +11,9 @@ class Config(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    tickSize: str
+    quantityTickSize: str
+    priceTickSize: str
+    maxOrdersPerPriceLevel: str
     minExpiryTime: str
     minTimeBeforeClosingOrder: str
     minBuyOrderAmount: str
@@ -20,6 +22,11 @@ class Config(BaseModel):
     minSellOrderValue: str
     buyOrderFee: str
     sellOrderFee: str
+    cancelOrderFee: str
+    lowerBoundBuyOrderPercent: str
+    upperBoundBuyOrderPercent: str
+    lowerBoundSellOrderPercent: str
+    upperBoundSellOrderPercent: str
     permitDefaultExpiryDuration: str
     permitMaxExpiryDuration: str
 
@@ -36,20 +43,9 @@ class CurrencyLedger(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    tokenType: str
     tokenContractAddress: str
     tokenId: str
     decimals: str
-
-
-class RwaOrderLedger(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    buyPriceMap: Dict[str, str]
-    sellPriceMap: Dict[str, str]
-    buyOrderMap: Dict[str, List[str]]
-    sellOrderMap: Dict[str, List[str]]
 
 
 class TotalOrderFulfilled(BaseModel):
@@ -115,28 +111,24 @@ class SellOrderLedger(BaseModel):
     isMarketOrder: bool
 
 
-class Key(BaseModel):
+class BuyOrderMap(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    address: str
-    bytes: str
+    headCounter: str
+    nextCounter: str
+    sortedOrderMap: Dict[str, str]
+    orderToCounterMap: Dict[str, str]
 
 
-class PermitsLedgerItem(BaseModel):
+class SellOrderMap(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    key: Key
-    value: str
-
-
-class PermitsExpiryLedgerItem(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    key: Key
-    value: str
+    headCounter: str
+    nextCounter: str
+    sortedOrderMap: Dict[str, str]
+    orderToCounterMap: Dict[str, str]
 
 
 class HighestBuyPrice(BaseModel):
@@ -165,6 +157,38 @@ class LastMatchedPrice(BaseModel):
     lastMatchedTimestamp: str
 
 
+class Key(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address: str
+    bytes: str
+
+
+class Value(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    registeredAt: str
+    deadline: str
+
+
+class PermitsLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key
+    value: Value
+
+
+class PermitsExpiryLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key
+    value: str
+
+
 class OrderbookStorage(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -179,16 +203,19 @@ class OrderbookStorage(BaseModel):
     pauseLedger: Dict[str, bool]
     feeLedger: Dict[str, FeeLedger]
     currencyLedger: Dict[str, CurrencyLedger]
-    rwaOrderLedger: Dict[str, RwaOrderLedger]
     buyOrderLedger: Dict[str, BuyOrderLedger]
     sellOrderLedger: Dict[str, SellOrderLedger]
-    permitsLedger: List[PermitsLedgerItem]
-    permitsCounterLedger: Dict[str, str]
-    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
-    userPermitsExpiryLedger: Dict[str, str]
+    buyPriceMap: Dict[str, str]
+    sellPriceMap: Dict[str, str]
+    buyOrderMap: Dict[str, BuyOrderMap]
+    sellOrderMap: Dict[str, SellOrderMap]
     highestBuyPrice: HighestBuyPrice
     lowestSellPrice: LowestSellPrice
     lastMatchedPrice: LastMatchedPrice
     buyOrderCounter: str
     sellOrderCounter: str
     lambdaLedger: Dict[str, str]
+    permitsLedger: List[PermitsLedgerItem]
+    permitsCounterLedger: Dict[str, str]
+    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
+    userPermitsExpiryLedger: Dict[str, str]

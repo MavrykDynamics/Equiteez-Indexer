@@ -7,6 +7,14 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict
 
 
+class Config(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permitDefaultExpiryDuration: str
+    permitMaxExpiryDuration: str
+
+
 class AllowedMembershipTiers(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -16,6 +24,13 @@ class AllowedMembershipTiers(BaseModel):
 
 
 class Currency(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    mav: Dict[str, Any]
+
+
+class Currency1(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -30,18 +45,11 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class Currency1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    fa2: Fa2
-
-
 class Currency2(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    mav: Dict[str, Any]
+    fa2: Fa2
 
 
 class Payments(BaseModel):
@@ -83,6 +91,7 @@ class LaunchLedger(BaseModel):
     saleEnd: str | None = None
     saleClosed: str | None = None
     saleOptions: Dict[str, SaleOptions]
+    enableKyc: bool
 
 
 class Key(BaseModel):
@@ -110,6 +119,38 @@ class PurchaseLedgerItem(BaseModel):
     value: Value
 
 
+class Key1(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address: str
+    bytes: str
+
+
+class Value1(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    registeredAt: str
+    deadline: str
+
+
+class PermitsLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key1
+    value: Value1
+
+
+class PermitsExpiryLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key1
+    value: str
+
+
 class LaunchpadStorage(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -119,7 +160,12 @@ class LaunchpadStorage(BaseModel):
     membershipKycAddress: str
     treasuryLedger: Dict[str, str]
     metadata: Dict[str, str]
+    config: Config
     pauseLedger: Dict[str, bool]
     launchLedger: Dict[str, LaunchLedger]
     purchaseLedger: List[PurchaseLedgerItem]
+    permitsLedger: List[PermitsLedgerItem]
+    permitsCounterLedger: Dict[str, str]
+    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
+    userPermitsExpiryLedger: Dict[str, str]
     lambdaLedger: Dict[str, str]

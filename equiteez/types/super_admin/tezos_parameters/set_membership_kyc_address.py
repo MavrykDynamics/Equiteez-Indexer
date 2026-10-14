@@ -7,9 +7,9 @@ from typing import List
 from pydantic import BaseModel, ConfigDict
 
 
-class SetContractAdminParameter(BaseModel):
+class SetMembershipKycAddressParameter(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    adminAddress: str
+    membershipKycAddress: str
     contractAddressList: List[str]

@@ -13,7 +13,6 @@ class SetRegistrarAdminParameterItem(BaseModel):
     )
     updateType: str
     adminAddress: str
-    kycRegistrarAddress: str
 
 
 class SetRegistrarAdminParameter(RootModel[List[SetRegistrarAdminParameterItem]]):

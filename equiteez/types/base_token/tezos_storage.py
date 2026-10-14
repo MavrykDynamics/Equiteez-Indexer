@@ -7,6 +7,14 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict
 
 
+class Config(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permitDefaultExpiryDuration: str
+    permitMaxExpiryDuration: str
+
+
 class TokenMetadata(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -81,6 +89,38 @@ class Operator(BaseModel):
     value: Dict[str, Any]
 
 
+class Key3(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address: str
+    bytes: str
+
+
+class Value1(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    registeredAt: str
+    deadline: str
+
+
+class PermitsLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key3
+    value: Value1
+
+
+class PermitsExpiryLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key3
+    value: str
+
+
 class BaseTokenStorage(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -89,7 +129,9 @@ class BaseTokenStorage(BaseModel):
     newSuperAdmin: str | None = None
     membershipKycAddress: str
     isPaused: bool
+    isKilled: bool
     metadata: Dict[str, str]
+    config: Config
     token_metadata: Dict[str, TokenMetadata]
     total_supply: Dict[str, str]
     token_ids: List[str]
@@ -97,3 +139,7 @@ class BaseTokenStorage(BaseModel):
     snapshotLedger: List[SnapshotLedgerItem]
     ledger: List[LedgerItem]
     operators: List[Operator]
+    permitsLedger: List[PermitsLedgerItem]
+    permitsCounterLedger: Dict[str, str]
+    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
+    userPermitsExpiryLedger: Dict[str, str]

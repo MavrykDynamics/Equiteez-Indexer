@@ -12,6 +12,7 @@ class SetMembershipTierDiscountParameterItem(BaseModel):
         extra="forbid",
     )
     updateType: str
+    kycRegistrarAddress: str
     membershipTierName: str
     discountName: str
     discountValue: str

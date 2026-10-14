@@ -4,8 +4,12 @@ from __future__ import annotations
 
 from typing import List
 
-from pydantic import RootModel
+from pydantic import BaseModel, ConfigDict
 
 
-class FreezeMemberParameter(RootModel[List[str]]):
-    root: List[str]
+class FreezeMemberParameter(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    memberAddressList: List[str]
+    freeze: bool

@@ -10,10 +10,7 @@ from equiteez.utils.contract_allowlist import (
     allowlist_contains,
     fetch_allowlist,
 )
-from equiteez.utils.launchpad_utils import (
-    upsert_launch_from_record,
-    upsert_sale_option,
-)
+from equiteez.utils.launchpad_utils import apply_launchpad_config, sync_launches
 from equiteez.utils.utils import get_contract_metadata
 
 logger = logging.getLogger(__name__)
@@ -48,7 +45,8 @@ async def origination(
     if not created:
         for k, v in defaults.items():
             setattr(launchpad, k, v)
-        await launchpad.save()
+    apply_launchpad_config(launchpad, storage.config)
+    await launchpad.save()
 
     for name, treasury_address in storage.treasuryLedger.items():
         treasury, _ = await models.LaunchpadTreasury.get_or_create(
@@ -67,12 +65,7 @@ async def origination(
         status.paused = paused
         await status.save()
 
-    for launch_name, launch_record in storage.launchLedger.items():
-        launch = await upsert_launch_from_record(
-            ctx, launchpad, launch_name, launch_record
-        )
-        for option_name, option_record in launch_record.saleOptions.items():
-            await upsert_sale_option(ctx, launch, option_name, option_record)
+    await sync_launches(ctx, launchpad, storage)
 
     for item in storage.purchaseLedger:
         launch_name = item.key.string

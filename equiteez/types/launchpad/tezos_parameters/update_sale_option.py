@@ -19,6 +19,13 @@ class Currency(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
+    mav: Dict[str, Any]
+
+
+class Currency1(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
     fa12: str
 
 
@@ -30,18 +37,11 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class Currency1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    fa2: Fa2
-
-
 class Currency2(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    mav: Dict[str, Any]
+    fa2: Fa2
 
 
 class Payments(BaseModel):

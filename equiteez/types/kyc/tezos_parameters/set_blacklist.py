@@ -2,28 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import List
 
-from pydantic import BaseModel, ConfigDict, Field
-
-
-class SetBlacklistAction(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    addToBlacklist: List[str]
-
-
-class SetBlacklistAction1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    removeFromBlacklist: List[str]
+from pydantic import BaseModel, ConfigDict
 
 
 class SetBlacklistParameter(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    setBlacklistAction: SetBlacklistAction | SetBlacklistAction1
-    field_unit: Dict[str, Any] = Field(..., alias="_unit")
+    updateType: str
+    addresses: List[str]

@@ -2,37 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import List
 
-from pydantic import BaseModel, ConfigDict, Field
-
-
-class SetValidInputAction(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    country: List[str]
-
-
-class SetValidInputAction1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    investorType: List[str]
-
-
-class SetValidInputAction2(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    region: List[str]
+from pydantic import BaseModel, ConfigDict
 
 
 class SetValidInputParameter(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    setValidInputAction: (
-        SetValidInputAction | SetValidInputAction1 | SetValidInputAction2
-    )
-    field_unit: Dict[str, Any] = Field(..., alias="_unit")
+    inputType: str
+    values: List[str]

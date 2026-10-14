@@ -24,13 +24,6 @@ class SetMemberKycAction(BaseModel):
     addMemberKyc: List[AddMemberKycItem]
 
 
-class SetMemberKycAction1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    removeMemberKyc: List[str]
-
-
 class UpdateMemberKycItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -42,11 +35,18 @@ class UpdateMemberKycItem(BaseModel):
     expireAt: str | None = None
 
 
-class SetMemberKycAction2(BaseModel):
+class SetMemberKycAction1(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     updateMemberKyc: List[UpdateMemberKycItem]
+
+
+class SetMemberKycAction2(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    removeMemberKyc: List[str]
 
 
 class SetMemberKycParameter(BaseModel):

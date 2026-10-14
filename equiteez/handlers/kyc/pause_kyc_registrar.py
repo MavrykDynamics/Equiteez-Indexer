@@ -1,33 +1,14 @@
 from dipdup.context import HandlerContext
 from dipdup.models.tezos import TezosTransaction
-from equiteez import models as models
 from equiteez.types.kyc.tezos_parameters.pause_kyc_registrar import (
     PauseKycRegistrarParameter,
 )
 from equiteez.types.kyc.tezos_storage import KycStorage
+from equiteez.utils.kyc_utils import sync_kyc_operation
 
 
 async def pause_kyc_registrar(
     ctx: HandlerContext,
     pause_kyc_registrar: TezosTransaction[PauseKycRegistrarParameter, KycStorage],
 ) -> None:
-    # Fetch operation info
-    address = pause_kyc_registrar.data.target_address
-    kyc_registrars = pause_kyc_registrar.storage.kycRegistrarLedger
-
-    # Get kyc
-    kyc = await models.Kyc.get(address=address)
-
-    # Update record
-    for registrar_address in kyc_registrars:
-        kyc_registrar = kyc_registrars[registrar_address]
-        user, _ = await models.EquiteezUser.get_or_create(address=registrar_address)
-        await user.save()
-        set_member_kyc_paused = kyc_registrar.setMemberKycIsPaused
-        freeze_member_paused = kyc_registrar.freezeMemberIsPaused
-        unfreeze_member_paused = kyc_registrar.unfreezeMemberIsPaused
-        registrar, _ = await models.KycRegistrar.get_or_create(kyc=kyc, user=user)
-        registrar.set_member_kyc_is_paused = set_member_kyc_paused
-        registrar.freeze_member_is_paused = freeze_member_paused
-        registrar.unfreeze_member_is_paused = unfreeze_member_paused
-        await registrar.save()
+    await sync_kyc_operation(ctx, pause_kyc_registrar)

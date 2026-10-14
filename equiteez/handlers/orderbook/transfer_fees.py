@@ -5,31 +5,12 @@ from equiteez.types.orderbook.tezos_parameters.transfer_fees import (
     TransferFeesParameter,
 )
 from equiteez.types.orderbook.tezos_storage import OrderbookStorage
+from equiteez.utils.orderbook_utils import sync_fee_ledger
 
 
 async def transfer_fees(
     ctx: HandlerContext,
     transfer_fees: TezosTransaction[TransferFeesParameter, OrderbookStorage],
 ) -> None:
-    # Fetch operations info
-    address = transfer_fees.data.target_address
-    fee_ledger = transfer_fees.storage.feeLedger
-
-    # Get orderbook
-    orderbook = await models.Orderbook.get(address=address)
-
-    # Update fees
-    for currency_name in fee_ledger:
-        fee_record = fee_ledger[currency_name]
-        fee_amount = fee_record.nat_0
-        paid_fee = fee_record.nat_1
-        currency, _ = await models.OrderbookCurrency.get_or_create(
-            orderbook=orderbook, currency_name=currency_name
-        )
-        await currency.save()
-        orderbook_fee, _ = await models.OrderbookFee.get_or_create(
-            orderbook=orderbook, currency=currency
-        )
-        orderbook_fee.fee_amount = fee_amount
-        orderbook_fee.paid_fee = paid_fee
-        await orderbook_fee.save()
+    orderbook = await models.Orderbook.get(address=transfer_fees.data.target_address)
+    await sync_fee_ledger(orderbook, transfer_fees.storage)

@@ -163,7 +163,7 @@ class TransferAllowlistTests(unittest.IsolatedAsyncioTestCase):
                 ]
             ),
         )
-        module = "equiteez.handlers.transfers.on_transfer"
+        module = "equiteez.utils.transfer_utils"
         with (
             patch(f"{module}.models.Token.get_or_none", AsyncMock(return_value=None)),
             patch(f"{module}.register_token", AsyncMock(return_value=base_token)),
@@ -177,8 +177,8 @@ class TransferAllowlistTests(unittest.IsolatedAsyncioTestCase):
                 AsyncMock(return_value=(SimpleNamespace(), True)),
             ),
             patch(
-                f"{module}.models.EquiteezUserTokenTransfer",
-                return_value=SimpleNamespace(save=AsyncMock()),
+                f"{module}.models.EquiteezUserTokenTransfer.create",
+                AsyncMock(),
             ),
         ):
             await on_transfer(SimpleNamespace(), transfer)

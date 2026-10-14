@@ -9,22 +9,8 @@ class Token(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    fa12Token: str
-
-
-class Fa2Token(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
     tokenContractAddress: str
     tokenId: str
-
-
-class Token1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    fa2Token: Fa2Token
 
 
 class SetCurrencyParameter(BaseModel):
@@ -34,4 +20,4 @@ class SetCurrencyParameter(BaseModel):
     actionType: str
     name: str
     decimals: str
-    token: Token | Token1
+    token: Token

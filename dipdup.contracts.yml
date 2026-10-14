@@ -1,33 +1,35 @@
 contracts:
-  # basenet deployment (2026-06-11)
+  # basenet deployment (2026-09-18, launchpad 2026-09-28): permit generation
   super_admin_watcher:
     kind: tezos
-    code_hash: KT1BH2pSeeohYBkXuAg1dmC22RTPTdzHTCc1
+    code_hash: KT1BoViNv2NYU5a4zCUfV87EqYRwuk82V1H1
     typename: super_admin
 
   kyc_watcher:
     kind: tezos
-    code_hash: KT1KifBfH5ubLXFq2rVvBaHrj2W7P83vQYib
+    code_hash: KT1U6z4YZPswGHcw7xAJsGZn4Wb7CZUKN1HL
     typename: kyc
 
   token_watcher:
     kind: tezos
-    code_hash: KT1XLUiaPpivxi2e4U1wEctQ7DKDkdz9GQgK
+    code_hash: KT1UqpQV34HZ2iGBxHtPKtdriwenu83Zy7mS
     typename: base_token
 
   orderbook_watcher:
     kind: tezos
-    code_hash: KT1Xku8NHSXradgodirQXxHLoVn4oESFPjes
+    code_hash: KT1BjnZec6FGSm3g2ZnDmL7dGfBQTj4yy4yh
     typename: orderbook
 
   launchpad_watcher:
     kind: tezos
-    code_hash: KT1TWy1xxjWaAhtQg1S2bF7V7AQRfe2eAwhE
+    code_hash: KT1U6KXwy8vduoq86HBjGp9m2Czc8rZM85MN
     typename: launchpad
 
+  # Bridge wUSDT (Sep-24 bridge): the "USDT" currency of the orderbooks and the
+  # launchpad sale options
   quote_token:
     kind: tezos
-    address: KT19bKTs9qsoBrspRNwsHn46YarEWuj3Vjc6
+    address: KT1Pn5Zpx1bJx5H51btk92pfwvUMCKtp2Q2v
     typename: quote_token
 
   # dodo_mav:

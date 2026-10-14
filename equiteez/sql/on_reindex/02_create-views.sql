@@ -85,37 +85,6 @@ FROM
     JOIN token blt ON dm.base_lp_token_id = blt.id
     JOIN token bt ON dm.base_token_id = bt.id;
 
-CREATE OR REPLACE VIEW kyc_member_status_view AS
-SELECT 
-    km.id AS kyc_member_id,
-    km.kyc_id,
-    k.address AS kyc_address,
-    eu.id AS user_id,
-    eu.address AS user_address,
-    km.kyc_registrar_id,
-    km.country,
-    km.region,
-    km.investor_type,
-    km.expire_at,
-    km.frozen,
-    -- Check if member is expired
-    CASE 
-        WHEN km.expire_at IS NULL THEN false
-        WHEN km.expire_at < NOW() THEN true
-        ELSE false
-    END AS is_expired,
-    -- Check if member is active
-    CASE 
-        WHEN km.frozen = true THEN false
-        WHEN km.expire_at IS NULL THEN true
-        WHEN km.expire_at < NOW() THEN false
-        ELSE true
-    END AS is_active
-FROM 
-    kyc_member km
-    JOIN kyc k ON km.kyc_id = k.id
-    JOIN equiteez_user eu ON km.user_id = eu.id;
-
 CREATE OR REPLACE VIEW token_metadata_view AS
 SELECT 
     t.id AS token_id,

@@ -7,19 +7,43 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict
 
 
+class Config(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permitDefaultExpiryDuration: str
+    permitMaxExpiryDuration: str
+
+
 class Key(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    string_0: str
-    string_1: str
+    address: str
+    string: str
 
 
-class MembershipTierLedgerItem(BaseModel):
+class MembershipTierDiscountLedgerItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     key: Key
+    value: Dict[str, str]
+
+
+class Key1(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address_0: str
+    address_1: str
+
+
+class MemberLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key1
     value: str
 
 
@@ -28,12 +52,12 @@ class KycRegistrarLedger(BaseModel):
         extra="forbid",
     )
     name: str
-    kycAdmins: List[str]
     membersVerified: str
     createdAt: str
+    setMemberIsPaused: bool
     setMemberKycIsPaused: bool
     freezeMemberIsPaused: bool
-    unfreezeMemberIsPaused: bool
+    setRegistrarAdminIsPaused: bool
 
 
 class CountryTransferRuleLedger(BaseModel):
@@ -58,6 +82,38 @@ class MemberKycLedger(BaseModel):
     kycRegistrar: str
 
 
+class Key2(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    address: str
+    bytes: str
+
+
+class Value(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    registeredAt: str
+    deadline: str
+
+
+class PermitsLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key2
+    value: Value
+
+
+class PermitsExpiryLedgerItem(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: Key2
+    value: str
+
+
 class KycStorage(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -65,15 +121,23 @@ class KycStorage(BaseModel):
     superAdmin: str
     newSuperAdmin: str | None = None
     metadata: Dict[str, str]
+    config: Config
     pauseLedger: Dict[str, bool]
-    membershipTierLedger: List[MembershipTierLedgerItem]
-    memberLedger: Dict[str, str]
+    membershipTierLedger: Dict[str, List[str]]
+    membershipTierDiscountLedger: List[MembershipTierDiscountLedgerItem]
+    memberLedger: List[MemberLedgerItem]
+    memberRegistrarLedger: Dict[str, List[str]]
     whitelistLedger: Dict[str, Dict[str, Any]]
     blacklistLedger: Dict[str, Dict[str, Any]]
     validInputLedger: Dict[str, List[str]]
     kycRegistrarLedger: Dict[str, KycRegistrarLedger]
+    kycAdminRegistrarLedger: Dict[str, str]
     countryTransferRuleLedger: Dict[str, CountryTransferRuleLedger]
     memberKycLedger: Dict[str, MemberKycLedger]
     enableKyc: bool
     enableMembership: bool
     lambdaLedger: Dict[str, str]
+    permitsLedger: List[PermitsLedgerItem]
+    permitsCounterLedger: Dict[str, str]
+    permitsExpiryLedger: List[PermitsExpiryLedgerItem]
+    userPermitsExpiryLedger: Dict[str, str]
