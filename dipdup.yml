@@ -371,10 +371,6 @@ indexes:
       pattern:
       - destination: launchpad_watcher
         entrypoint: updateSaleOption
-    - callback: launchpad.set_sale_option
-      pattern:
-      - destination: launchpad_watcher
-        entrypoint: setSaleOption
     - callback: launchpad.set_launch_status
       pattern:
       - destination: launchpad_watcher
