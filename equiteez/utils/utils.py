@@ -86,17 +86,29 @@ async def register_token(ctx, address, token_id=0, refresh=False):
     token's metadata after it was first indexed).
     """
     token, _ = await models.Token.get_or_create(address=address, token_id=token_id)
+    updated_fields = []
     if refresh or not token.metadata:
         metadata = await get_contract_metadata(ctx=ctx, address=address)
-        token.metadata = metadata or token.metadata
+        if metadata and metadata != token.metadata:
+            token.metadata = metadata
+            updated_fields.append("metadata")
     if refresh or not token.token_metadata:
         token_metadata = await get_contract_token_metadata(
             ctx=ctx, address=address, token_id=str(token_id)
         )
-        token.token_metadata = token_metadata or token.token_metadata
-    if not token.token_standard:
-        token.token_standard = await get_token_standard(ctx=ctx, address=address)
-    await token.save()
+        if token_metadata and token_metadata != token.token_metadata:
+            token.token_metadata = token_metadata
+            updated_fields.append("token_metadata")
+    if token.token_standard is None:
+        token_standard = await get_token_standard(ctx=ctx, address=address)
+        if token_standard is not None:
+            token.token_standard = token_standard
+            updated_fields.append("token_standard")
+    if updated_fields:
+        # Metadata requests yield to kill/allowlist handlers. Never write their
+        # columns from this potentially stale instance; only advance the cursor
+        # when metadata actually changed.
+        await token.save(update_fields=[*updated_fields, "updated_at"])
     return token
 
 
