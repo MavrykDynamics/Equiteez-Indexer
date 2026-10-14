@@ -232,15 +232,18 @@ async def upsert_sale_option(
     for payment_name, payment_record in record.payments.items():
         seen_payment_names.add(payment_name)
         token_addr = payment_token_address(payment_record.currency)
+        fa2 = getattr(payment_record.currency, "fa2", None)
+        token_id = int(fa2.tokenId) if fa2 is not None else 0
         payment, _ = await models.LaunchpadSaleOptionPayment.get_or_create(
             sale_option=sale_option, name=payment_name
         )
 
         await payment.fetch_related("token")
         current_addr = payment.token.address if payment.token else None
-        if token_addr != current_addr:
+        current_token_id = payment.token.token_id if payment.token else 0
+        if (token_addr, token_id) != (current_addr, current_token_id):
             payment.token = (
-                await register_token(ctx=ctx, address=token_addr)
+                await register_token(ctx=ctx, address=token_addr, token_id=token_id)
                 if token_addr
                 else None
             )
