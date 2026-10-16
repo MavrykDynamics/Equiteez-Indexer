@@ -377,7 +377,7 @@ class LaunchpadPurchaseEvent(Model):
     amount = fields.BigIntField(default=0)
 
     # Immutable purchase-time values in payment currency's smallest units.
-    # ADMIN / legacy / unproven payments remain null, not zero.
+    # ADMIN / unproven payments remain null, not zero.
     price = NaturalField(null=True)
     total = NaturalField(null=True)
     token_distribution_type = fields.IntEnumField(
@@ -385,8 +385,8 @@ class LaunchpadPurchaseEvent(Model):
     )
 
     # Distinguish transaction contents and internal calls within one hash.
-    # -1 marks legacy coordinates / an absent internal nonce.
-    operation_counter = fields.BigIntField(default=-1)
+    operation_counter = fields.BigIntField()
+    # A direct transaction has no internal nonce.
     operation_nonce = fields.IntField(default=-1)
 
     # USER (on-chain) vs ADMIN (off-chain reconciliation)

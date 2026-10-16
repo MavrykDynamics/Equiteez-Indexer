@@ -442,26 +442,6 @@ class PurchaseSnapshotTests(unittest.IsolatedAsyncioTestCase):
         restored = await models.LaunchpadPurchaseEvent.get(id=row.id)
         self.assertEqual((restored.price, restored.total), (2**256, 2**257))
 
-    async def test_legacy_row_is_not_replaced_or_duplicated(self):
-        data = self.transaction.data
-        user = await models.EquiteezUser.create(address=data.sender_address)
-        row = await models.LaunchpadPurchaseEvent.create(
-            launch=self.launch,
-            user=user,
-            sale_option=self.option,
-            payment_name="USDT",
-            amount=1370000,
-            source=models.PurchaseSource.USER,
-            operation_hash=data.hash,
-            timestamp=data.timestamp,
-            level=data.level,
-        )
-        await handle_purchase(self.ctx, self.transaction)
-        after = await models.LaunchpadPurchaseEvent.get()
-        self.assertEqual(row.id, after.id)
-        self.assertIsNone(after.price)
-        self.assertIsNone(after.total)
-
     async def test_receipt_network_failure_does_not_append_event(self):
         self.datasource.request.side_effect = TimeoutError("receipt unavailable")
         with self.assertRaises(TimeoutError):

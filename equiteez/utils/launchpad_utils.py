@@ -84,9 +84,9 @@ async def apply_purchase(
     launch_record,
     sale_option_record,
     purchase_record,
+    operation_counter: int,
     batch_index: int = 0,
     total: Optional[int] = None,
-    operation_counter: int = -1,
     operation_nonce: int = -1,
 ) -> None:
     launch = await models.LaunchpadLaunch.get(launchpad=launchpad, name=launch_name)
@@ -122,19 +122,10 @@ async def apply_purchase(
         source=source,
         batch_index=batch_index,
         timestamp=timestamp,
+        operation_counter=operation_counter,
+        operation_nonce=operation_nonce,
     )
-    # Legacy rows cannot be attributed to an individual call after the fact.
-    # Keep their IDs and nullable snapshots unchanged on replay.
-    if (
-        operation_counter != -1
-        and await models.LaunchpadPurchaseEvent.filter(
-            **identity, operation_counter=-1, operation_nonce=-1
-        ).exists()
-    ):
-        return
-    if await models.LaunchpadPurchaseEvent.filter(
-        **identity, operation_counter=operation_counter, operation_nonce=operation_nonce
-    ).exists():
+    if await models.LaunchpadPurchaseEvent.filter(**identity).exists():
         return
 
     payment = sale_option_record.payments.get(payment_name)
@@ -160,8 +151,6 @@ async def apply_purchase(
 
     await models.LaunchpadPurchaseEvent.get_or_create(
         **identity,
-        operation_counter=operation_counter,
-        operation_nonce=operation_nonce,
         defaults={
             "payment_name": payment_name,
             "payment_token": payment_token,
@@ -334,9 +323,9 @@ async def record_purchase(
     operation_hash: Optional[str],
     timestamp: datetime,
     level: int,
+    operation_counter: int,
     batch_index: int = 0,
     total: Optional[int] = None,
-    operation_counter: int = -1,
     operation_nonce: int = -1,
 ) -> None:
     """

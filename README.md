@@ -67,31 +67,26 @@ financial coverage. Native-MAV permits are not supported by this contract.
 
 ADMIN records have null price/total because registration does not prove a
 payment. Mode can still be recorded, but AUTO on an ADMIN record does not prove
-that tokens were delivered. Historical rows are not backfilled or rewritten
-on replay; their IDs and null snapshots stay unchanged.
+that tokens were delivered. Replaying an indexed purchase preserves its ID
+and snapshots.
 
-`on_restart/08_launch-purchase-snapshots.sql` adds the columns and extends the
-purchase dedup key with `operation_counter` and `operation_nonce`. These prevent
-separate calls in one operation group from collapsing. The default `-1`
-coordinates identify legacy rows; `-1` is also the absent internal nonce for
-new direct calls. Batch index retains its original parameter-position meaning.
-The migration is idempotent, preserves row IDs and the timestamp partition key,
-and does not change the event identity used by the relayer. It also enforces
-nonnegative integral money. Rollback can leave these additive columns in place.
+This release requires a **new, empty database and full reindex**. The ORM creates
+the snapshot columns and the call-coordinate dedup key; `on_reindex` creates the
+purchase hypertable and enforces nonnegative integral money. No in-place upgrade
+or legacy purchase-row compatibility is provided. `operation_counter` is required;
+`operation_nonce = -1` denotes a direct transaction without an internal nonce.
 
-Apply this migration before running a relayer that selects the new fields.
-Update the notifier and RWA backend allow-lists before publishing enrichment.
-For an uninterrupted sequence of enriched events, pause relayer publication
-while upgrading the writer and reader, then resume with its existing cursor.
-Use the schema approval policy described above for local configurations;
-reindexing is not required for this change.
+Keep relayer publication paused during the reindex and coordinate its cursor
+and dedup state with the replacement database before resuming. Deploy the notifier
+and RWA backend allow-lists before publishing enriched events. Existing inbox
+history is not automatically rewritten by reindexing.
 
 Tests: `python -m unittest tests.test_launchpad_purchase_snapshots -v` covers
-payment attribution, snapshots, legacy replay and large-value rollback. Its
+payment attribution, snapshots, replay and large-value rollback. Its
 public Basenet receipt fixture was fetched on 2026-10-16 from
 `/v1/operations/transactions/onjMSdMd27kQR5fAfnEtg5xD9CMdXBkCxTGbg6uSWNVqSH6AUEk`:
 1.37 units at a price of 30, paid 40.689 + 0.411 = 41.1 (six payment decimals).
 Other payment/batch fixtures are synthetic and follow the local contract's
 operation shapes. `RUN_MIGRATION_TESTS=1 python tests/test_review_migrations.py`
-checks both existing Timescale hypertables and fresh schemas using an isolated
-Docker database. No live balances or notifications are modified by tests.
+checks fresh-schema purchase constraints and the existing unrelated migrations
+using an isolated TimescaleDB database. No live balances or notifications are modified by tests.
