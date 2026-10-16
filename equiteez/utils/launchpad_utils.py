@@ -12,6 +12,7 @@ from equiteez.models.launchpad import (
 )
 from equiteez.types.launchpad.tezos_storage import Config, LaunchpadStorage
 from equiteez.utils.permits import permit_action, permit_signer
+from equiteez.utils.launchpad_purchase_payments import resolve_totals
 from equiteez.utils.utils import NATIVE_MAV_ADDRESS, register_token
 
 
@@ -83,7 +84,10 @@ async def apply_purchase(
     launch_record,
     sale_option_record,
     purchase_record,
+    operation_counter: int,
     batch_index: int = 0,
+    total: Optional[int] = None,
+    operation_nonce: int = -1,
 ) -> None:
     launch = await models.LaunchpadLaunch.get(launchpad=launchpad, name=launch_name)
     sale_option = await models.LaunchpadSaleOption.get(
@@ -110,29 +114,51 @@ async def apply_purchase(
     by_option.amount = int(purchase_record.purchased.get(sale_option_name, 0))
     await by_option.save()
 
-    payment = (
-        await models.LaunchpadSaleOptionPayment.filter(
-            sale_option=sale_option, name=payment_name
-        )
-        .prefetch_related("token")
-        .first()
-    )
-    payment_token = payment.token if payment else None
-
-    # get_or_create on the unique_together key — no-op on reorg replay
-    await models.LaunchpadPurchaseEvent.get_or_create(
+    identity = dict(
         operation_hash=operation_hash,
         launch=launch,
         user=user,
         sale_option=sale_option,
         source=source,
         batch_index=batch_index,
+        timestamp=timestamp,
+        operation_counter=operation_counter,
+        operation_nonce=operation_nonce,
+    )
+    if await models.LaunchpadPurchaseEvent.filter(**identity).exists():
+        return
+
+    payment = sale_option_record.payments.get(payment_name)
+    payment_token = None
+    if payment is not None:
+        address = payment_token_address(payment.currency)
+        fa2 = getattr(payment.currency, "fa2", None)
+        token_id = int(fa2.tokenId) if fa2 is not None else 0
+        if address:
+            payment_token = await models.Token.get_or_none(
+                address=address, token_id=token_id
+            )
+            if payment_token is None:
+                payment_token = await register_token(
+                    ctx=ctx, address=address, token_id=token_id
+                )
+    price = (
+        int(payment.price)
+        if payment is not None and source == PurchaseSource.USER
+        else None
+    )
+    mode = _DISTRIBUTION_MAP.get(launch_record.tokenDistributionType.upper())
+
+    await models.LaunchpadPurchaseEvent.get_or_create(
+        **identity,
         defaults={
             "payment_name": payment_name,
             "payment_token": payment_token,
             "amount": event_amount,
-            "timestamp": timestamp,
             "level": level,
+            "price": price,
+            "total": total if source == PurchaseSource.USER else None,
+            "token_distribution_type": mode,
         },
     )
 
@@ -297,7 +323,10 @@ async def record_purchase(
     operation_hash: Optional[str],
     timestamp: datetime,
     level: int,
+    operation_counter: int,
     batch_index: int = 0,
+    total: Optional[int] = None,
+    operation_nonce: int = -1,
 ) -> None:
     """
     One on-chain purchase: the direct entrypoint (buyer = sender) or a
@@ -351,28 +380,50 @@ async def record_purchase(
         sale_option_record=sale_option_record,
         purchase_record=purchase_record,
         batch_index=batch_index,
+        total=total,
+        operation_counter=operation_counter,
+        operation_nonce=operation_nonce,
     )
 
 
 async def record_permit_batch(ctx, transaction) -> None:
-    """
-    executePermit / permitAndExecute run PermitPurchase through the purchase
-    lambda with the signer as buyer; the storage effects (ledgers, token
-    issuance) are those of a direct purchase by the signer.
-    """
-    launchpad = await models.Launchpad.get(address=transaction.data.target_address)
+    purchases = []
     for batch_index, item in enumerate(transaction.parameter.root):
         name, payload = permit_action(item)
-        if name != "permitPurchase":
-            continue
+        if name == "permitPurchase":
+            purchases.append((batch_index, payload, permit_signer(item)))
+    await record_user_purchase_batch(ctx, transaction, purchases)
+
+
+async def record_user_purchase_batch(ctx, transaction, purchases) -> None:
+    """Resolve one receipt before appending any event in the transaction batch."""
+    if not purchases:
+        return
+    launchpad = await models.Launchpad.get(address=transaction.data.target_address)
+    treasury = {
+        row.name: row.address
+        for row in await models.LaunchpadTreasury.filter(launchpad=launchpad)
+    }
+    # DipDup storage contains only big-map diffs. Untouched treasuries come
+    # from this same index's state immediately preceding the purchase.
+    treasury.update(transaction.storage.treasuryLedger)
+    totals = await resolve_totals(
+        ctx, transaction, [(p, buyer) for _, p, buyer in purchases], treasury
+    )
+    for (batch_index, payload, buyer), total in zip(purchases, totals, strict=True):
         await record_purchase(
             ctx,
             launchpad,
             transaction.storage,
             payload,
-            user_address=permit_signer(item),
+            user_address=buyer,
             operation_hash=transaction.data.hash,
             timestamp=transaction.data.timestamp,
             level=transaction.data.level,
             batch_index=batch_index,
+            total=total,
+            operation_counter=transaction.data.counter,
+            operation_nonce=transaction.data.nonce
+            if transaction.data.nonce is not None
+            else -1,
         )

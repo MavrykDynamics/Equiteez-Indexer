@@ -493,6 +493,59 @@ class ReviewMigrationTests(unittest.TestCase):
             self.query("SELECT in_allowlist, is_quote_token FROM token;"), "t|f"
         )
 
+    def test_purchase_snapshots_fresh_orm_schema(self):
+        self.query(self.orm_ddl())
+        self.migrate("on_reindex/00_create-hypertables.sql")
+        self.assertEqual(
+            self.query(
+                "SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='launchpad_purchase_event' AND column_name IN ('price','total','token_distribution_type') ORDER BY column_name;"
+            ),
+            "price|numeric|YES\ntoken_distribution_type|smallint|YES\ntotal|numeric|YES",
+        )
+        self.assertEqual(
+            self.query(
+                "SELECT COUNT(*) FROM timescaledb_information.hypertables WHERE hypertable_schema=current_schema() AND hypertable_name='launchpad_purchase_event';"
+            ),
+            "1",
+        )
+        huge = str(2**256)
+        self.query(f"""
+            INSERT INTO launchpad(id,address) VALUES (1,'KT1Local');
+            INSERT INTO launchpad_launch(id,launchpad_id,name) VALUES (1,1,'Local');
+            INSERT INTO launchpad_sale_option(id,launch_id,name) VALUES (1,1,'Starter');
+            INSERT INTO equiteez_user(id,address) VALUES (1,'mv1Local');
+            INSERT INTO launchpad_purchase_event(timestamp,operation_hash,launch_id,user_id,sale_option_id,payment_name,level,price,total,token_distribution_type,operation_counter,operation_nonce)
+                VALUES ('2026-10-16','new',1,1,1,'USDT',1,{huge},{huge},0,7,-1),
+                       ('2026-10-16','new',1,1,1,'USDT',1,0,0,1,8,-1),
+                       ('2026-10-16','new',1,1,1,'USDT',1,NULL,NULL,NULL,8,0);
+        """)
+        self.assertEqual(
+            self.query(
+                "SELECT price::text,total::text FROM launchpad_purchase_event WHERE operation_counter=7;"
+            ),
+            huge + "|" + huge,
+        )
+        with self.assertRaisesRegex(AssertionError, "duplicate key value"):
+            self.query(
+                "INSERT INTO launchpad_purchase_event(timestamp,operation_hash,launch_id,user_id,sale_option_id,payment_name,level,operation_counter) VALUES ('2026-10-16','new',1,1,1,'USDT',1,7);"
+            )
+        for column in ("price", "total"):
+            for invalid in ("-1", "1.5", "'NaN'", "'Infinity'"):
+                with (
+                    self.subTest(column=column, invalid=invalid),
+                    self.assertRaisesRegex(AssertionError, "check constraint"),
+                ):
+                    self.query(
+                        f"UPDATE launchpad_purchase_event SET {column}={invalid} WHERE operation_counter=7;"
+                    )
+        with self.assertRaisesRegex(AssertionError, "operation_counter"):
+            self.query(
+                "INSERT INTO launchpad_purchase_event(timestamp,launch_id,user_id,sale_option_id,payment_name,level) VALUES ('2026-10-16',1,1,1,'USDT',1);"
+            )
+        self.assertEqual(
+            self.query("SELECT COUNT(*) FROM launchpad_purchase_event;"), "3"
+        )
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
