@@ -1,0 +1,226 @@
+[
+  {
+    "type": "transaction",
+    "id": 64846431256576,
+    "level": 6809527,
+    "timestamp": "2026-10-15T15:58:38Z",
+    "block": "BMCnkvy2QiPfxQQtKt68fMfbQpw8Jexu54F8H9YjDYLUumawSsU",
+    "hash": "onjMSdMd27kQR5fAfnEtg5xD9CMdXBkCxTGbg6uSWNVqSH6AUEk",
+    "counter": 255726,
+    "sender": {
+      "address": "mv1ScKMdYnSNXem4pxSkrLs8k4zkYudSLNDc"
+    },
+    "gasLimit": 58475,
+    "gasUsed": 42410,
+    "storageLimit": 37,
+    "storageUsed": 0,
+    "bakerFee": 6195,
+    "storageFee": 0,
+    "allocationFee": 0,
+    "target": {
+      "address": "KT1U6KXwy8vduoq86HBjGp9m2Czc8rZM85MN"
+    },
+    "targetCodeHash": -575451176,
+    "amount": 0,
+    "parameter": {
+      "entrypoint": "purchase",
+      "value": {
+        "amount": "1370000",
+        "payment": "USDT",
+        "launchName": "KRKN-issuance-v1",
+        "saleOption": "Starter",
+        "maxTotalPayment": "41100000"
+      }
+    },
+    "storage": {
+      "config": {
+        "permitMaxExpiryDuration": "259200",
+        "permitDefaultExpiryDuration": "86400"
+      },
+      "metadata": 3894,
+      "superAdmin": "KT1BoViNv2NYU5a4zCUfV87EqYRwuk82V1H1",
+      "pauseLedger": 3895,
+      "lambdaLedger": 3902,
+      "launchLedger": 3896,
+      "newSuperAdmin": null,
+      "permitsLedger": 3898,
+      "purchaseLedger": 3897,
+      "treasuryLedger": 3893,
+      "permitsExpiryLedger": 3900,
+      "membershipKycAddress": "KT1U6z4YZPswGHcw7xAJsGZn4Wb7CZUKN1HL",
+      "permitsCounterLedger": 3899,
+      "userPermitsExpiryLedger": 3901
+    },
+    "diffs": [
+      {
+        "bigmap": 3897,
+        "path": "purchaseLedger",
+        "action": "update_key",
+        "content": {
+          "hash": "exprvBYZWGv2VQozuGbjYtXfVGaidMmnuTdcMs4tPDyKW1DiJy78bZ",
+          "key": {
+            "string": "KRKN-issuance-v1",
+            "address": "mv1ScKMdYnSNXem4pxSkrLs8k4zkYudSLNDc"
+          },
+          "value": {
+            "purchased": {
+              "Starter": "11299330"
+            },
+            "totalPurchased": "11299330",
+            "totalDistributed": "11299330"
+          }
+        }
+      },
+      {
+        "bigmap": 3896,
+        "path": "launchLedger",
+        "action": "update_key",
+        "content": {
+          "hash": "exprv39Yk4SfC8rnk19zf6hkv8CTxg2V8WDi3CCL1LpffAMRe7skvC",
+          "key": "KRKN-issuance-v1",
+          "value": {
+            "name": "KRKN-issuance-v1",
+            "status": "ACTIVE",
+            "saleEnd": "2027-09-28T08:09:55Z",
+            "tokenId": "0",
+            "isPaused": false,
+            "enableKyc": true,
+            "saleStart": "2026-09-28T08:09:55Z",
+            "saleClosed": null,
+            "saleOptions": {
+              "Starter": {
+                "saleEnd": null,
+                "isPaused": false,
+                "payments": {
+                  "USDT": {
+                    "price": "30000000",
+                    "currency": {
+                      "fa2": {
+                        "tokenId": "0",
+                        "tokenContractAddress": "KT1Pn5Zpx1bJx5H51btk92pfwvUMCKtp2Q2v"
+                      }
+                    }
+                  }
+                },
+                "saleStart": null,
+                "totalBought": "243999330",
+                "maxAmountCap": null,
+                "allowedMembershipTiers": {
+                  "Starter": {
+                    "minPurchaseAmount": null,
+                    "maxAmountPerWalletTotal": null
+                  }
+                }
+              }
+            },
+            "totalBought": "243999330",
+            "maxAmountCap": "1000000000000",
+            "tokenIssuanceType": "MINT",
+            "purchaseFeePercent": "100",
+            "tokenContractAddress": "KT19PyrK3NKTiAfjxPJwhswgzkiMeQuawkFc",
+            "tokenDistributionType": "AUTO"
+          }
+        }
+      }
+    ],
+    "status": "applied",
+    "hasInternals": true
+  },
+  {
+    "type": "transaction",
+    "id": 64846432305152,
+    "level": 6809527,
+    "timestamp": "2026-10-15T15:58:38Z",
+    "block": "BMCnkvy2QiPfxQQtKt68fMfbQpw8Jexu54F8H9YjDYLUumawSsU",
+    "hash": "onjMSdMd27kQR5fAfnEtg5xD9CMdXBkCxTGbg6uSWNVqSH6AUEk",
+    "counter": 255726,
+    "sender": {
+      "address": "KT1U6KXwy8vduoq86HBjGp9m2Czc8rZM85MN"
+    },
+    "nonce": 2,
+    "target": {
+      "address": "KT19PyrK3NKTiAfjxPJwhswgzkiMeQuawkFc"
+    },
+    "amount": 0,
+    "parameter": {
+      "entrypoint": "mint",
+      "value": [
+        {
+          "owner": "mv1ScKMdYnSNXem4pxSkrLs8k4zkYudSLNDc",
+          "amount": "1370000",
+          "token_id": "0"
+        }
+      ]
+    },
+    "status": "applied",
+    "hasInternals": false
+  },
+  {
+    "type": "transaction",
+    "id": 64846433353728,
+    "level": 6809527,
+    "timestamp": "2026-10-15T15:58:38Z",
+    "block": "BMCnkvy2QiPfxQQtKt68fMfbQpw8Jexu54F8H9YjDYLUumawSsU",
+    "hash": "onjMSdMd27kQR5fAfnEtg5xD9CMdXBkCxTGbg6uSWNVqSH6AUEk",
+    "counter": 255726,
+    "sender": {
+      "address": "KT1U6KXwy8vduoq86HBjGp9m2Czc8rZM85MN"
+    },
+    "nonce": 1,
+    "target": {
+      "address": "KT1Pn5Zpx1bJx5H51btk92pfwvUMCKtp2Q2v"
+    },
+    "amount": 0,
+    "parameter": {
+      "entrypoint": "transfer",
+      "value": [
+        {
+          "txs": [
+            {
+              "to_": "mv19MAVgCDwzuNMWprbHrUZhznoH8n9NWGWt",
+              "amount": "40689000",
+              "token_id": "0"
+            }
+          ],
+          "from_": "mv1ScKMdYnSNXem4pxSkrLs8k4zkYudSLNDc"
+        }
+      ]
+    },
+    "status": "applied",
+    "hasInternals": false
+  },
+  {
+    "type": "transaction",
+    "id": 64846434402304,
+    "level": 6809527,
+    "timestamp": "2026-10-15T15:58:38Z",
+    "block": "BMCnkvy2QiPfxQQtKt68fMfbQpw8Jexu54F8H9YjDYLUumawSsU",
+    "hash": "onjMSdMd27kQR5fAfnEtg5xD9CMdXBkCxTGbg6uSWNVqSH6AUEk",
+    "counter": 255726,
+    "sender": {
+      "address": "KT1U6KXwy8vduoq86HBjGp9m2Czc8rZM85MN"
+    },
+    "nonce": 0,
+    "target": {
+      "address": "KT1Pn5Zpx1bJx5H51btk92pfwvUMCKtp2Q2v"
+    },
+    "amount": 0,
+    "parameter": {
+      "entrypoint": "transfer",
+      "value": [
+        {
+          "txs": [
+            {
+              "to_": "mv19MAVgCDwzuNMWprbHrUZhznoH8n9NWGWt",
+              "amount": "411000",
+              "token_id": "0"
+            }
+          ],
+          "from_": "mv1ScKMdYnSNXem4pxSkrLs8k4zkYudSLNDc"
+        }
+      ]
+    },
+    "status": "applied",
+    "hasInternals": false
+  }
+]

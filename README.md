@@ -34,3 +34,64 @@ The restart migration adds these flags to existing tables with a default of
 `false`. Reconfigure Hasura to expose the columns before updating consumers.
 Rows hard-deleted by an earlier version cannot be recovered by this migration;
 reindex and rebuild downstream state if historical removals need to be restored.
+
+
+### Launch purchase snapshots
+
+`launchpad_purchase_event` now records nullable `price`, `total`, and
+`token_distribution_type` when an event is first inserted. Price is read from
+the selected payment in the operation's launch-ledger diff; it is not joined
+from mutable sale settings later. Mode is `0` (AUTO), `1` (MANUAL), or null.
+Money uses exact integer `NUMERIC` columns; no floating-point conversion is
+involved. `distribution_date` is not part of this contract.
+
+For USER purchases, total is attributed from applied MvKT internal operations
+for the exact hash/counter. The parser checks currency contract, FA2 token ID,
+buyer, treasuries, issuance, and the complete per-purchase operation groups.
+It uses MvKT execution IDs, not creation nonces, for operation order. The
+supported launchpad emits optional issuance, net payment, then optional paid
+fee; permit helpers retain action order. Net-payment validation uses the
+contract's fixed quantity scale of 1,000,000 and fee basis points. The actual
+paid fee comes from the receipt, without fetching current KYC discounts.
+
+A receipt group is fetched from the existing configured MvKT datasource and
+cached for the most recent block/hash only. Historical DipDup REST operations
+without a block hash are not cached and must match the indexed inputs/diffs.
+Batch items share one fetch.
+Transport failures or a mismatched block/parent fail the handler so normal
+indexer recovery can retry, instead of permanently recording unknown money.
+Unmatched or ambiguous effects, unknown treasuries, and nested launchpad calls
+retain the purchase with `total = null` and a diagnostic reason. Unsupported
+contract variants must be checked against their receipts before claiming
+financial coverage. Native-MAV permits are not supported by this contract.
+
+ADMIN records have null price/total because registration does not prove a
+payment. Mode can still be recorded, but AUTO on an ADMIN record does not prove
+that tokens were delivered. Historical rows are not backfilled or rewritten
+on replay; their IDs and null snapshots stay unchanged.
+
+`on_restart/08_launch-purchase-snapshots.sql` adds the columns and extends the
+purchase dedup key with `operation_counter` and `operation_nonce`. These prevent
+separate calls in one operation group from collapsing. The default `-1`
+coordinates identify legacy rows; `-1` is also the absent internal nonce for
+new direct calls. Batch index retains its original parameter-position meaning.
+The migration is idempotent, preserves row IDs and the timestamp partition key,
+and does not change the event identity used by the relayer. It also enforces
+nonnegative integral money. Rollback can leave these additive columns in place.
+
+Apply this migration before running a relayer that selects the new fields.
+Update the notifier and RWA backend allow-lists before publishing enrichment.
+For an uninterrupted sequence of enriched events, pause relayer publication
+while upgrading the writer and reader, then resume with its existing cursor.
+Use the schema approval policy described above for local configurations;
+reindexing is not required for this change.
+
+Tests: `python -m unittest tests.test_launchpad_purchase_snapshots -v` covers
+payment attribution, snapshots, legacy replay and large-value rollback. Its
+public Basenet receipt fixture was fetched on 2026-10-16 from
+`/v1/operations/transactions/onjMSdMd27kQR5fAfnEtg5xD9CMdXBkCxTGbg6uSWNVqSH6AUEk`:
+1.37 units at a price of 30, paid 40.689 + 0.411 = 41.1 (six payment decimals).
+Other payment/batch fixtures are synthetic and follow the local contract's
+operation shapes. `RUN_MIGRATION_TESTS=1 python tests/test_review_migrations.py`
+checks both existing Timescale hypertables and fresh schemas using an isolated
+Docker database. No live balances or notifications are modified by tests.

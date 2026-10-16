@@ -72,6 +72,11 @@ BEGIN
                 ADD COLUMN batch_index integer NOT NULL DEFAULT 0;
         END IF;
 
+        -- A preserved pre-upgrade table may reach this hook before on_restart.
+        ALTER TABLE launchpad_purchase_event
+            ADD COLUMN IF NOT EXISTS operation_counter BIGINT NOT NULL DEFAULT -1,
+            ADD COLUMN IF NOT EXISTS operation_nonce INT NOT NULL DEFAULT -1;
+
         -- Drop the Tortoise-managed PK on id alone
         IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'launchpad_purchase_event_pkey') THEN
             ALTER TABLE launchpad_purchase_event DROP CONSTRAINT launchpad_purchase_event_pkey;
@@ -94,7 +99,7 @@ BEGIN
         ALTER TABLE launchpad_purchase_event
             ADD CONSTRAINT launchpad_purchase_event_dedup UNIQUE (
                 operation_hash, launch_id, user_id, sale_option_id,
-                batch_index, source, timestamp
+                batch_index, source, timestamp, operation_counter, operation_nonce
             );
 
         PERFORM create_hypertable('launchpad_purchase_event', 'timestamp',

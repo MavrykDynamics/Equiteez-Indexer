@@ -1,6 +1,7 @@
 from dipdup.models import Model, fields
 from enum import IntEnum
 from equiteez.models.shared import ContractBase, ContractLambda, EntrypointStatus
+from equiteez.models.natural import NaturalField
 
 ###
 # Launchpad Enums
@@ -375,6 +376,19 @@ class LaunchpadPurchaseEvent(Model):
     # Tokens purchased in this single event
     amount = fields.BigIntField(default=0)
 
+    # Immutable purchase-time values in payment currency's smallest units.
+    # ADMIN / legacy / unproven payments remain null, not zero.
+    price = NaturalField(null=True)
+    total = NaturalField(null=True)
+    token_distribution_type = fields.IntEnumField(
+        enum_type=TokenDistributionType, null=True
+    )
+
+    # Distinguish transaction contents and internal calls within one hash.
+    # -1 marks legacy coordinates / an absent internal nonce.
+    operation_counter = fields.BigIntField(default=-1)
+    operation_nonce = fields.IntField(default=-1)
+
     # USER (on-chain) vs ADMIN (off-chain reconciliation)
     source = fields.IntEnumField(
         enum_type=PurchaseSource, index=True, default=PurchaseSource.USER
@@ -411,6 +425,8 @@ class LaunchpadPurchaseEvent(Model):
                 "batch_index",
                 "source",
                 "timestamp",
+                "operation_counter",
+                "operation_nonce",
             ),
         )
         indexes = [
