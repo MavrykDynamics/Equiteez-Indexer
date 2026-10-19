@@ -375,6 +375,19 @@ class LaunchpadPurchaseEvent(Model):
     # Tokens purchased in this single event
     amount = fields.BigIntField(default=0)
 
+    # Immutable purchase-time values in payment currency's smallest units.
+    # ADMIN / unproven payments remain null, not zero.
+    price = fields.DecimalField(max_digits=78, decimal_places=0, null=True)
+    total = fields.DecimalField(max_digits=78, decimal_places=0, null=True)
+    token_distribution_type = fields.IntEnumField(
+        enum_type=TokenDistributionType, null=True
+    )
+
+    # Distinguish transaction contents and internal calls within one hash.
+    operation_counter = fields.BigIntField()
+    # A direct transaction has no internal nonce.
+    operation_nonce = fields.IntField(default=-1)
+
     # USER (on-chain) vs ADMIN (off-chain reconciliation)
     source = fields.IntEnumField(
         enum_type=PurchaseSource, index=True, default=PurchaseSource.USER
@@ -411,6 +424,8 @@ class LaunchpadPurchaseEvent(Model):
                 "batch_index",
                 "source",
                 "timestamp",
+                "operation_counter",
+                "operation_nonce",
             ),
         )
         indexes = [
