@@ -50,56 +50,26 @@ BEGIN
     END IF;
 END $$;
 
--- Convert launchpad_purchase_event to a hypertable for continuous aggregates.
+-- The initial deployment requires the new ORM schema. Later wipes may leave
+-- this hypertable behind, so only change the PK and convert a plain table.
 DO $$
-DECLARE
-    is_hypertable boolean;
-    dedup_constraint_name text;
 BEGIN
-    SELECT EXISTS (
-        SELECT 1
-        FROM timescaledb_information.hypertables
-        WHERE hypertable_name = 'launchpad_purchase_event'
-    ) INTO is_hypertable;
-
-    IF NOT is_hypertable THEN
-        -- Backfill batch_index column if missing (Phase 1 #2 migration)
-        IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns
-            WHERE table_name = 'launchpad_purchase_event' AND column_name = 'batch_index'
-        ) THEN
-            ALTER TABLE launchpad_purchase_event
-                ADD COLUMN batch_index integer NOT NULL DEFAULT 0;
-        END IF;
-
-        -- Drop the Tortoise-managed PK on id alone
-        IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'launchpad_purchase_event_pkey') THEN
-            ALTER TABLE launchpad_purchase_event DROP CONSTRAINT launchpad_purchase_event_pkey;
-        END IF;
-
-        -- Drop any existing dedup unique constraint by column count (Tortoise
-        -- auto-names; this also catches old 6-column versions from Phase 1).
-        FOR dedup_constraint_name IN
-            SELECT conname FROM pg_constraint
-            WHERE conrelid = 'launchpad_purchase_event'::regclass AND contype = 'u'
-        LOOP
-            EXECUTE format('ALTER TABLE launchpad_purchase_event DROP CONSTRAINT %I', dedup_constraint_name);
-        END LOOP;
-
-        -- Composite PK including timestamp (required by Timescale)
+    IF NOT EXISTS (
+        SELECT 1 FROM timescaledb_information.hypertables
+        WHERE hypertable_schema = current_schema()
+          AND hypertable_name = 'launchpad_purchase_event'
+    ) THEN
         ALTER TABLE launchpad_purchase_event
+            DROP CONSTRAINT IF EXISTS launchpad_purchase_event_pkey,
             ADD PRIMARY KEY (id, timestamp);
-
-        -- Replay-dedup constraint extended with timestamp
-        ALTER TABLE launchpad_purchase_event
-            ADD CONSTRAINT launchpad_purchase_event_dedup UNIQUE (
-                operation_hash, launch_id, user_id, sale_option_id,
-                batch_index, source, timestamp
-            );
-
         PERFORM create_hypertable('launchpad_purchase_event', 'timestamp',
-            chunk_time_interval => INTERVAL '1 day',
-            if_not_exists => TRUE,
-            migrate_data => TRUE);
+            chunk_time_interval => INTERVAL '1 day', if_not_exists => TRUE);
     END IF;
 END $$;
+
+ALTER TABLE launchpad_purchase_event
+    DROP CONSTRAINT IF EXISTS launchpad_purchase_snapshot_naturals,
+    ADD CONSTRAINT launchpad_purchase_snapshot_naturals CHECK (
+        (price IS NULL OR (price >= 0 AND price < 'Infinity'::numeric)) AND
+        (total IS NULL OR (total >= 0 AND total < 'Infinity'::numeric))
+    );

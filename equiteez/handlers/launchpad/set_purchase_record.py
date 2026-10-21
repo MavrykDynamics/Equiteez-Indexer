@@ -72,4 +72,8 @@ async def set_purchase_record(
             sale_option_record=sale_option_record,
             purchase_record=purchase_record,
             batch_index=batch_index,
+            operation_counter=set_purchase_record.data.counter,
+            operation_nonce=set_purchase_record.data.nonce
+            if set_purchase_record.data.nonce is not None
+            else -1,
         )

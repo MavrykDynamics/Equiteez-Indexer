@@ -28,6 +28,8 @@ prometheus:
   update_interval: 5
 
 advanced:
+  # The pinned DipDup fork does not infer precision for its DecimalField.
+  decimal_precision: 78
   reindex:
     manual: wipe
     migration: exception
