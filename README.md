@@ -63,9 +63,12 @@ paid fee comes from the receipt, without fetching current KYC discounts.
 A receipt group is fetched from the existing configured MvKT datasource and
 cached for the most recent block/hash only. Historical DipDup REST operations
 without a block hash are not cached and must match the indexed inputs/diffs.
-Batch items share one fetch.
-Transport failures or a mismatched block/parent fail the handler so normal
-indexer recovery can retry, instead of permanently recording unknown money.
+Batch items share one validated receipt. Empty, incomplete or mismatched receipts
+are fetched up to five times, with 0.5, 1, 2 and 4 second delays, to tolerate REST
+lag behind the websocket feed. Only a validated receipt is cached. HTTP transport
+failures use the datasource's existing retry policy. If either retry budget is
+exhausted, the handler fails without recording a purchase; DipDup must be restarted
+after the upstream problem is resolved. This avoids permanently recording unknown money.
 Unmatched or ambiguous effects, unknown treasuries, and nested launchpad calls
 retain the purchase with `total = null` and a diagnostic reason. Unsupported
 contract variants must be checked against their receipts before claiming
@@ -79,7 +82,9 @@ and snapshots.
 This release requires a **new, empty database and full reindex**. The ORM creates
 the snapshot columns and the call-coordinate dedup key; `on_reindex` creates the
 purchase hypertable and enforces nonnegative integral money. No in-place upgrade
-or legacy purchase-row compatibility is provided. `operation_counter` is required;
+or legacy purchase-row compatibility is provided. Subsequent `schema wipe` and
+reindex runs on this schema also support a surviving purchase hypertable, keeping
+its primary key and recreating the money constraint. `operation_counter` is required;
 `operation_nonce = -1` denotes a direct transaction without an internal nonce.
 
 Keep relayer publication paused during the reindex and coordinate its cursor
@@ -99,5 +104,6 @@ public Basenet receipt fixture was fetched on 2026-10-16 from
 1.37 units at a price of 30, paid 40.689 + 0.411 = 41.1 (six payment decimals).
 Other payment/batch fixtures are synthetic and follow the local contract's
 operation shapes. `RUN_MIGRATION_TESTS=1 python tests/test_review_migrations.py`
-checks fresh-schema purchase constraints and the existing unrelated migrations
+checks purchase constraints on a fresh schema and repeated reindex with dependent
+continuous aggregates/views, plus the existing unrelated migrations
 using an isolated TimescaleDB database. No live balances or notifications are modified by tests.

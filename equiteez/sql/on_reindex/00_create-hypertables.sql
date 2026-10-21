@@ -50,15 +50,26 @@ BEGIN
     END IF;
 END $$;
 
--- Launch purchases start from a clean ORM schema. Its unique key already
--- contains timestamp and the call coordinates, so it is valid for Timescale.
+-- The initial deployment requires the new ORM schema. Later wipes may leave
+-- this hypertable behind, so only change the PK and convert a plain table.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM timescaledb_information.hypertables
+        WHERE hypertable_schema = current_schema()
+          AND hypertable_name = 'launchpad_purchase_event'
+    ) THEN
+        ALTER TABLE launchpad_purchase_event
+            DROP CONSTRAINT IF EXISTS launchpad_purchase_event_pkey,
+            ADD PRIMARY KEY (id, timestamp);
+        PERFORM create_hypertable('launchpad_purchase_event', 'timestamp',
+            chunk_time_interval => INTERVAL '1 day', if_not_exists => TRUE);
+    END IF;
+END $$;
+
 ALTER TABLE launchpad_purchase_event
-    DROP CONSTRAINT launchpad_purchase_event_pkey,
-    ADD PRIMARY KEY (id, timestamp),
+    DROP CONSTRAINT IF EXISTS launchpad_purchase_snapshot_naturals,
     ADD CONSTRAINT launchpad_purchase_snapshot_naturals CHECK (
         (price IS NULL OR (price >= 0 AND price < 'Infinity'::numeric)) AND
         (total IS NULL OR (total >= 0 AND total < 'Infinity'::numeric))
     );
-
-SELECT create_hypertable('launchpad_purchase_event', 'timestamp',
-    chunk_time_interval => INTERVAL '1 day', if_not_exists => TRUE);

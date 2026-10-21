@@ -6,12 +6,13 @@ import logging
 import os
 import uuid
 import unittest
+from asyncio import CancelledError
 from dataclasses import replace
 from datetime import UTC, datetime
 from decimal import localcontext
 from pathlib import Path
 from types import SimpleNamespace as NS
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, call, patch
 
 import asyncpg
 import yaml
@@ -308,6 +309,9 @@ class PaymentAttributionTests(unittest.TestCase):
 class PurchaseSnapshotTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         payments._last_receipt = None
+        self.retry_sleep = self.enterContext(
+            patch.object(payments, "sleep", AsyncMock())
+        )
         config = yaml.safe_load((ROOT / "dipdup.local.yml").read_text())
         precision = config["advanced"]["decimal_precision"]
         self.enterContext(localcontext()).prec = precision
@@ -500,23 +504,59 @@ class PurchaseSnapshotTests(unittest.IsolatedAsyncioTestCase):
         stale = copy.deepcopy(self.raw)
         stale[0]["diffs"][0]["content"]["value"]["purchaseFeePercent"] = "999"
         self.datasource.request.side_effect = [stale, self.raw]
-        with self.assertRaises(RuntimeError):
-            await handle_purchase(self.ctx, self.transaction)
-        self.assertEqual(await models.LaunchpadPurchaseEvent.all().count(), 0)
         await handle_purchase(self.ctx, self.transaction)
         self.assertEqual((await models.LaunchpadPurchaseEvent.get()).total, 41100000)
+        self.assertEqual(self.datasource.request.await_count, 2)
+        self.retry_sleep.assert_awaited_once_with(0.5)
         self.assertIsNone(payments._last_receipt)
 
     async def test_stale_receipt_does_not_poison_the_block_cache(self):
         stale = copy.deepcopy(self.raw)
         stale[0]["block"] = "old-fork"
         self.datasource.request.side_effect = [stale, self.raw]
-        with self.assertRaises(RuntimeError):
-            await handle_purchase(self.ctx, self.transaction)
-        self.assertEqual(await models.LaunchpadPurchaseEvent.all().count(), 0)
         await handle_purchase(self.ctx, self.transaction)
         self.assertEqual((await models.LaunchpadPurchaseEvent.get()).total, 41100000)
         self.assertEqual(self.datasource.request.await_count, 2)
+        self.assertEqual(payments._last_receipt[1], self.raw)
+        self.retry_sleep.assert_awaited_once_with(0.5)
+
+    async def test_rest_lag_retries_empty_and_partial_receipts(self):
+        self.datasource.request.side_effect = [[], self.raw[:1], self.raw]
+        await handle_purchase(self.ctx, self.transaction)
+        self.assertEqual((await models.LaunchpadPurchaseEvent.get()).total, 41100000)
+        self.assertEqual(self.datasource.request.await_count, 3)
+        self.assertEqual(self.retry_sleep.await_args_list, [call(0.5), call(1.0)])
+        await handle_purchase(self.ctx, self.transaction)
+        self.assertEqual(self.datasource.request.await_count, 3)
+        self.assertEqual(await models.LaunchpadPurchaseEvent.all().count(), 1)
+
+    async def test_receipt_retry_exhaustion_preserves_failure_and_empty_cache(self):
+        stale = copy.deepcopy(self.raw)
+        stale[0]["block"] = "old-fork"
+        for response in ([], self.raw[:1], stale):
+            with self.subTest(response=response):
+                self.datasource.request.reset_mock()
+                self.retry_sleep.reset_mock()
+                self.datasource.request.return_value = response
+                with self.assertRaises(RuntimeError):
+                    await handle_purchase(self.ctx, self.transaction)
+                self.assertEqual(self.datasource.request.await_count, 5)
+                self.assertEqual(
+                    self.retry_sleep.await_args_list,
+                    [call(0.5), call(1.0), call(2.0), call(4.0)],
+                )
+                self.assertEqual(await models.LaunchpadPurchaseEvent.all().count(), 0)
+                self.assertIsNone(payments._last_receipt)
+
+    async def test_receipt_retry_cancellation_stops_without_writing(self):
+        self.datasource.request.return_value = []
+        self.retry_sleep.side_effect = CancelledError
+        with self.assertRaises(CancelledError):
+            await handle_purchase(self.ctx, self.transaction)
+        self.datasource.request.assert_awaited_once()
+        self.retry_sleep.assert_awaited_once_with(0.5)
+        self.assertEqual(await models.LaunchpadPurchaseEvent.all().count(), 0)
+        self.assertIsNone(payments._last_receipt)
 
     async def test_permit_batch_uses_signer_and_per_purchase_totals(self):
         tx = self.transaction

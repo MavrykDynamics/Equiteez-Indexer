@@ -6,6 +6,7 @@ execution order; nonces reflect creation order and MUST NOT be sorted here.
 We require a unique complete match of every launchpad-emitted transaction.
 """
 
+from asyncio import sleep
 from dataclasses import dataclass
 
 
@@ -295,6 +296,7 @@ def payment_totals(data, receipt, terms, treasury):
 
 
 _last_receipt = None
+_RECEIPT_RETRY_DELAYS = (0.5, 1.0, 2.0, 4.0)
 
 
 async def fetch_receipt(ctx, data):
@@ -307,11 +309,33 @@ async def fetch_receipt(ctx, data):
         cached = _last_receipt[1]
         if any(r.get("id") == data.id for r in cached):
             return cached
-    receipt = await datasource.request("get", f"v1/operations/transactions/{data.hash}")
-    _validate_receipt(data, receipt)
-    if data.block:
-        _last_receipt = (key, receipt)
-    return receipt
+    # HTTP failures already retry inside DipDup's datasource. A successful REST
+    # response can still lag the websocket feed, so retry receipt validation too.
+    attempt = 0
+    while True:
+        receipt = await datasource.request(
+            "get", f"v1/operations/transactions/{data.hash}"
+        )
+        try:
+            _validate_receipt(data, receipt)
+        except RuntimeError as error:
+            if attempt == len(_RECEIPT_RETRY_DELAYS):
+                raise
+            delay = _RECEIPT_RETRY_DELAYS[attempt]
+            attempt += 1
+            ctx.logger.warning(
+                "launch purchase receipt retry %s/%s in %ss: %s (operation_id=%s)",
+                attempt,
+                len(_RECEIPT_RETRY_DELAYS),
+                delay,
+                error,
+                data.id,
+            )
+            await sleep(delay)
+            continue
+        if data.block:
+            _last_receipt = (key, receipt)
+        return receipt
 
 
 async def resolve_totals(ctx, transaction, purchases, treasury):

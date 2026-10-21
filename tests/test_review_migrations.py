@@ -493,9 +493,32 @@ class ReviewMigrationTests(unittest.TestCase):
             self.query("SELECT in_allowlist, is_quote_token FROM token;"), "t|f"
         )
 
-    def test_purchase_snapshots_fresh_orm_schema(self):
+    def test_purchase_snapshots_fresh_orm_schema_and_reindex(self):
         self.query(self.orm_ddl())
         self.migrate("on_reindex/00_create-hypertables.sql")
+        # A continuous aggregate with a dependent view keeps this hypertable
+        # alive across schema wipe. Reindex must reuse its PK and reinstall
+        # the money CHECK without a duplicate-constraint error.
+        self.query("""
+            CREATE MATERIALIZED VIEW purchase_reindex_daily
+            WITH (timescaledb.continuous) AS
+                SELECT time_bucket('1 day', timestamp) AS bucket, COUNT(*) AS purchases
+                FROM launchpad_purchase_event GROUP BY bucket
+            WITH NO DATA;
+            CREATE VIEW purchase_reindex_view AS SELECT * FROM purchase_reindex_daily;
+        """)
+        primary_key = self.query("""
+            SELECT oid FROM pg_constraint
+            WHERE conrelid='launchpad_purchase_event'::regclass AND contype='p';
+        """)
+        self.migrate("on_reindex/00_create-hypertables.sql")
+        self.assertEqual(
+            self.query("""
+                SELECT oid FROM pg_constraint
+                WHERE conrelid='launchpad_purchase_event'::regclass AND contype='p';
+            """),
+            primary_key,
+        )
         self.assertEqual(
             self.query(
                 "SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='launchpad_purchase_event' AND column_name IN ('price','total','token_distribution_type') ORDER BY column_name;"
@@ -555,6 +578,11 @@ class ReviewMigrationTests(unittest.TestCase):
         self.assertEqual(
             self.query("SELECT COUNT(*) FROM launchpad_purchase_event;"), "3"
         )
+        self.migrate("on_reindex/00_create-hypertables.sql")
+        self.assertEqual(
+            self.query("SELECT COUNT(*) FROM launchpad_purchase_event;"), "0"
+        )
+        self.assertEqual(self.query("SELECT COUNT(*) FROM purchase_reindex_view;"), "0")
 
 
 if __name__ == "__main__":
